@@ -1,26 +1,125 @@
 @import "tailwindcss";
 
+/* Klyvora design tokens. Source and rationale: docs/DESIGN-SYSTEM.md */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0a0a0a;
+  --bg-deep: #0d1015;
+  --surface: #141414;
+  --surface-2: #101010;
+  --border: #1f1f1f;
+  --border-2: #2a2a2a;
+  --fg: #f5f5f5;
+  --muted: #878787;
+  --muted-2: #b5b5b5;
+  --accent: #4e85bf;
+  --accent-light: #89aacc;
+  --success: #4ade80;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-2: var(--border-2);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-success: var(--success);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --radius-card: 24px;
+  --radius-card-lg: 26px;
+  --radius-tile: 28px;
+  --radius-input: 14px;
+
+  --container-site: 1200px;
+
+  --animate-grad-shift: grad-shift 6s ease infinite;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+
+  @keyframes grad-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.5); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
   }
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+a:hover {
+  color: var(--accent-light);
+}
+
+::selection {
+  background: rgba(78, 133, 191, 0.4);
+}
+
+@utility eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@utility display-1 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(60px, 10vw, 144px);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+
+@utility display-2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, 58px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+@utility glass {
+  background: rgba(20, 20, 20, 0.72);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+@utility gradient-ring {
+  padding: 2px;
+  border-radius: var(--radius-tile);
+  background: linear-gradient(90deg, #89aacc, #4e85bf, #89aacc);
+  background-size: 200% 100%;
+  animation: var(--animate-grad-shift);
 }
