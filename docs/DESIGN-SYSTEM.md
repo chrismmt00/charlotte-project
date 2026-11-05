@@ -45,6 +45,16 @@ Glass nav: `rgba(20,20,20,.72)` + `backdrop-filter: blur(14px)` + `1px solid rgb
 - **Marquee:** repeating "Building the future for small business •" strip over a dark overlay `rgba(5,5,5,.72)` above the hero video.
 - **Status dot:** green pulse (`pulseDot`) next to "Available".
 
+## Motion and behavior (must be reproduced on the real site)
+- **Loader** (`showLoader` toggle): fixed full-screen `#0a0a0a` overlay. "Klyvora" small caps top-left; one serif italic word in the center cycling Design → Build → Automate (`clamp(44px,6vw,76px)`, `rgba(245,245,245,.85)`, `roleFade .5s` on each change); a tabular-nums serif counter 0→100 bottom-right (`clamp(72px,10vw,130px)`); a 3px progress bar at the bottom, gradient `#89AACC → #4E85BF` with a soft glow. About 2.2s, then fades out over .6s and unmounts. Skip it on repeat visits in the same session.
+- **Hero background**, three layers: (1) muted looping background video, `object-fit: cover`, opacity .55 (the design used an HLS stream through hls.js; the site should use a short MP4/WebM, or Cloudflare Stream, with `poster`); (2) `rgba(0,0,0,.35)` overlay; (3) a `<canvas>` "AI workflow" network drawn with 2D context: six pill nodes labelled Order placed, Kitchen ticket, New lead, AI reply sent, Invoice paid, Books updated (pill `rgba(16,18,22,.85)` fill, `rgba(137,170,204,.22)` stroke, 11px Inter text `rgba(157,184,210,.75)`, a `#4E85BF` dot), thin `rgba(137,170,204,.22)` edges, and `#89AACC` pulses with a `#4E85BF` glow travelling along edges; nodes drift slowly and lean toward the cursor; paused when off-screen; DPR-aware. A 180px bottom fade to `#0a0a0a`.
+- **Rotating word** in the hero subline: `<span>` with `min-width: 2ch`, swaps every ~2.2s with `roleFade .45s ease-out` (fade + 10px rise). Word list is a prop (`roles`).
+- **Scroll hint:** "Scroll" eyebrow over a 1px × 40px track with a gradient segment running down (`scrollDown 1.5s ease-in-out infinite`).
+- **Nav** is fixed, centered, glass pill, 20px from the top.
+- **Visual playground:** a `260vh` section with a `100vh` sticky inner. Centered copy (eyebrow with 32px rules either side, "Visual *playground*", one line). Two columns of three square tiles (`min(260px,22vw)`, radius 24, `1px solid #1f1f1f`, each rotated −4°…+3°, blue gradient patterns on `#0d1015`), pinned at `left: 5vw` and `right: 5vw`, `top: 50%`, `pointer-events: none`, `will-change: transform`. On scroll through the section the left column rises and the right column sinks (parallax, about 0.9 × viewport height of travel), driven by `requestAnimationFrame` from the section's progress.
+- **Reveals:** sections fade/rise in on first view (`IntersectionObserver`, `-60px` root margin, `translateY(28px)` → 0).
+- **Marquee:** 40s linear loop; **featured ring:** `gradShift 6s`; **status dot:** `pulseDot 2s`; respect `prefers-reduced-motion` by freezing all of the above.
+
 ## Page structure in the design (for the Home page)
 1. Hero: eyebrow "Klyvora — Web apps & AI workflows", serif H1, rotating role word, sub copy, primary "See the work" + secondary "Start a project ↗", background video (HLS via hls.js, Mux stock clip) + AI-workflow line animation, "Scroll" hint.
 2. Services "Things I build": 5 cards (Custom web apps, AI workflow automation, Chatbots & agents, Websites & landing pages, AI harnesses & tooling).
