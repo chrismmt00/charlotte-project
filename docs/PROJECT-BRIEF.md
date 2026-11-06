@@ -101,7 +101,7 @@ Rejected for conflicts: Backroom Software (exists), OpenSign (exists), Tryon Sof
 ## Next steps
 1. Sign the founder agreement, then file with NC SOS. Register klyvora.ai and/or klyvora.dev and get a price for klyvora.com. Claim the handles.
 2. Write the proposal/contract template with the ownership terms and milestone schedule; have a lawyer review it.
-3. Build the site in two separate chats: `docs/prompts/FRONTEND-LOOP.md` (pages and components) and `docs/prompts/BACKEND-LOOP.md` (Prisma, Auth.js, Stripe, Brevo, API). Home page design: https://claude.ai/artifact/D5tXcmUwge3DipSaEWqNd7
+3. Build the site in three separate chats: `docs/prompts/DESIGN-LOOP.md` (Claude Design: every screen, component, state and popup on the canvas), `docs/prompts/FRONTEND-LOOP.md` (pages and components) and `docs/prompts/BACKEND-LOOP.md` (Prisma, Auth.js, Stripe, Brevo, API). Home page design: https://claude.ai/artifact/D5tXcmUwge3DipSaEWqNd7
 4. Regenerate the business plan PDF from `docs/BUSINESS-PLAN.md`; check the leads workbook's Offers and Goal Math tabs against it.
 5. Set up the weekly lead task.
 6. Connect Upwork/Fiverr accounts when ready for proposal drafting.

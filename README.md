@@ -9,7 +9,7 @@ Planning context and decisions live in [docs/PROJECT-BRIEF.md](docs/PROJECT-BRIE
 - Next.js 16 (App Router), React 19, JavaScript (not TypeScript), Tailwind CSS 4
 - Planned: PostgreSQL on Neon + Prisma, Auth.js, Vercel, Cloudflare Images/Stream, Brevo, Stripe
 
-Pages and features: [docs/SITE-PLAN.md](docs/SITE-PLAN.md). Design tokens: [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md).
+Pages and features: [docs/SITE-PLAN.md](docs/SITE-PLAN.md). Design tokens: [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md). Build prompts: [docs/prompts/](docs/prompts/) (design, front end, back end loops).
 
 ## Getting started
 
