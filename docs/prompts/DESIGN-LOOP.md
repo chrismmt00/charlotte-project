@@ -54,12 +54,22 @@ Every component below gets every listed state drawn side by side and labelled. A
 | Search / command palette (cmd-K) | empty, typing with grouped results, no results |
 | Pagination, Breadcrumb, Date picker, Filter bar | default and active |
 
-## Start here, every time this prompt is pasted
-Do not assume the canvas is empty and do not redraw what exists. Before any design work:
-1. Read every board and note on the canvas. If an **Inventory** board exists, trust it as the state and open it. If not, create it now (Row 0) and fill it from what you find: every existing board becomes a row marked `drafted`; every screen and overlay named in this prompt that has no board becomes `todo`.
-2. Run the coverage check (below) on each `drafted` board you did not draw in this chat, but only to the point of listing what is missing. Record the missing overlays and states as `todo` rows in the Inventory. Do not fix them yet, except where an existing control points at nothing, which you note next to that row.
-3. Report in five lines: what exists, what is `drafted`, what is `todo`, which item you are starting, and anything on the canvas that conflicts with the design system or the brief (wrong price, new color, "I" instead of "we").
-4. Then continue the loop from the first item whose Inventory row is not `checked`. Items already `checked` are skipped. Items that are `drafted` are finished, not restarted: add the missing states and overlays to the existing board.
+## Start here, every time this prompt is pasted: the gap audit
+Do not assume the canvas is empty and do not redraw what exists. The first job is to find out what the current design is missing, write it down where everyone can see it, and close those gaps before drawing anything new.
+
+1. **Read the whole canvas.** Every board, every note, every layer name. If an **Inventory** board exists, open it; it is the state. If not, create it now (Row 0): every existing board becomes a row marked `drafted`, every screen and overlay named in this prompt with no board becomes `todo`.
+2. **Audit every existing board**, one at a time, top to bottom, and write a **Gap report** note beside it. For each board list, under these headings, what is missing or wrong:
+   - **Dangling controls:** every button, link, menu item, card, row or icon that leads to something not drawn (the popup, sheet, menu, toast, confirm, next page, success screen). Name the missing target.
+   - **Missing states:** forms without error/submitting/success/failure; lists without empty/loading/error; buttons, inputs, tabs or cards used in only one state; hover and focus rings.
+   - **Missing sections:** compare the board to its page in `docs/SITE-PLAN.md` and list every section or piece of content the plan calls for that is not on the board (for Home: offer cards, how it works, proof, founding program, FAQ, final CTA, and so on).
+   - **Missing variants:** no 375 mobile board (public and portal) or 1024 tablet board (dashboard, leads, lead detail); no 404 for pages that take an id.
+   - **Missing components:** anything on the board that is not in Row 1, or is there without the state used.
+   - **Rule breaks:** a color, font, radius or shadow not in the design system; a price that does not match `docs/PROJECT-BRIEF.md`; placeholder copy ("Lorem", "Button"); "I" instead of "we"; invented stats, names or testimonials; motion with no duration/easing/reduced-motion note.
+   - **Layer naming:** controls an engineer will look for that are unnamed.
+   Count the gaps per board and put the number in the Inventory row.
+3. **Report in five lines:** how many boards exist, the total gap count and the three biggest gaps, which boards break a rule, what is `todo` with no board at all, and which gap you are closing first.
+4. **Close the gaps before anything new.** Work board by board in canvas order. For each `drafted` board: draw its missing overlays in Row 3, add its missing states and sections on the existing board (do not redraw it), add its mobile or tablet variant, add any missing component states to Row 1, fix rule breaks, name layers. Then run the full coverage check below; when it passes, strike the items off the Gap report, mark the row `checked`, and report. Only when every pre-existing board is `checked` do you continue the loop with the first `todo` item.
+5. Re-run step 2 on any board Chris or someone else changed since the last check (compare against the Gap report dates), whenever this prompt is pasted again.
 
 ## When Chris drops in a request or idea
 Anything Chris types that is not "continue" is a new item, and it goes first. Do this in order:
