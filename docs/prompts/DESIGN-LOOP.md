@@ -1,6 +1,8 @@
 # Klyvora design loop prompt (Claude Design)
 
-Paste everything below the line into a Claude Design chat that has the Klyvora Home canvas open (https://claude.ai/artifact/D5tXcmUwge3DipSaEWqNd7). It runs as a loop: design one screen, run the coverage check that proves every button, link, popup and state on that screen exists on the canvas, report, next screen. The point of this prompt is completeness. A screen is not done until everything it leads to is drawn.
+Paste everything below the line into a Claude Design chat that has the Klyvora Home canvas open (https://claude.ai/artifact/D5tXcmUwge3DipSaEWqNd7). It works whether the canvas is empty or half built: it starts by auditing what already exists, then runs as a loop: design one screen, run the coverage check that proves every button, link, popup and state on that screen exists on the canvas, report, next screen. The point of this prompt is completeness. A screen is not done until everything it leads to is drawn.
+
+To drop in a new idea or request mid-build, just type it. The prompt tells the designer to treat it as the next item, run the same check on it, then pick the list back up. If a chat has lost the thread, paste the whole prompt again; the Inventory board on the canvas carries the state, not the chat.
 
 ---
 
@@ -52,11 +54,26 @@ Every component below gets every listed state drawn side by side and labelled. A
 | Search / command palette (cmd-K) | empty, typing with grouped results, no results |
 | Pagination, Breadcrumb, Date picker, Filter bar | default and active |
 
+## Start here, every time this prompt is pasted
+Do not assume the canvas is empty and do not redraw what exists. Before any design work:
+1. Read every board and note on the canvas. If an **Inventory** board exists, trust it as the state and open it. If not, create it now (Row 0) and fill it from what you find: every existing board becomes a row marked `drafted`; every screen and overlay named in this prompt that has no board becomes `todo`.
+2. Run the coverage check (below) on each `drafted` board you did not draw in this chat, but only to the point of listing what is missing. Record the missing overlays and states as `todo` rows in the Inventory. Do not fix them yet, except where an existing control points at nothing, which you note next to that row.
+3. Report in five lines: what exists, what is `drafted`, what is `todo`, which item you are starting, and anything on the canvas that conflicts with the design system or the brief (wrong price, new color, "I" instead of "we").
+4. Then continue the loop from the first item whose Inventory row is not `checked`. Items already `checked` are skipped. Items that are `drafted` are finished, not restarted: add the missing states and overlays to the existing board.
+
+## When Chris drops in a request or idea
+Anything Chris types that is not "continue" is a new item, and it goes first. Do this in order:
+1. Restate it in one line and say which existing screen it belongs to, or that it is a new screen. If it changes something already `checked`, say which boards it touches.
+2. Add it to the Inventory as `todo` with today's date. If it needs a new component or state, add that to Row 1 first.
+3. Design it with the same rules as every other item, then run the coverage check on it and on any `checked` board it changed, so those stay true.
+4. Report (five lines), update the Inventory, and go back to the first item in the list that is not `checked`. Never let a drop-in leave half-finished boards behind; if it is bigger than one item, split it into named items in the Inventory and do them one at a time.
+If the idea needs a decision (a new offer, a price, what a feature does for the client), ask one question and wait. If it conflicts with the brief or the site plan, say so in one line and ask whether to change the plan, then do what Chris says. Chris's word in the chat beats the docs; note the change on the Inventory board so the engineers see it.
+
 ## The loop
-Work through this list in order. For each item: **design → coverage check → report → next**. Never start the next item before the coverage check passes.
+Work through this list in order, skipping anything the Inventory marks `checked`. For each item: **design → coverage check → report → next**. Never start the next item before the coverage check passes.
 
 **Phase 0**
-1. Inventory board: an empty table with every screen and overlay named in this prompt listed as `todo`.
+1. Inventory board: a table with every screen and overlay named in this prompt as a row with its status (`todo`, `drafted`, `checked`) and the date it last changed.
 2. Components, Row 1: every family above with every state.
 
 **Phase 1, public site** (1440 and 375 for each)
