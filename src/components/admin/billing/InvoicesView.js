@@ -3,23 +3,30 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { Chip, Empty, PageHead, btnGhost, btnPrimary, btnSecondary, money } from "@/components/admin/ui";
+import { Chip, PageHead, btnPrimary, btnSecondary, money } from "@/components/admin/ui";
 import {
   DevStates,
   Drawer,
+  EmptyCard,
   FilterChips,
-  Icon,
   Kpi,
+  KpiGrid,
   ListError,
   ListSkeleton,
-  Note,
   TableBox,
   Toast,
+  btnSm,
+  btnSmDanger,
   clientLink,
   daysBetween,
+  emptyRowClass,
   shortDate,
+  tableClass,
   tdClass,
+  theadRowClass,
   thClass,
+  trClass,
+  trSelectedClass,
   useListState,
   useToast,
 } from "@/components/admin/billing/kit";
@@ -28,9 +35,11 @@ import { INVOICE_STATUSES, INVOICE_TARGET } from "@/lib/admin/sample-billing";
 
 const TONE = { Paid: "success", Due: "accent", Overdue: "danger", Draft: "muted", Void: "muted" };
 const FILTERS = ["All", ...INVOICE_STATUSES];
+const COLS = ["Invoice", "Client", "For", "Due", "Amount", "Status", "Actions"];
 
 const balanceOf = (i) => (i.amount == null ? 0 : i.amount - i.paid);
 const amountText = (i) => (i.amount == null ? "[hardware quote]" : money(i.amount));
+const footnote = "m-0 text-[13px] text-muted";
 
 // Reads ?status=overdue (or due, paid, draft) and ?new=1. Rendered inside <Suspense> by the page.
 export default function InvoicesView({ initialInvoices, subscriptions, today }) {
@@ -55,15 +64,14 @@ export default function InvoicesView({ initialInvoices, subscriptions, today }) 
 
   const count = (s) => invoices.filter((i) => i.status === s).length;
   const collected = invoices.reduce((a, i) => a + i.paid, 0);
-  const outstanding = invoices.filter((i) => i.status === "Due" || i.status === "Overdue").reduce((a, i) => a + balanceOf(i), 0);
-  const outstandingCount = invoices.filter((i) => i.status === "Due" || i.status === "Overdue").length;
+  const owing = invoices.filter((i) => i.status === "Due" || i.status === "Overdue");
+  const outstanding = owing.reduce((a, i) => a + balanceOf(i), 0);
   const overdue = invoices.filter((i) => i.status === "Overdue");
   const overdueSum = overdue.reduce((a, i) => a + balanceOf(i), 0);
   const billingNow = subscriptions.filter((s) => s.status === "Active" || s.status === "Past due").reduce((a, s) => a + s.price, 0);
   const billingAll = subscriptions.filter((s) => s.status !== "Canceled").reduce((a, s) => a + s.price, 0);
 
   const rows = invoices.filter((i) => filter === "All" || i.status === filter);
-  const open = (id) => setSelId(id);
 
   const startSend = (i) => {
     setSelId(i.id);
@@ -73,116 +81,121 @@ export default function InvoicesView({ initialInvoices, subscriptions, today }) 
   return (
     <>
       <PageHead eyebrow="Invoices · this month" title="Invoices">
-        <Link href="/admin/subscriptions" className={btnGhost}>
+        <Link href="/admin/subscriptions" className={btnSecondary}>
           Subscriptions <span aria-hidden="true">↗</span>
         </Link>
         <button type="button" className={btnPrimary} onClick={() => setDialog({ type: "new" })}>
-          <Icon name="plus" size={14} />
           New invoice
         </button>
       </PageHead>
 
-      <section aria-label="Cash" className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-5">
+      <KpiGrid label="Cash">
         <Kpi label="Collected this month" value={money(collected)} note={`of ${money(INVOICE_TARGET)} target`} />
-        <Kpi label="Outstanding" value={money(outstanding)} note={`${outstandingCount} invoice${outstandingCount === 1 ? "" : "s"}`} />
-        <Kpi label="Overdue" value={money(overdueSum)} note={`${overdue.length} invoice${overdue.length === 1 ? "" : "s"} · follow up`} tone={overdue.length ? "danger" : undefined} />
+        <Kpi label="Outstanding" value={money(outstanding)} note={`${owing.length} invoice${owing.length === 1 ? "" : "s"}`} />
+        <Kpi label="Overdue" value={money(overdueSum)} note={`${overdue.length} invoice${overdue.length === 1 ? "" : "s"} · follow up`} noteTone="danger" />
         <Kpi label="Monthly plans billing" value={`${money(billingNow)}/mo`} note={`billing now · ${money(billingAll)}/mo once all launch`} />
-      </section>
+      </KpiGrid>
 
       <FilterChips label="Filter invoices" value={filter} onChange={setFilter} options={FILTERS.map((f) => ({ value: f, label: f, count: f === "All" ? invoices.length : count(f) }))} />
 
-      <DevStates value={dev} onChange={setDev} />
-
       {state === "loading" ? <ListSkeleton label="Loading invoices" /> : null}
       {state === "error" ? (
-        <ListError title="Couldn’t load invoices" retrying={list.retrying} onRetry={async () => { setDev("live"); await list.retry(); }}>
-          <code className="text-[12px]">GET /api/admin/invoices</code> failed. Stripe totals above may be stale. Try again.
+        <ListError
+          title="Couldn’t load invoices"
+          retrying={list.retrying}
+          onRetry={async () => {
+            setDev("live");
+            await list.retry();
+          }}
+        >
+          <code className="font-mono text-xs">GET /api/admin/invoices</code> failed. Stripe totals above may be stale. Try again.
         </ListError>
       ) : null}
       {state === "empty" || (state === "live" && invoices.length === 0) ? (
-        <Empty
+        <EmptyCard
+          icon="dollar"
           title="No invoices yet"
-          action={
-            <span className="flex flex-wrap gap-2 justify-center">
+          actions={
+            <>
               <button type="button" className={btnPrimary} onClick={() => setDialog({ type: "new" })}>
                 New invoice
               </button>
               <Link href="/admin/leads" className={btnSecondary}>
-                Open leads
+                Open Leads
               </Link>
-            </span>
+            </>
           }
         >
           The first one is the 50% kickoff invoice, created when a lead converts to a client. You can also write one by hand for hardware or a one-off.
-        </Empty>
+        </EmptyCard>
       ) : null}
 
       {state === "live" && invoices.length > 0 ? (
-        <TableBox>
-          <table className="w-full border-collapse min-w-[900px]">
+        <TableBox footer={rows.length === 0 ? <p className={emptyRowClass}>Nothing with that status.</p> : null}>
+          <table className={`${tableClass} min-w-[900px]`}>
             <caption className="sr-only">Invoices</caption>
             <thead>
-              <tr>
-                {["Invoice", "Client", "For", "Due", "Amount", "Status", "Actions"].map((h) => (
-                  <th key={h} scope="col" className={`${thClass} ${h === "Amount" ? "text-right" : ""}`}>
-                    {h}
+              <tr className={theadRowClass}>
+                {COLS.map((h) => (
+                  <th key={h} scope="col" className={`${thClass} ${h === "Amount" || h === "Actions" ? "text-right" : ""}`}>
+                    {h === "Actions" ? <span className="sr-only">Actions</span> : h}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {rows.map((i) => (
-                <tr key={i.id} className={`hover:bg-surface-2 ${i.id === selId ? "bg-surface-2" : ""}`}>
-                  <td className={tdClass}>
-                    <button type="button" onClick={() => open(i.id)} className="bg-transparent border-0 p-0 text-fg font-medium cursor-pointer hover:text-accent-light">
+                <tr key={i.id} className={i.id === selId ? trSelectedClass : trClass}>
+                  <td className={`${tdClass} tabular-nums`}>
+                    <button type="button" onClick={() => setSelId(i.id)} className="bg-transparent border-0 p-0 text-fg cursor-pointer font-mono text-xs">
                       {i.number}
                     </button>
                   </td>
-                  <td className={tdClass}>
-                    <Link href={clientLink(i.client)} className="text-fg hover:text-accent-light">
+                  <td className={`${tdClass} font-medium`}>
+                    <Link href={clientLink(i.client)} className="text-fg">
                       {i.client}
                     </Link>
                   </td>
-                  <td className={`${tdClass} text-muted-2 max-w-[260px]`}>{i.forLabel}</td>
-                  <td className={`${tdClass} whitespace-nowrap ${i.status === "Overdue" ? "text-danger" : "text-muted-2"}`}>
-                    {i.due ? shortDate(i.due) : "—"}
-                    {i.status === "Overdue" ? <div className="text-[12px]">{daysBetween(i.due, today)} days late</div> : null}
-                  </td>
-                  <td className={`${tdClass} text-right whitespace-nowrap`}>{amountText(i)}</td>
-                  <td className={tdClass}>
+                  <td className={`${tdClass} text-muted-2`}>{i.forLabel}</td>
+                  <td className={`${tdClass} text-muted-2 whitespace-nowrap`}>{i.due ? shortDate(i.due) : "—"}</td>
+                  <td className={`${tdClass} text-right tabular-nums`}>{amountText(i)}</td>
+                  <td className={`${tdClass} whitespace-nowrap`}>
                     <Chip tone={TONE[i.status]}>{i.status}</Chip>
                   </td>
-                  <td className={`${tdClass} whitespace-nowrap`}>
-                    {i.status === "Due" || i.status === "Overdue" ? (
-                      <button type="button" className={btnGhost} onClick={() => startSend(i)}>
-                        Send reminder
+                  <td className={`${tdClass} text-right whitespace-nowrap`}>
+                    <span className="inline-flex gap-1.5">
+                      {i.status === "Due" || i.status === "Overdue" ? (
+                        <button type="button" className={btnSm} onClick={() => startSend(i)}>
+                          Send reminder
+                        </button>
+                      ) : null}
+                      {i.status === "Draft" ? (
+                        <button type="button" className={btnSm} onClick={() => startSend(i)}>
+                          Send
+                        </button>
+                      ) : null}
+                      {i.status === "Paid" ? (
+                        <button type="button" className={btnSm} onClick={() => toast(`Receipt PDF for ${i.number} is downloading`)}>
+                          Receipt
+                        </button>
+                      ) : null}
+                      <button type="button" className={btnSm} onClick={() => setSelId(i.id)} aria-label={`Open ${i.number}`}>
+                        Open
                       </button>
-                    ) : null}
-                    {i.status === "Draft" ? (
-                      <button type="button" className={btnGhost} onClick={() => startSend(i)}>
-                        Send
-                      </button>
-                    ) : null}
-                    {i.status === "Paid" ? (
-                      <button type="button" className={btnGhost} onClick={() => toast(`Receipt PDF for ${i.number} is downloading`)}>
-                        Receipt
-                      </button>
-                    ) : null}
-                    <button type="button" className={btnGhost} onClick={() => open(i.id)} aria-label={`Open ${i.number}`}>
-                      Open
-                    </button>
+                    </span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {rows.length === 0 ? <p className="m-0 p-6 text-center text-muted-2">Nothing with that status.</p> : null}
         </TableBox>
       ) : null}
 
-      <p className="text-[12px] text-muted-2 mt-4 mb-0 max-w-[820px]">
+      <p className={footnote}>
         Overdue uses the danger token (admin only). Milestone invoices follow 50 / 30 / 20 of setup. Hardware is invoiced in full before ordering. Monthly plans bill as Stripe subscriptions from accepted launch and show here as paid when Stripe confirms. Billed-separately items get their own line. Amounts are whole dollars here; the API stores cents.
       </p>
+
+      <DevStates value={dev} onChange={setDev} />
 
       {sel ? (
         <InvoiceDrawer
@@ -264,6 +277,9 @@ export default function InvoicesView({ initialInvoices, subscriptions, today }) 
   );
 }
 
+const dl = "flex flex-col gap-0.5";
+const dt = "text-xs text-muted";
+
 function InvoiceDrawer({ invoice: i, today, onClose, onSend, onPayment, onPlan, onEdit, onVoid, toast }) {
   const remind = i.status === "Due" || i.status === "Overdue";
   const quoteMissing = i.status === "Draft" && i.amount == null;
@@ -272,10 +288,11 @@ function InvoiceDrawer({ invoice: i, today, onClose, onSend, onPayment, onPlan, 
       id="inv"
       eyebrow={`Invoice · ${i.number}`}
       title={i.client}
+      closeLabel="Close invoice"
       meta={
         <>
           <Chip tone={TONE[i.status]}>{i.status}</Chip>
-          <span>{i.forLabel}</span>
+          <span className="text-muted-2">{i.forLabel}</span>
         </>
       }
       onClose={onClose}
@@ -286,10 +303,10 @@ function InvoiceDrawer({ invoice: i, today, onClose, onSend, onPayment, onPlan, 
               <button type="button" className={btnPrimary} onClick={onSend}>
                 Send reminder
               </button>
-              <button type="button" className={btnSecondary} onClick={onPayment}>
+              <button type="button" className={btnSm} onClick={onPayment}>
                 Record manual payment
               </button>
-              <button type="button" className={btnSecondary} onClick={onPlan}>
+              <button type="button" className={btnSm} onClick={onPlan}>
                 Payment plan
               </button>
             </>
@@ -299,114 +316,122 @@ function InvoiceDrawer({ invoice: i, today, onClose, onSend, onPayment, onPlan, 
               <button type="button" className={btnPrimary} onClick={onSend} disabled={quoteMissing}>
                 Send invoice
               </button>
-              <button type="button" className={btnSecondary} onClick={onEdit}>
+              <button type="button" className={btnSm} onClick={onEdit}>
                 Edit lines
               </button>
             </>
           ) : null}
           {i.status === "Paid" ? (
             <>
-              <button type="button" className={btnSecondary} onClick={() => toast(`Receipt PDF for ${i.number} is downloading`)}>
+              <button type="button" className={btnPrimary} onClick={() => toast(`Receipt PDF for ${i.number} is downloading`)}>
                 Download receipt
               </button>
-              <button type="button" className={btnSecondary} onClick={() => toast("Refunds run in Stripe · open the invoice there")}>
+              <button type="button" className={btnSm} onClick={() => toast("Refunds run in Stripe · open the invoice there")}>
                 Refund…
               </button>
             </>
           ) : null}
-          <button type="button" className={btnSecondary} onClick={() => toast(`PDF for ${i.number} is downloading`)}>
+          <button type="button" className={btnSm} onClick={() => toast(`PDF for ${i.number} is downloading`)}>
             PDF
           </button>
           {i.status !== "Paid" && i.status !== "Void" ? (
-            <button type="button" className={`${btnGhost} ml-auto`} onClick={onVoid}>
+            <button type="button" className={`${btnSmDanger} ml-auto`} onClick={onVoid}>
               Void
             </button>
           ) : null}
         </>
       }
     >
-      <div className="flex items-baseline justify-between gap-3">
+      <div className="flex items-baseline justify-between gap-2.5 px-4 py-3.5 border border-border rounded-[14px] bg-surface-2">
         <span className="text-muted-2">Total</span>
-        <span className="font-display text-[34px] leading-none">{amountText(i)}</span>
+        <span className="text-[26px] font-medium tabular-nums">{amountText(i)}</span>
       </div>
-      {i.paid > 0 && i.status !== "Paid" ? <Note tone="accent">{money(i.paid)} paid so far · {money(balanceOf(i))} still due.</Note> : null}
-      {quoteMissing ? <Note tone="warning">The vendor quote is not in yet. Add the amount with Edit lines, then send. Hardware is paid in full before we order.</Note> : null}
+      {i.paid > 0 && i.status !== "Paid" ? (
+        <p className="m-0 text-muted-2">
+          {money(i.paid)} paid so far · {money(balanceOf(i))} still due.
+        </p>
+      ) : null}
+      {quoteMissing ? <p className="m-0 px-3 py-2.5 border border-warning rounded-xl text-muted-2 leading-[1.5]">The vendor quote is not in yet. Add the amount with Edit lines, then send. Hardware is paid in full before we order.</p> : null}
 
-      <div className="border border-border rounded-[12px] overflow-x-auto">
-        <table className="w-full border-collapse">
-          <caption className="sr-only">Invoice lines</caption>
-          <thead>
-            <tr>
-              <th scope="col" className={thClass}>
-                Line
-              </th>
-              <th scope="col" className={`${thClass} text-right`}>
-                Amount
-              </th>
+      <table className="w-full border-collapse">
+        <caption className="sr-only">Invoice lines</caption>
+        <thead>
+          <tr>
+            <th scope="col" className="text-left font-medium text-[13px] text-muted-2 py-2">
+              Line
+            </th>
+            <th scope="col" className="text-right font-medium text-[13px] text-muted-2 py-2">
+              Amount
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {i.lines.map((l, n) => (
+            <tr key={n} className="border-t border-border">
+              <td className="py-2.5">
+                <span className="flex flex-col gap-0.5">
+                  <span>{l.description}</span>
+                  {l.note ? <span className="text-muted">{l.note}</span> : null}
+                </span>
+              </td>
+              <td className="py-2.5 text-right tabular-nums whitespace-nowrap">{l.amount == null ? "[quote]" : money(l.amount)}</td>
             </tr>
-          </thead>
-          <tbody>
-            {i.lines.map((l, n) => (
-              <tr key={n}>
-                <td className="px-4 py-2.5 border-b border-border">
-                  {l.description}
-                  {l.note ? <div className="text-[12px] text-muted-2">{l.note}</div> : null}
-                </td>
-                <td className="px-4 py-2.5 border-b border-border text-right whitespace-nowrap">{l.amount == null ? "[quote]" : money(l.amount)}</td>
-              </tr>
-            ))}
-            <tr>
-              <td className="px-4 py-2.5 text-muted-2">Tax</td>
-              <td className="px-4 py-2.5 text-right text-muted-2">$0 · services</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+          ))}
+          <tr className="border-t border-border">
+            <td className="py-2.5 text-muted-2">Tax</td>
+            <td className="py-2.5 text-right text-muted-2">$0 · services</td>
+          </tr>
+        </tbody>
+      </table>
 
-      <dl className="grid grid-cols-[110px_1fr] gap-x-4 gap-y-2.5 m-0">
-        <dt className="text-muted-2">Due</dt>
-        <dd className={`m-0 ${i.status === "Overdue" ? "text-danger" : ""}`}>
-          {i.due ? shortDate(i.due) : "On trigger"}
-          {i.status === "Overdue" ? ` · ${daysBetween(i.due, today)} days late` : ""}
-        </dd>
-        <dt className="text-muted-2">Trigger</dt>
-        <dd className="m-0">{i.trigger}</dd>
-        <dt className="text-muted-2">Pay link</dt>
-        <dd className="m-0">
-          <Link href="/portal/invoices" className="text-accent-light hover:text-fg">
-            portal → invoices
-          </Link>
-        </dd>
-        <dt className="text-muted-2">Stripe</dt>
-        <dd className="m-0">{i.stripe}</dd>
+      <dl className="m-0 grid grid-cols-2 gap-x-4 gap-y-3">
+        <div className={dl}>
+          <dt className={dt}>Due</dt>
+          <dd className="m-0">
+            {i.due ? shortDate(i.due) : "On trigger"}
+            {i.status === "Overdue" ? ` · ${daysBetween(i.due, today)} days late` : ""}
+          </dd>
+        </div>
+        <div className={dl}>
+          <dt className={dt}>Trigger</dt>
+          <dd className="m-0">{i.trigger}</dd>
+        </div>
+        <div className={dl}>
+          <dt className={dt}>Pay link</dt>
+          <dd className="m-0">
+            <Link href="/portal/invoices" className="text-accent-light">
+              portal → invoices
+            </Link>
+          </dd>
+        </div>
+        <div className={dl}>
+          <dt className={dt}>Stripe</dt>
+          <dd className="m-0 font-mono text-xs text-muted">{i.stripe}</dd>
+        </div>
       </dl>
 
       {i.plan ? (
-        <section aria-labelledby="inv-plan" className="border border-border rounded-[12px] p-3.5">
-          <h3 id="inv-plan" className="text-[13px] font-medium m-0 mb-1.5">
-            Payment plan · {i.plan.count} payments
-          </h3>
-          <p className="m-0 text-muted-2">
-            {i.plan.amounts.map((a, n) => `${money(a)} ${n === 0 ? "due" : "due"} ${shortDate(i.plan.dates[n])}`).join(" · ")}
+        <div className="border border-border rounded-[14px] px-3.5 py-3 flex flex-col gap-1.5">
+          <span className="font-medium">Payment plan · {i.plan.count} payments</span>
+          <span className="text-muted-2">
+            {i.plan.amounts.map((a, n) => `${money(a)} due ${shortDate(i.plan.dates[n])}`).join(" · ")}
             {i.plan.autoCharge ? " · card on file charged automatically" : ""}
-          </p>
-        </section>
+          </span>
+        </div>
       ) : null}
 
-      <section aria-labelledby="inv-hist">
-        <h3 id="inv-hist" className="text-[13px] font-medium m-0 mb-2">
-          History
-        </h3>
-        <ol className="list-none p-0 m-0">
+      <div className="flex flex-col gap-2">
+        <span className="text-xs text-muted">History</span>
+        <ol className="list-none m-0 p-0 flex flex-col">
           {i.history.map((h, n) => (
-            <li key={n} className="flex gap-3 border-t border-border py-2">
-              <span className="text-muted-2 w-16 flex-none">{h.when}</span>
-              <span>{h.text}</span>
+            <li key={n} className="flex gap-2.5 py-2 border-t border-border">
+              <span className="text-muted tabular-nums whitespace-nowrap min-w-16">{h.when}</span>
+              <span className="text-muted-2">{h.text}</span>
             </li>
           ))}
         </ol>
-      </section>
-      <p className="m-0 text-[12px] text-muted-2">Reminders go from your mailbox with the pay link. Manual payments mark the Stripe invoice paid out of band.</p>
+      </div>
+      <p className="m-0 text-xs text-muted">Reminders go from your mailbox with the pay link. Manual payments mark the Stripe invoice paid out of band.</p>
     </Drawer>
   );
 }

@@ -132,29 +132,12 @@ export default function SettingsView({ initial }) {
   return (
     <>
       <PageHead eyebrow="Settings" title="Settings">
-        <span className="inline-flex items-center text-[12px] text-muted-2 border border-border-2 rounded-full px-3 py-1.5">
+        <span className="inline-flex items-center text-xs text-muted-2 border border-border-2 rounded-full px-3 py-1.5">
           Signed in as {me.name} · {me.label}
         </span>
       </PageHead>
 
-      {DEV ? (
-        <div role="group" aria-label="Development preview" className="mb-4 flex flex-wrap items-center gap-2 text-[12px] text-muted-2">
-          <span>Dev preview:</span>
-          {["owner", "builder"].map((r) => (
-            <button key={r} type="button" aria-pressed={role === r} onClick={() => setRole(r)} className={`min-h-7 px-2.5 rounded-full border text-[12px] cursor-pointer ${role === r ? "border-fg text-fg" : "border-border-2 text-muted-2 bg-transparent"}`}>
-              {r}
-            </button>
-          ))}
-          <span aria-hidden="true">·</span>
-          {[null, "loading", "empty", "error"].map((s) => (
-            <button key={s || "live"} type="button" aria-pressed={forced === s} onClick={() => setForced(s)} className={`min-h-7 px-2.5 rounded-full border text-[12px] cursor-pointer ${forced === s ? "border-fg text-fg" : "border-border-2 text-muted-2 bg-transparent"}`}>
-              {s || "live"}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
-      <div ref={tablist} role="tablist" aria-label="Settings sections" onKeyDown={onTabKey} className="flex gap-1 border-b border-border overflow-x-auto mb-5">
+      <div ref={tablist} role="tablist" aria-label="Settings sections" onKeyDown={onTabKey} className="flex gap-1 pb-px border-b border-border overflow-x-auto">
         {TABS.map(([k, label]) => {
           const on = tab === k;
           return (
@@ -181,7 +164,7 @@ export default function SettingsView({ initial }) {
         })}
       </div>
 
-      <div id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={-1} className={dirty ? "pb-20" : ""}>
+      <div id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={-1} className={`outline-none ${dirty ? "pb-16" : ""}`}>
         {tab === "general" ? <GeneralTab v={values} set={set} errors={errors} locked={locked} integrations={initial.integrations} /> : null}
         {tab === "team" ? (
           <TeamTab
@@ -212,10 +195,10 @@ export default function SettingsView({ initial }) {
         >
           <span className="text-muted-2">{changed.length === 1 ? "1 change" : `${changed.length} changes`} unsaved</span>
           {hasErrors ? <span className="text-danger">Fix the fields in red</span> : null}
-          <button type="button" className={btnSecondary} onClick={discard} disabled={saving}>
+          <button type="button" className={`${btnSecondary} min-h-9!`} onClick={discard} disabled={saving}>
             Discard
           </button>
-          <button type="button" className={btnPrimary} onClick={save} disabled={hasErrors || saving} aria-busy={saving}>
+          <button type="button" className={`${btnPrimary} min-h-9!`} onClick={save} disabled={hasErrors || saving} aria-busy={saving}>
             {saving ? "Saving…" : "Save changes"}
           </button>
         </div>
@@ -313,6 +296,22 @@ export default function SettingsView({ initial }) {
         })()
       ) : null}
 
+      {DEV ? (
+        <div role="group" aria-label="Development preview" className="flex flex-wrap items-center gap-2 text-[12px] text-muted-2">
+          <span>Dev preview:</span>
+          {["owner", "builder"].map((r) => (
+            <button key={r} type="button" aria-pressed={role === r} onClick={() => setRole(r)} className={`min-h-7 px-2.5 rounded-full border text-[12px] cursor-pointer ${role === r ? "border-fg text-fg" : "border-border-2 text-muted-2 bg-transparent"}`}>
+              {r}
+            </button>
+          ))}
+          <span aria-hidden="true">·</span>
+          {[null, "loading", "empty", "error"].map((s) => (
+            <button key={s || "live"} type="button" aria-pressed={forced === s} onClick={() => setForced(s)} className={`min-h-7 px-2.5 rounded-full border text-[12px] cursor-pointer ${forced === s ? "border-fg text-fg" : "border-border-2 text-muted-2 bg-transparent"}`}>
+              {s || "live"}
+            </button>
+          ))}
+        </div>
+      ) : null}
       <Toast toast={toast} raised={dirty} />
     </>
   );

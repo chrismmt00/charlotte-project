@@ -3,15 +3,22 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { PageHead, Skeleton, btnPrimary, btnSecondary, btnDanger } from "@/components/admin/ui";
-import { Dialog, Drawer, Toast, useToast, Icon, DevBar, Initial, Row, fieldCls, chipBtn } from "./Overlay";
+import { PageHead, btnPrimary, btnSecondary, btnDanger } from "@/components/admin/ui";
+import { Dialog, Drawer, Toast, useToast, Icon, DevBar, Initial, Segmented, pillSelect, chipBtn, drawerFieldCls } from "./Overlay";
 import { api, dev } from "./api";
 import NewLeadDialog from "./NewLeadDialog";
 import ImportDialog from "./ImportDialog";
 import { LEAD_STATUSES, OWNERS, STATUS_DOT, plainEmail } from "@/lib/admin/sample-leads";
 
 const PAGE = 6; // the build uses 25
-const selectCls = "min-h-9 rounded-[10px] border border-border-2 bg-surface-2 px-2.5 text-[13px] text-fg font-[inherit] max-w-full";
+const STATUS_TEXT = { New: "text-accent-light", Contacted: "text-muted-2", "Demo booked": "text-accent", "Proposal sent": "text-fg", Signed: "text-success", Lost: "text-muted" };
+const devSelect = "min-h-8 rounded-[10px] border border-border-2 bg-surface-2 px-2.5 text-xs text-fg font-[inherit]";
+const skelGrid = { gridTemplateColumns: "24px 2.2fr 1fr 1fr 1fr .8fr .7fr" };
+const bulkCtl = "min-h-[34px] rounded-full border border-[rgba(var(--bg-rgb),.3)] bg-transparent text-bg px-3 text-[13px] cursor-pointer";
+
+function Sk({ className = "", style }) {
+  return <span aria-hidden="true" style={style} className={`block rounded-md bg-surface-2 animate-pulse ${className}`} />;
+}
 
 function Dot({ status }) {
   return <span aria-hidden="true" className={`w-2 h-2 rounded-full flex-none ${STATUS_DOT[status] || "bg-muted"}`} />;
@@ -126,14 +133,17 @@ export default function LeadsView({ initial }) {
     setSort((s) => ({ key, dir: s.key === key && s.dir === "asc" ? "desc" : "asc" }));
     setPage(1);
   };
-  const th = (label, k) => {
+  // Header cells: first data column 14px 20px, the rest 14px 16px (board).
+  const th = (label, k, first) => {
     const on = sort.key === k;
     return (
-      <th key={label} scope="col" aria-sort={on ? (sort.dir === "asc" ? "ascending" : "descending") : "none"} className="text-left font-normal px-4 py-3 whitespace-nowrap">
+      <th key={label} scope="col" aria-sort={on ? (sort.dir === "asc" ? "ascending" : "descending") : "none"} className={`text-left font-medium text-[13px] text-muted-2 py-3.5 whitespace-nowrap ${first ? "px-5" : "px-4"}`}>
         {k ? (
-          <button type="button" onClick={() => sortBy(k)} className={`bg-transparent border-0 p-0 cursor-pointer text-[13px] inline-flex items-center gap-1.5 ${on ? "text-fg" : "text-muted-2 hover:text-fg"}`}>
+          <button type="button" onClick={() => sortBy(k)} className={`bg-transparent border-0 p-0 cursor-pointer text-[13px] font-medium inline-flex items-center gap-1.5 ${on ? "text-fg" : "text-muted-2 hover:text-fg"}`}>
             {label}
-            <span aria-hidden="true">{on ? (sort.dir === "asc" ? "↑" : "↓") : "↕"}</span>
+            <span aria-hidden="true" className="text-[11px]">
+              {on ? (sort.dir === "asc" ? "↑" : "↓") : "↕"}
+            </span>
           </button>
         ) : (
           label
@@ -158,22 +168,13 @@ export default function LeadsView({ initial }) {
         <button type="button" className={btnPrimary} onClick={() => setDialog("new")}>
           New lead
         </button>
-        <div role="group" aria-label="View" className="inline-flex gap-1 p-1 border border-border-2 rounded-full">
-          {[
-            ["table", "Table"],
-            ["board", "Board"],
-          ].map(([k, l]) => (
-            <button key={k} type="button" aria-pressed={view === k} onClick={() => setView(k)} className={`min-h-8 px-4 rounded-full border-0 text-[13px] font-medium cursor-pointer ${view === k ? "bg-fg text-bg" : "bg-transparent text-muted-2 hover:text-fg"}`}>
-              {l}
-            </button>
-          ))}
-        </div>
+        <Segmented label="View" value={view} onChange={setView} options={[["table", "Table"], ["board", "Board"]]} />
       </PageHead>
 
       <DevBar>
         <label className="inline-flex items-center gap-2">
           List state
-          <select value={devState} onChange={(e) => (setFailed(false), setDevState(e.target.value))} className={selectCls}>
+          <select value={devState} onChange={(e) => (setFailed(false), setDevState(e.target.value))} className={devSelect}>
             <option>live</option>
             <option>loading</option>
             <option>error</option>
@@ -186,7 +187,7 @@ export default function LeadsView({ initial }) {
         </label>
       </DevBar>
 
-      <div className="flex flex-wrap items-center gap-2.5 mb-4">
+      <div className="flex flex-wrap items-center gap-2.5">
         <label htmlFor="lead-search" className="sr-only">
           Search leads
         </label>
@@ -196,13 +197,13 @@ export default function LeadsView({ initial }) {
           placeholder="Search business, name or email"
           value={query}
           onChange={(e) => (setQuery(e.target.value), setPage(1))}
-          className="flex-1 basis-[240px] min-w-0 min-h-10 rounded-[12px] border border-border-2 bg-surface px-4 text-[13px] text-fg"
+          className="flex-[1_1_240px] min-w-0 min-h-11 rounded-[14px] border border-border-2 bg-surface px-4 text-[13px] text-fg box-border"
         />
         <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-1.5">
           {["All", ...LEAD_STATUSES].map((f) => (
             <button key={f} type="button" aria-pressed={filter === f} onClick={() => (setFilter(f), setPage(1))} className={chipBtn(filter === f)}>
               {f}
-              <span className={`text-[12px] tabular-nums ${filter === f ? "opacity-70" : "text-muted-2"}`}>{f === "All" ? visible.length : visible.filter((l) => l.status === f).length}</span>
+              <span className={`text-xs tabular-nums ${filter === f ? "opacity-70" : "text-muted"}`}>{f === "All" ? visible.length : visible.filter((l) => l.status === f).length}</span>
             </button>
           ))}
         </div>
@@ -210,31 +211,40 @@ export default function LeadsView({ initial }) {
 
       {state === "loading" ? (
         <div aria-busy="true" aria-label="Loading leads" className="border border-border rounded-admin overflow-hidden bg-surface">
-          <div className="px-5 py-3.5 bg-surface-2">
-            <Skeleton className="h-3 w-1/3" />
+          <div className="grid gap-4 px-5 py-3.5 bg-surface-2 items-center" style={skelGrid}>
+            <Sk className="h-3 w-[18px]" />
+            <Sk className="h-3 w-2/5" />
+            <Sk className="h-3 w-1/2" />
+            <Sk className="h-3 w-1/2" />
+            <Sk className="h-3 w-1/2" />
+            <Sk className="h-3 w-3/5" />
+            <Sk className="h-3 w-3/5" />
           </div>
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="flex items-center gap-4 px-5 py-4 border-t border-border">
-              <Skeleton className="h-4 w-4" />
-              <div className="flex-1 flex flex-col gap-2">
-                <Skeleton className="h-3" />
-                <Skeleton className="h-2.5 w-2/3" />
-              </div>
-              <Skeleton className="h-3 w-24 hidden sm:block" />
-              <Skeleton className="h-7 w-24 rounded-full" />
+            <div key={i} className="grid gap-4 px-5 py-4 items-center border-t border-border" style={skelGrid}>
+              <Sk className="h-[18px] w-[18px]" />
+              <span className="flex flex-col gap-2">
+                <Sk className="h-3" style={{ width: `${45 + ((i * 23) % 35)}%` }} />
+                <Sk className="h-2.5" style={{ width: `${60 + ((i * 31) % 30)}%` }} />
+              </span>
+              <Sk className="h-3 w-[70%]" />
+              <Sk className="h-3 w-[55%]" />
+              <Sk className="h-7 w-4/5 rounded-full" />
+              <Sk className="h-3 w-1/2" />
+              <Sk className="h-3 w-3/5" />
             </div>
           ))}
         </div>
       ) : null}
 
       {state === "error" ? (
-        <div role="alert" className="border border-fg rounded-admin bg-surface p-10 flex flex-col items-center text-center gap-3">
+        <div role="alert" className="border border-fg rounded-admin bg-surface px-6 py-10 flex flex-col items-center text-center gap-3">
           <Icon name="alert" size={28} />
-          <h2 className="text-[18px] font-medium m-0">Couldn’t load leads</h2>
-          <p className="m-0 text-muted-2 max-w-[420px] leading-relaxed">
-            <code className="text-[12px]">GET /api/admin/leads</code> didn’t answer. Nothing was changed. Try again, or open a ticket if it keeps failing.
+          <h2 className="text-lg font-medium m-0">Couldn’t load leads</h2>
+          <p className="m-0 text-[13px] text-muted-2 max-w-[420px] leading-[1.6]">
+            <code className="text-xs">GET /api/admin/leads</code> didn’t answer. Nothing was changed. Try again, or check the status page if it keeps failing.
           </p>
-          <div className="flex gap-2.5 mt-1">
+          <div className="flex gap-2.5 mt-1.5">
             <button type="button" className={btnPrimary} onClick={retry}>
               Retry
             </button>
@@ -246,13 +256,13 @@ export default function LeadsView({ initial }) {
       ) : null}
 
       {state === "empty" ? (
-        <div className="border border-dashed border-border-2 rounded-admin bg-surface p-12 flex flex-col items-center text-center gap-3">
+        <div className="border border-dashed border-border-2 rounded-admin bg-surface px-6 py-14 flex flex-col items-center text-center gap-3">
           <span aria-hidden="true" className="w-12 h-12 rounded-full border border-border-2 inline-flex items-center justify-center text-muted-2">
             <Icon name="leads" size={22} />
           </span>
-          <h2 className="text-[20px] font-medium m-0">No leads yet</h2>
-          <p className="m-0 text-muted-2 max-w-[440px] leading-relaxed">Leads arrive from the contact form, the estimator, and Claude Cowork’s outreach. Until then, import a list you already have or add one by hand.</p>
-          <div className="flex flex-wrap justify-center gap-2.5 mt-1">
+          <h2 className="text-xl font-medium m-0">No leads yet</h2>
+          <p className="m-0 text-[13px] text-muted-2 max-w-[440px] leading-[1.6]">Leads arrive from the contact form, the estimator, and Claude Cowork’s outreach. Until then, import a list you already have or add one by hand.</p>
+          <div className="flex flex-wrap justify-center gap-2.5 mt-1.5">
             <button type="button" className={btnPrimary} onClick={() => setDialog("new")}>
               New lead
             </button>
@@ -268,108 +278,111 @@ export default function LeadsView({ initial }) {
 
       {live && view === "table" ? (
         <>
-          <div className="border border-border rounded-admin bg-surface overflow-x-auto">
-            <table className="w-full min-w-[920px] border-collapse text-[13px]">
-              <caption className="sr-only">Leads</caption>
-              <thead>
-                <tr className="bg-surface-2 text-muted-2">
-                  <th scope="col" className="w-11 pl-4 py-3">
-                    <input
-                      type="checkbox"
-                      aria-label="Select all on this page"
-                      checked={allChecked}
-                      onChange={() =>
-                        setChecks((c) => {
-                          const n = { ...c };
-                          rows.forEach((l) => (allChecked ? delete n[l.id] : (n[l.id] = true)));
-                          return n;
-                        })
-                      }
-                      className="w-4 h-4 accent-[var(--accent)]"
-                    />
-                  </th>
-                  {th("Business and contact", "business")}
-                  {th("Offer")}
-                  {th("Source")}
-                  {th("Status", "status")}
-                  {th("Received", "when")}
-                  {th("Owner")}
-                  <th scope="col" className="text-left font-normal px-4 py-3">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((l) => (
-                  <tr key={l.id} aria-selected={!!checks[l.id]} className={`border-t border-border ${checks[l.id] ? "bg-surface-2" : ""}`}>
-                    <td className="pl-4 py-3">
-                      <input type="checkbox" aria-label={`Select ${l.business}`} checked={!!checks[l.id]} onChange={() => setChecks((c) => ({ ...c, [l.id]: !c[l.id] }))} className="w-4 h-4 accent-[var(--accent)]" />
-                    </td>
-                    <td className="px-4 py-3 min-w-0">
-                      <Link href={`/admin/leads/${l.id}`} className="text-fg font-medium hover:underline">
-                        {l.business}
-                      </Link>
-                      <div className="text-[12px] text-muted-2">
-                        {l.name} · {l.email}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-muted-2">{l.offer}</td>
-                    <td className="px-4 py-3 text-muted-2">{l.source}</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center gap-2">
-                        <Dot status={l.status} />
+          <div className="border border-border rounded-admin bg-surface overflow-hidden">
+            <div className="overflow-x-auto relative">
+              <table className="w-full min-w-[940px] border-collapse text-[13px]">
+                <caption className="sr-only">Leads</caption>
+                <thead>
+                  <tr className="bg-surface-2">
+                    <th scope="col" className="pl-4 py-3.5 w-[18px]">
+                      <input
+                        type="checkbox"
+                        aria-label="Select all on this page"
+                        checked={allChecked}
+                        onChange={() =>
+                          setChecks((c) => {
+                            const n = { ...c };
+                            rows.forEach((l) => (allChecked ? delete n[l.id] : (n[l.id] = true)));
+                            return n;
+                          })
+                        }
+                        className="w-[18px] h-[18px] accent-[var(--accent)] cursor-pointer m-0 block"
+                      />
+                    </th>
+                    {th("Business and contact", "business", true)}
+                    {th("Offer")}
+                    {th("Source")}
+                    {th("Status", "status")}
+                    {th("Received", "when")}
+                    {th("Owner")}
+                    <th scope="col" className="text-right px-5 py-3.5">
+                      <span className="sr-only">Actions</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((l) => (
+                    <tr key={l.id} aria-selected={!!checks[l.id]} className={`border-t border-border hover:bg-[rgba(var(--fg-rgb),.03)] ${checks[l.id] || selected === l.id ? "bg-surface-2" : ""} ${selected === l.id ? "shadow-[inset_3px_0_0_var(--accent-light)]" : ""}`}>
+                      <td className="pl-4 py-3">
+                        <input type="checkbox" aria-label={`Select ${l.business}`} checked={!!checks[l.id]} onChange={() => setChecks((c) => ({ ...c, [l.id]: !c[l.id] }))} className="w-[18px] h-[18px] accent-[var(--accent)] cursor-pointer m-0 block" />
+                      </td>
+                      <td className="px-5 py-3">
+                        <span className="flex flex-col gap-0.5">
+                          <Link href={`/admin/leads/${l.id}`} className="font-medium text-fg hover:underline">
+                            {l.business}
+                          </Link>
+                          <span className="text-[13px] text-muted">
+                            {l.name} · {l.email}
+                          </span>
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-muted-2 whitespace-nowrap">{l.offer}</td>
+                      <td className="px-4 py-3 text-muted-2 whitespace-nowrap">{l.source}</td>
+                      <td className="px-4 py-3">
                         <label htmlFor={`status-${l.id}`} className="sr-only">
                           Status for {l.business}
                         </label>
-                        <select id={`status-${l.id}`} value={l.status} onChange={(e) => patch(l.id, { status: e.target.value }, `${l.business} · ${e.target.value}`)} className={selectCls}>
+                        <select id={`status-${l.id}`} value={l.status} onChange={(e) => patch(l.id, { status: e.target.value }, `${l.business} · ${e.target.value}`)} className={`${pillSelect} ${STATUS_TEXT[l.status]}`}>
                           {LEAD_STATUSES.map((s) => (
-                            <option key={s}>{s}</option>
+                            <option key={s} className="text-fg">
+                              {s}
+                            </option>
                           ))}
                         </select>
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-muted-2 whitespace-nowrap">{l.when}</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center gap-2">
-                        <Initial owner={l.owner} />
-                        {l.owner}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <button type="button" onClick={() => setSelected(l.id)} aria-label={`Open ${l.business}`} className="bg-transparent border-0 p-0 min-h-9 text-accent-light hover:text-fg cursor-pointer text-[13px]">
-                        Open
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {!rowsAll.length ? <p className="m-0 px-5 py-8 text-center text-muted-2">No leads match. Clear the search or pick another status.</p> : null}
-          </div>
-          <nav aria-label="Pagination" className="flex flex-wrap items-center justify-between gap-3 mt-3">
-            <span className="text-muted-2">{rowsAll.length ? `${(cur - 1) * PAGE + 1}–${Math.min(cur * PAGE, rowsAll.length)} of ${rowsAll.length}` : "0 of 0"}</span>
-            <div className="flex items-center gap-1.5">
-              <button type="button" disabled={cur === 1} onClick={() => setPage(cur - 1)} className={`${btnSecondary} disabled:opacity-50`}>
-                Prev
-              </button>
-              {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
-                <button key={n} type="button" aria-current={n === cur ? "page" : undefined} aria-label={`Page ${n}`} onClick={() => setPage(n)} className={`min-w-9 min-h-9 rounded-[10px] border text-[13px] cursor-pointer ${n === cur ? "bg-fg text-bg border-fg" : "bg-transparent text-muted-2 border-border-2"}`}>
-                  {n}
-                </button>
-              ))}
-              <button type="button" disabled={cur === pageCount} onClick={() => setPage(cur + 1)} className={`${btnSecondary} disabled:opacity-50`}>
-                Next
-              </button>
+                      </td>
+                      <td className="px-4 py-3 text-muted whitespace-nowrap">{l.when}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span className="inline-flex items-center gap-2 text-muted-2">
+                          <Initial owner={l.owner} />
+                          {l.owner}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                        <button type="button" onClick={() => setSelected(l.id)} aria-label={`Open ${l.business}`} className="min-h-9 px-3.5 rounded-full border border-border-2 bg-transparent text-fg text-[13px] cursor-pointer hover:bg-surface-2">
+                          Open
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </nav>
-          <p className="text-[12px] text-muted-2 mt-3 mb-0">Sort by business, status or received (header arrows). Tick rows for the bulk bar. Six per page here so the pager has two pages; the build uses 25.</p>
+            {!rowsAll.length ? <p className="m-0 px-5 py-8 text-[13px] text-muted text-center">No leads match. Clear the search or pick another status.</p> : null}
+            <nav aria-label="Pagination" className="flex flex-wrap justify-between items-center gap-2.5 px-5 py-3 border-t border-border text-[13px] text-muted">
+              <span>{rowsAll.length ? `${(cur - 1) * PAGE + 1}–${Math.min(cur * PAGE, rowsAll.length)} of ${rowsAll.length}` : "0 of 0"}</span>
+              <div className="flex items-center gap-1.5">
+                <button type="button" disabled={cur === 1} aria-disabled={cur === 1} onClick={() => setPage(cur - 1)} className="min-h-8 px-3 rounded-full border border-border-2 bg-transparent text-fg text-[13px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                  Prev
+                </button>
+                {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
+                  <button key={n} type="button" aria-current={n === cur ? "page" : undefined} aria-label={`Page ${n}`} onClick={() => setPage(n)} className={`min-w-8 min-h-8 px-2.5 rounded-full border text-[13px] cursor-pointer tabular-nums ${n === cur ? "bg-fg text-bg border-fg" : "bg-transparent text-muted-2 border-border-2"}`}>
+                    {n}
+                  </button>
+                ))}
+                <button type="button" disabled={cur === pageCount} aria-disabled={cur === pageCount} onClick={() => setPage(cur + 1)} className="min-h-8 px-3 rounded-full border border-border-2 bg-transparent text-fg text-[13px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                  Next
+                </button>
+              </div>
+            </nav>
+          </div>
+          <p className="text-[13px] text-muted m-0">Sort by business, status or received (header arrows, aria-sort). Tick rows for the bulk bar. Six per page here so the pager has two pages; the build uses 25.</p>
         </>
       ) : null}
 
       {live && view === "board" ? (
         <>
           <div className="overflow-x-auto pb-2">
-            <div className="grid grid-flow-col auto-cols-[minmax(210px,1fr)] gap-3 min-w-max lg:min-w-0">
+            <div className="flex gap-3 min-w-[1200px] items-start">
               {LEAD_STATUSES.map((st) => {
                 const cards = visible.filter((l) => l.status === st);
                 const drop = dragId && dragOver === st && leads.find((l) => l.id === dragId)?.status !== st;
@@ -389,16 +402,16 @@ export default function LeadsView({ initial }) {
                       setDragId(null);
                       setDragOver(null);
                     }}
-                    className={`rounded-admin p-3.5 flex flex-col gap-2.5 min-h-[320px] border ${drop ? "border-dashed border-accent-light bg-[rgba(var(--fg-rgb),.04)]" : "border-border bg-surface-2"}`}
+                    className={`flex-[1_1_0] min-w-[190px] rounded-admin p-3.5 flex flex-col gap-2.5 min-h-[320px] box-border border ${drop ? "border-dashed border-accent-light bg-[rgba(var(--fg-rgb),.04)]" : "border-border bg-surface-2"}`}
                   >
-                    <div className="flex items-center gap-2">
-                      <Dot status={st} />
-                      <h2 id={`col-${st.replace(/\s+/g, "-")}`} className="text-[13px] font-medium m-0 flex-1">
+                    <div className="flex justify-between items-center gap-2 pt-0.5 px-1.5 pb-1.5">
+                      <h2 id={`col-${st.replace(/\s+/g, "-")}`} className="text-[13px] font-medium m-0 flex items-center gap-2">
+                        <Dot status={st} />
                         {st}
                       </h2>
-                      <span className="text-[12px] text-muted-2 tabular-nums">{cards.length}</span>
+                      <span className="text-xs text-muted tabular-nums">{cards.length}</span>
                     </div>
-                    {drop ? <div className="border border-dashed border-accent-light rounded-[12px] px-3 py-4 text-center text-[12px] text-muted-2">Drop to mark {st}</div> : null}
+                    {drop ? <span className="text-[13px] text-accent-light border border-dashed border-accent-light rounded-[14px] px-3.5 py-[26px] text-center">Drop to mark {st}</span> : null}
                     {cards.map((l) => (
                       <div
                         key={l.id}
@@ -409,136 +422,166 @@ export default function LeadsView({ initial }) {
                           setDragId(l.id);
                         }}
                         onDragEnd={() => (setDragId(null), setDragOver(null))}
-                        className={`rounded-[12px] border bg-surface cursor-grab active:cursor-grabbing transition-[transform,box-shadow] ${dragId === l.id ? "border-accent-light rotate-[-2deg] -translate-y-1.5 shadow-[0_24px_48px_rgba(0,0,0,calc(.45*var(--shadow-k)))]" : selected === l.id ? "border-accent-light" : "border-border"}`}
+                        className={`rounded-[14px] transition-[transform,box-shadow] duration-200 ${dragId === l.id ? "rotate-[-2deg] -translate-y-1.5 shadow-[0_24px_48px_rgba(0,0,0,calc(.45*var(--shadow-k)))]" : ""}`}
                       >
-                        <button type="button" onClick={() => setSelected(l.id)} aria-label={`Open ${l.business}`} className="w-full text-left bg-transparent border-0 p-3 flex flex-col gap-1 cursor-inherit text-fg text-[13px]">
-                          <span className="font-medium">{l.business}</span>
-                          <span className="text-[12px] text-muted-2">{l.name}</span>
-                          <span className="flex justify-between gap-2 text-[12px] text-muted-2 mt-1">
-                            <span>{l.offerCode || "—"}</span>
-                            <span>{l.when}</span>
+                        <button
+                          type="button"
+                          onClick={() => setSelected(l.id)}
+                          aria-label={`Open ${l.business}`}
+                          className={`w-full text-left bg-surface border rounded-[14px] p-3.5 flex flex-col gap-2 text-fg cursor-grab active:cursor-grabbing ${dragId === l.id || selected === l.id ? "border-accent-light" : "border-border"}`}
+                        >
+                          <span className="text-[13px] font-medium leading-[1.3]">{l.business}</span>
+                          <span className="text-[13px] text-muted">{l.name}</span>
+                          <span className="flex flex-wrap gap-1.5 items-center mt-0.5">
+                            <span className="text-[11px] tracking-[.05em] text-muted-2 border border-border-2 rounded-full px-2 py-[3px]">{l.offerCode || "—"}</span>
+                            <span className="text-xs text-muted">{l.when}</span>
                           </span>
                         </button>
                       </div>
                     ))}
-                    {!cards.length && !drop ? <p className="m-0 text-[12px] text-muted-2 text-center py-6">Nothing here</p> : null}
+                    {!cards.length && !drop ? <span className="text-[13px] text-muted border border-dashed border-border-2 rounded-[14px] px-3.5 py-[18px] text-center">Nothing here</span> : null}
                   </section>
                 );
               })}
             </div>
           </div>
-          <p className="text-[12px] text-muted-2 mt-3 mb-0">Drag a card to another column to change its status. Open a card for the drawer; status also changes from the drawer or the table, which work from the keyboard.</p>
+          <p className="text-[13px] text-muted m-0">Drag a card to another column to change its status. Open a card for the drawer; status also changes from the drawer or the table, which work from the keyboard.</p>
         </>
       ) : null}
 
-      <p className="text-[12px] text-muted-2 mt-6 mb-0">
-        Reads <code>GET /api/admin/leads</code>; each row is what <code>POST /api/leads</code> saved from the contact form plus status and owner.
+      <p className="text-[13px] text-muted m-0">
+        Reads <code className="text-xs text-muted-2">GET /api/admin/leads</code>; each row is what <code className="text-xs text-muted-2">POST /api/leads</code> saved from the contact form: name, business, email, phone, message, source, offerCode, plus status and receivedAt.
       </p>
 
       {checkedIds.length ? (
-        <div role="toolbar" aria-label="Bulk actions" className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[300] max-w-[calc(100vw-24px)] flex flex-wrap items-center justify-center gap-2.5 bg-surface border border-border-2 rounded-[18px] px-4 py-3 shadow-[0_20px_50px_rgba(0,0,0,calc(.45*var(--shadow-k)))]">
-          <span className="text-[13px] font-medium">{checkedIds.length} selected</span>
+        <div role="toolbar" aria-label="Bulk actions" className="fixed left-1/2 bottom-7 -translate-x-1/2 z-[350] flex flex-wrap items-center gap-2 py-2 pr-2 pl-[18px] rounded-full bg-fg text-bg text-[13px] shadow-[0_20px_50px_rgba(0,0,0,calc(.4*var(--shadow-k)))] max-w-[calc(100vw-32px)]">
+          <span className="font-medium whitespace-nowrap">{checkedIds.length} selected</span>
+          <span aria-hidden="true" className="w-px h-5 bg-[rgba(var(--bg-rgb),.25)]" />
           <label htmlFor="bulk-status" className="sr-only">
             Change status
           </label>
-          <select id="bulk-status" value="" onChange={(e) => bulkPatch({ status: e.target.value }, (n) => `${n} leads moved to ${e.target.value}`)} className={selectCls}>
+          <select id="bulk-status" value="" onChange={(e) => bulkPatch({ status: e.target.value }, (n) => `${n} leads moved to ${e.target.value}`)} className={bulkCtl}>
             <option value="" disabled>
               Change status…
             </option>
             {LEAD_STATUSES.map((s) => (
-              <option key={s}>{s}</option>
+              <option key={s} className="text-fg bg-surface">
+                {s}
+              </option>
             ))}
           </select>
           <label htmlFor="bulk-owner" className="sr-only">
             Assign owner
           </label>
-          <select id="bulk-owner" value="" onChange={(e) => bulkPatch({ owner: e.target.value }, (n) => `${n} leads assigned to ${e.target.value}`)} className={selectCls}>
+          <select id="bulk-owner" value="" onChange={(e) => bulkPatch({ owner: e.target.value }, (n) => `${n} leads assigned to ${e.target.value}`)} className={bulkCtl}>
             <option value="" disabled>
               Assign to…
             </option>
             {OWNERS.map((o) => (
-              <option key={o}>{o}</option>
+              <option key={o} className="text-fg bg-surface">
+                {o}
+              </option>
             ))}
           </select>
-          <button type="button" className={btnSecondary} onClick={exportCsv}>
+          <button type="button" className={bulkCtl} onClick={exportCsv}>
             Export CSV
           </button>
-          <button type="button" className={btnSecondary} onClick={() => setDialog("bulk-delete")}>
+          <button type="button" className={bulkCtl} onClick={() => setDialog("bulk-delete")}>
             Delete
           </button>
-          <button type="button" aria-label="Clear selection" onClick={() => setChecks({})} className="w-9 h-9 rounded-[10px] border-0 bg-transparent text-muted-2 hover:text-fg hover:bg-surface-2 inline-flex items-center justify-center cursor-pointer">
+          <button type="button" aria-label="Clear selection" onClick={() => setChecks({})} className="w-[34px] h-[34px] rounded-full border-0 bg-[rgba(var(--bg-rgb),.15)] text-bg inline-flex items-center justify-center cursor-pointer p-0">
             <Icon name="close" />
           </button>
         </div>
       ) : null}
 
       {sel ? (
-        <Drawer
-          eyebrow={`Lead · ${sel.when}`}
-          title={sel.business}
-          subtitle={sel.name}
-          onClose={() => setSelected(null)}
-          footer={
-            <>
-              <button type="button" className={btnPrimary} onClick={() => patch(sel.id, { status: "Contacted" }, `${sel.business} marked contacted`)}>
-                Mark contacted
-              </button>
-              <Link href={`/admin/leads/${sel.id}`} className={btnSecondary}>
-                Open full page ↗
-              </Link>
-            </>
-          }
-        >
-          <Row id="sel-status" label="Status">
-            <select id="sel-status" className={fieldCls} value={sel.status} onChange={(e) => patch(sel.id, { status: e.target.value }, `${sel.business} · ${e.target.value}`)}>
+        <Drawer eyebrow={`Lead · ${sel.when}`} title={sel.business} subtitle={sel.name} onClose={() => setSelected(null)} width={440}>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="sel-status" className="text-[13px] text-muted-2">
+              Status
+            </label>
+            <select id="sel-status" className={`${drawerFieldCls} cursor-pointer`} value={sel.status} onChange={(e) => patch(sel.id, { status: e.target.value }, `${sel.business} · ${e.target.value}`)}>
               {LEAD_STATUSES.map((s) => (
                 <option key={s}>{s}</option>
               ))}
             </select>
-          </Row>
-          <dl className="m-0 grid grid-cols-[110px_1fr] gap-x-3 gap-y-2.5">
-            <dt className="text-muted-2">Offer</dt>
-            <dd className="m-0">
-              {sel.offer}
-              {sel.offerCode ? ` (${sel.offerCode})` : ""}
-            </dd>
-            <dt className="text-muted-2">Source</dt>
-            <dd className="m-0">{sel.source}</dd>
-            <dt className="text-muted-2">Email</dt>
-            <dd className="m-0 break-all">
-              <a href={`mailto:${plainEmail(sel.email)}`} className="text-accent-light">
-                {sel.email}
-              </a>
-            </dd>
-            <dt className="text-muted-2">Phone</dt>
-            <dd className="m-0">
-              <a href="tel:+17045550100" className="text-accent-light">
-                {sel.phone || "—"}
-              </a>
-            </dd>
-            <dt className="text-muted-2">
-              <label htmlFor="sel-owner">Owner</label>
-            </dt>
-            <dd className="m-0">
-              <select id="sel-owner" className={selectCls} value={sel.owner} onChange={(e) => patch(sel.id, { owner: e.target.value }, `Owner set to ${e.target.value}`)}>
-                {OWNERS.map((o) => (
-                  <option key={o}>{o}</option>
-                ))}
-              </select>
-            </dd>
-            <dt className="text-muted-2">Next action</dt>
-            <dd className="m-0">{sel.next}</dd>
+          </div>
+          <dl className="m-0 grid grid-cols-2 gap-x-4 gap-y-3.5 text-sm">
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs text-muted">Offer</dt>
+              <dd className="m-0">
+                {sel.offer} {sel.offerCode ? <span className="text-muted">({sel.offerCode})</span> : null}
+              </dd>
+            </div>
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs text-muted">Source</dt>
+              <dd className="m-0">{sel.source}</dd>
+            </div>
+            <div className="flex flex-col gap-1 min-w-0">
+              <dt className="text-xs text-muted">Email</dt>
+              <dd className="m-0 break-all">
+                <a href={`mailto:${plainEmail(sel.email)}`} className="text-accent-light">
+                  {sel.email}
+                </a>
+              </dd>
+            </div>
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs text-muted">Phone</dt>
+              <dd className="m-0">
+                <a href="tel:+17045550100" className="text-accent-light">
+                  {sel.phone || "—"}
+                </a>
+              </dd>
+            </div>
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs text-muted">Owner</dt>
+              <dd className="m-0">
+                <label htmlFor="sel-owner" className="sr-only">
+                  Owner
+                </label>
+                <select id="sel-owner" className="min-h-8 rounded-full border border-border-2 bg-surface-2 text-fg px-2.5 text-[13px] cursor-pointer" value={sel.owner} onChange={(e) => patch(sel.id, { owner: e.target.value }, `Owner set to ${e.target.value}`)}>
+                  {OWNERS.map((o) => (
+                    <option key={o}>{o}</option>
+                  ))}
+                </select>
+              </dd>
+            </div>
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs text-muted">Next action</dt>
+              <dd className="m-0">{sel.next}</dd>
+            </div>
           </dl>
           {sel.message ? (
-            <div>
-              <div className="text-muted-2 mb-1">Message</div>
-              <p className="m-0 leading-relaxed">{sel.message}</p>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs text-muted">Message</span>
+              <p className="m-0 text-sm leading-[1.65] text-muted-2 bg-surface-2 border border-border rounded-[14px] px-4 py-3.5">{sel.message}</p>
             </div>
           ) : null}
-          <Row id="sel-notes" label="Internal notes">
-            <textarea id="sel-notes" rows={3} className={`${fieldCls} resize-y`} placeholder="Call notes, next step, who owns it" defaultValue={sel.notes || ""} onBlur={(e) => e.target.value !== (sel.notes || "") && patch(sel.id, { notes: e.target.value })} />
-          </Row>
-          <p className="m-0 text-[12px] text-muted-2">Status and owner write to <code>PATCH /api/admin/leads/[id]</code>. Calls, emails, notes, proposals and the next action live on the full page.</p>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="sel-notes" className="text-[13px] text-muted-2">
+              Internal notes
+            </label>
+            <textarea
+              id="sel-notes"
+              rows={3}
+              className="rounded-[14px] border border-border-2 bg-surface-2 text-fg px-3.5 py-3 text-sm leading-normal resize-y font-[inherit]"
+              placeholder="Call notes, next step, who owns it"
+              defaultValue={sel.notes || ""}
+              onBlur={(e) => e.target.value !== (sel.notes || "") && patch(sel.id, { notes: e.target.value })}
+            />
+          </div>
+          <div className="flex flex-wrap gap-2.5">
+            <button type="button" className="flex-[1_1_160px] min-h-12 rounded-full border-2 border-transparent bg-fg text-bg text-sm font-medium cursor-pointer hover:opacity-90" onClick={() => patch(sel.id, { status: "Contacted" }, `${sel.business} marked contacted`)}>
+              Mark contacted
+            </button>
+            <Link href={`/admin/leads/${sel.id}`} className="flex-[1_1_160px] min-h-12 rounded-full border-2 border-border bg-transparent text-fg text-sm font-medium inline-flex items-center justify-center gap-2 hover:bg-surface-2">
+              Open full page <span aria-hidden="true">↗</span>
+            </Link>
+          </div>
+          <p className="m-0 text-xs text-muted">
+            Status and owner write to <code className="text-muted-2">PATCH /api/admin/leads/[id]</code>. Email and phone open the device’s mail and phone apps. Calls, emails, notes, proposals and the next action live on the full page.
+          </p>
         </Drawer>
       ) : null}
 
@@ -569,7 +612,7 @@ export default function LeadsView({ initial }) {
         <Dialog
           role="alertdialog"
           describedBy="bd-p"
-          size="sm"
+          width={440}
           title={`Delete ${checkedIds.length} leads?`}
           onClose={() => setDialog("none")}
           footer={
@@ -583,7 +626,7 @@ export default function LeadsView({ initial }) {
             </>
           }
         >
-          <p id="bd-p" className="m-0 text-muted-2 leading-relaxed">
+          <p id="bd-p" className="m-0 text-[13px] text-muted-2 leading-[1.6]">
             They leave the list and the board, with their notes and activity. The original contact-form submissions stay in the database export for 30 days. This can’t be undone from here.
           </p>
         </Dialog>

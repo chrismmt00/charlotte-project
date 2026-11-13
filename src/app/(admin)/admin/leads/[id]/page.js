@@ -16,7 +16,7 @@ export default function LeadPage({ params }) {
 
 function LeadFallback() {
   return (
-    <div aria-busy="true" className="flex flex-col gap-4">
+    <div aria-busy="true" className="flex flex-col gap-6">
       <Skeleton className="h-4 w-48" />
       <Skeleton className="h-9 w-72" />
       <Skeleton className="h-40" />

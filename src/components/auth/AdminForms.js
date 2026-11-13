@@ -72,7 +72,7 @@ export function SignInCard() {
   const failedShown = f.failed;
   return (
     <AuthCard
-      eyebrow="Admin · sign in"
+      eyebrow="Admin · /admin/signin"
       title="Sign in to Klyvora."
       titleId="a1"
       intro="Team only. Use your work email."
@@ -149,7 +149,7 @@ export function CodeCard() {
 
   return (
     <AuthCard
-      eyebrow="New device"
+      eyebrow="New device · /admin/signin/code"
       title="Enter the code we texted."
       titleId="a7"
       intro={
@@ -255,7 +255,7 @@ function ResetRequestCard() {
     );
   }
   return (
-    <AuthCard eyebrow="Reset password" title="Reset your password." titleId="a3" intro="Enter your work email and we’ll send a link that sets a new one." note="Admin accounts are created by the owner in Settings; there is no public sign-up.">
+    <AuthCard eyebrow="Reset password · /admin/signin/reset" title="Reset your password." titleId="a3" intro="Enter your work email and we’ll send a link that sets a new one." note="Admin accounts are created by the owner in Settings; there is no public sign-up.">
       <form noValidate onSubmit={submit} className="flex flex-col gap-3">
         {f.failed ? <AuthAlert>We couldn’t send the email just now. Try again in a moment.</AuthAlert> : null}
         <AuthField id="a3-email" label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@klyvora.ai" autoComplete="username" disabled={f.busy} error={err} />
@@ -305,7 +305,7 @@ function ResetCard({ token }) {
 
   return (
     <AuthCard
-      eyebrow="Reset password"
+      eyebrow="Reset password · /admin/signin/reset"
       title="Set a new password."
       titleId="a4"
       intro="You opened the reset link we sent to [you@klyvora.ai]."
@@ -383,7 +383,7 @@ function InviteCard({ token }) {
 
   return (
     <AuthCard
-      eyebrow="Invitation"
+      eyebrow="Invitation · /admin/signin/invite"
       title="Chris added you to Klyvora."
       titleId="a5"
       intro={

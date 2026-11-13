@@ -15,7 +15,7 @@ export default function DemoPage({ params }) {
 
 function DemoFallback() {
   return (
-    <div aria-busy="true" className="flex flex-col gap-4">
+    <div aria-busy="true" className="flex flex-col gap-6">
       <Skeleton className="h-9 w-72" />
       <Skeleton className="h-72 rounded-admin" />
     </div>

@@ -1,15 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Drawer, Row, Initial, fieldCls } from "@/components/admin/leads/Overlay";
-import { Chip, btnPrimary, btnSecondary } from "@/components/admin/ui";
-import { OUTREACH_OWNERS, PHASES, PHASE_TONE } from "@/lib/admin/sample-outreach";
+import { Drawer, Initial, drawerFieldCls } from "@/components/admin/leads/Overlay";
+import { OUTREACH_OWNERS, PHASES } from "@/lib/admin/sample-outreach";
 
-// Prospect drawer: why Claude picked them, the activity timeline, phase/owner, demo assignment.
+const labelCls = "text-[13px] text-muted-2";
+const pillBtn = "min-h-12 rounded-full border border-border-2 bg-transparent text-fg text-[13px] cursor-pointer inline-flex items-center justify-center gap-2 flex-[1_1_150px] hover:bg-surface-2 disabled:opacity-60 disabled:cursor-not-allowed";
+
+// Prospect drawer (board: 480px): why Claude picked them, the activity timeline, phase/owner, demo assignment.
 export default function ProspectDrawer({ p, builder, onBuilder, onClose, onChange, onStartDemo, onLog, onConvert, onNotFit }) {
   const final = p.phase === "Became a lead" || p.phase === "Not a fit";
   return (
     <Drawer
+      width={480}
       eyebrow={`Prospect · found ${p.found}`}
       title={p.business}
       subtitle={
@@ -25,107 +28,108 @@ export default function ProspectDrawer({ p, builder, onBuilder, onClose, onChang
         </span>
       }
       onClose={onClose}
-      footer={
-        <>
-          <button type="button" className={btnSecondary} onClick={() => onLog(p.id)}>
-            Log outreach
-          </button>
-          {p.phase === "Became a lead" ? (
-            <Link href="/admin/leads" className={btnSecondary}>
-              Open in Leads ↗
-            </Link>
-          ) : (
-            <button type="button" className={btnPrimary} disabled={p.phase === "Not a fit"} onClick={() => onConvert(p)}>
-              Convert to lead
-            </button>
-          )}
-          <button type="button" className={btnSecondary} disabled={final} onClick={() => onNotFit(p)}>
-            Not a fit
-          </button>
-        </>
-      }
     >
-      <div className="grid grid-cols-2 gap-4">
-        <Row id="sel-phase" label="Phase">
-          <select id="sel-phase" className={fieldCls} value={p.phase} onChange={(e) => onChange(p.id, { phase: e.target.value })}>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="sel-phase" className={labelCls}>
+            Phase
+          </label>
+          <select id="sel-phase" className={`${drawerFieldCls} cursor-pointer`} value={p.phase} onChange={(e) => onChange(p.id, { phase: e.target.value })}>
             {PHASES.map((ph) => (
               <option key={ph}>{ph}</option>
             ))}
           </select>
-        </Row>
-        <Row id="sel-owner" label="Owner">
-          <select id="sel-owner" className={fieldCls} value={p.owner} onChange={(e) => onChange(p.id, { owner: e.target.value }, `Owner set to ${e.target.value}`)}>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="sel-owner" className={labelCls}>
+            Owner
+          </label>
+          <select id="sel-owner" className={`${drawerFieldCls} cursor-pointer`} value={p.owner} onChange={(e) => onChange(p.id, { owner: e.target.value }, `Owner set to ${e.target.value}`)}>
             {OUTREACH_OWNERS.map((o) => (
               <option key={o}>{o}</option>
             ))}
           </select>
-        </Row>
-      </div>
-      <div className="flex flex-wrap items-center gap-2 text-muted-2">
-        <Chip tone={PHASE_TONE[p.phase]}>{p.phase}</Chip>
-        <span className="inline-flex items-center gap-1.5">
-          <Initial owner={p.owner} />
-          {p.owner}
-        </span>
-        <span>· suggested offer: {p.offer}</span>
+        </div>
       </div>
 
-      <section aria-labelledby="why-h">
-        <h3 id="why-h" className="text-[13px] font-medium m-0 mb-2">
+      <section aria-labelledby="why-h" className="flex flex-col gap-2">
+        <span id="why-h" className="text-xs text-muted">
           Why Claude picked them
-        </h3>
-        <ul className="list-none p-0 m-0 flex flex-col gap-1.5">
+        </span>
+        <ul className="list-none m-0 px-4 py-3.5 flex flex-col gap-1.5 text-sm leading-normal text-muted-2 bg-surface-2 border border-border rounded-[14px]">
           {p.why.map((w) => (
-            <li key={w} className="flex gap-2 text-muted-2">
-              <span aria-hidden="true">·</span>
+            <li key={w} className="flex gap-2.5">
+              <span aria-hidden="true" className="text-accent-light">
+                ·
+              </span>
               {w}
             </li>
           ))}
         </ul>
       </section>
 
-      <section aria-labelledby="hist-h">
-        <h3 id="hist-h" className="text-[13px] font-medium m-0 mb-3">
+      <section aria-labelledby="hist-h" className="flex flex-col gap-2.5">
+        <span id="hist-h" className="text-xs text-muted">
           What’s happened so far
-        </h3>
-        <ol className="list-none p-0 m-0 flex flex-col gap-3">
+        </span>
+        <ol className="list-none p-0 m-0 flex flex-col">
           {p.activity.map((a, i) => (
-            <li key={i} className="flex gap-3">
-              <Initial owner={a.who} />
-              <div className="min-w-0">
-                <div>{a.text}</div>
-                <div className="text-[12px] text-muted-2">
+            <li key={i} className="flex gap-3 py-2.5 border-t border-border">
+              <span className="mt-px">
+                <Initial owner={a.who} variant="owner" />
+              </span>
+              <span className="flex flex-col gap-0.5 text-sm leading-normal">
+                <span>{a.text}</span>
+                <span className="text-xs text-muted">
                   {a.who} · {a.when}
-                </div>
-              </div>
+                </span>
+              </span>
             </li>
           ))}
         </ol>
       </section>
 
-      <Row id="sel-next" label="Next step">
-        <input id="sel-next" key={p.next} className={fieldCls} type="text" defaultValue={p.next} onBlur={(e) => e.target.value !== p.next && onChange(p.id, { next: e.target.value })} />
-      </Row>
+      <div className="flex flex-col gap-2">
+        <label htmlFor="sel-next" className={labelCls}>
+          Next step
+        </label>
+        <input id="sel-next" key={p.next} className={drawerFieldCls} type="text" defaultValue={p.next} onBlur={(e) => e.target.value !== p.next && onChange(p.id, { next: e.target.value })} />
+      </div>
 
-      <section aria-labelledby="demo-h" className="border border-border rounded-admin p-4 flex flex-col gap-3">
-        <h3 id="demo-h" className="text-[13px] font-medium m-0">
-          Demo
-        </h3>
-        <Row id="sel-builder" label="Who builds the demo">
-          <select id="sel-builder" className={fieldCls} value={builder} onChange={(e) => onBuilder(e.target.value)}>
-            <option value="Claude">Claude Cowork</option>
-            {OUTREACH_OWNERS.filter((o) => o !== "Claude").map((o) => (
-              <option key={o}>{o}</option>
-            ))}
-          </select>
-        </Row>
-        <div>
-          <button type="button" className={btnSecondary} disabled={final} onClick={() => onStartDemo(p.id)}>
+      <div className="flex flex-wrap gap-2.5">
+        <div className="flex-[1_1_100%] flex flex-wrap gap-2.5 items-end px-4 py-3.5 bg-surface-2 border border-border rounded-[14px]">
+          <div className="flex-[1_1_160px] flex flex-col gap-1.5">
+            <label htmlFor="sel-builder" className={labelCls}>
+              Who builds the demo
+            </label>
+            <select id="sel-builder" className={`${drawerFieldCls} !bg-surface cursor-pointer`} value={builder} onChange={(e) => onBuilder(e.target.value)}>
+              <option value="Claude">Claude Cowork</option>
+              {OUTREACH_OWNERS.filter((o) => o !== "Claude").map((o) => (
+                <option key={o}>{o}</option>
+              ))}
+            </select>
+          </div>
+          <button type="button" disabled={final} onClick={() => onStartDemo(p.id)} className="flex-[1_1_150px] min-h-11 rounded-full border-2 border-transparent bg-fg text-bg text-[13px] font-medium cursor-pointer inline-flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed">
             Start a demo
           </button>
+          <span className="flex-[1_1_100%] text-xs text-muted">{builder === "Claude" ? "Claude builds it from what it found. The demo lands in the approval queue; nothing is sent until you approve it." : "Assigned to a person. They send it when it is ready."}</span>
         </div>
-        <p className="m-0 text-[12px] text-muted-2">{builder === "Claude" ? "Claude builds it from what it found. The demo lands in the approval queue; nothing is sent until you approve it." : "Assigned to a person. They send it when it is ready."}</p>
-      </section>
+        <button type="button" onClick={() => onLog(p.id)} className={pillBtn}>
+          Log outreach
+        </button>
+        {p.phase === "Became a lead" ? (
+          <Link href="/admin/leads" className={pillBtn}>
+            Open in Leads ↗
+          </Link>
+        ) : (
+          <button type="button" disabled={p.phase === "Not a fit"} onClick={() => onConvert(p)} className={pillBtn}>
+            Convert to lead <span aria-hidden="true">↗</span>
+          </button>
+        )}
+        <button type="button" disabled={final} onClick={() => onNotFit(p)} className="flex-[1_1_100%] min-h-11 rounded-full border border-border bg-transparent text-muted-2 text-[13px] cursor-pointer inline-flex items-center justify-center hover:bg-surface-2 disabled:opacity-60 disabled:cursor-not-allowed">
+          Not a fit
+        </button>
+      </div>
     </Drawer>
   );
 }

@@ -56,7 +56,7 @@ export function TextField({ id, label, value, onChange, error, hint, textarea, r
         aria-required={required ? true : undefined}
         aria-describedby={err || hid}
         rows={textarea ? rows : undefined}
-        className={`${fieldInput} ${error ? "border-danger" : "border-border-2"} ${textarea ? "py-2.5 leading-normal resize-y" : ""}`}
+        className={`${fieldInput} ${error ? "border-danger" : "border-border-2"} ${textarea ? "py-2.5 leading-normal resize-y min-h-0" : ""}`}
         {...rest}
       />
       {error ? <ErrorLine id={err}>{error}</ErrorLine> : null}

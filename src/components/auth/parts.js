@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { BrandMark } from "@/components/ui/Bits";
-import { Label, inputClass } from "@/components/ui/Field";
 
 // Shared pieces of the admin sign-in cards (one centred card, 440px on a phone).
 //
@@ -32,7 +31,7 @@ export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function AuthCard({ eyebrow, title, titleId, intro, note, children }) {
   return (
-    <section aria-labelledby={titleId} className="w-full max-w-[440px] bg-surface border border-border rounded-card p-6 sm:p-8 box-border flex flex-col gap-[18px]">
+    <section aria-labelledby={titleId} className="w-full max-w-[440px] bg-surface border border-border rounded-card p-[clamp(22px,3vw,32px)] min-h-[560px] box-border flex flex-col gap-[18px]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href="/" className="inline-flex items-center gap-2.5 min-h-11" aria-label="Klyvora home">
           <BrandMark size={36} />
@@ -41,19 +40,19 @@ export function AuthCard({ eyebrow, title, titleId, intro, note, children }) {
         <span className="eyebrow">{eyebrow}</span>
       </div>
       <div>
-        <h1 id={titleId} className="font-display font-normal text-[34px] sm:text-[36px] leading-[1.05] m-0 mb-2.5">
+        <h1 id={titleId} className="font-display font-normal text-[36px] leading-[1.05] m-0 mb-2.5">
           {title}
         </h1>
-        {intro ? <p className="m-0 text-[15px] leading-relaxed text-muted-2">{intro}</p> : null}
+        {intro ? <p className="m-0 text-[15px] leading-[1.6] text-muted-2">{intro}</p> : null}
       </div>
       {children}
-      {note ? <p className="m-0 mt-auto text-[13px] leading-relaxed text-muted-2">{note}</p> : null}
+      {note ? <p className="m-0 mt-auto text-[13px] leading-[1.6] text-muted-2">{note}</p> : null}
     </section>
   );
 }
 
 export function AuthAlert({ children, tone = "danger" }) {
-  const cls = tone === "danger" ? "border-danger bg-danger/10" : "border-border-2 bg-surface-2";
+  const cls = tone === "danger" ? "border-danger bg-danger/[.08]" : "border-border-2 bg-surface-2";
   return (
     <div role={tone === "danger" ? "alert" : "status"} className={`flex gap-2.5 items-start px-3.5 py-3 rounded-input border text-[14px] leading-normal ${cls}`}>
       <span className={`flex-none mt-0.5 ${tone === "danger" ? "text-danger" : "text-accent-light"}`}>
@@ -78,15 +77,24 @@ export function AuthField({ id, label, error, hint, className = "", ...rest }) {
   const hid = hint && !error ? `${id}-hint` : undefined;
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
-      <Label htmlFor={id}>{label}</Label>
-      <input id={id} name={id} aria-invalid={error ? true : undefined} aria-describedby={err || hid} className={`${inputClass} ${error ? "border-danger" : "border-border-2"} disabled:opacity-70`} {...rest} />
+      <label htmlFor={id} className="text-[13px] text-muted-2">
+        {label}
+      </label>
+      <input
+        id={id}
+        name={id}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={err || hid}
+        className={`min-h-12 w-full box-border rounded-input border bg-surface-2 text-fg px-4 text-[15px] font-[inherit] disabled:opacity-70 ${error ? "border-danger" : "border-border-2"}`}
+        {...rest}
+      />
       {error ? (
-        <span id={err} role="alert" className="text-[12px] text-danger">
+        <span id={err} role="alert" className="text-[13px] text-danger">
           {error}
         </span>
       ) : null}
       {hint && !error ? (
-        <span id={hid} className="text-[12px] text-muted-2">
+        <span id={hid} className="text-[13px] text-muted-2">
           {hint}
         </span>
       ) : null}
@@ -125,7 +133,7 @@ export function PrimaryButton({ busy, busyLabel, children, ...rest }) {
 
 export function SecondaryButton({ children, ...rest }) {
   return (
-    <button type="button" className={`${btnBase} min-h-12 bg-transparent text-fg border border-border-2 hover:bg-surface-2 disabled:opacity-60`} {...rest}>
+    <button type="button" className={`${btnBase} min-h-12 text-[14px] bg-transparent text-fg border border-border-2 hover:bg-surface-2 disabled:opacity-60`} {...rest}>
       {children}
     </button>
   );

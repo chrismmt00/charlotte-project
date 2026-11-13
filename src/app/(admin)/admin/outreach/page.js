@@ -17,9 +17,9 @@ export default function OutreachPage() {
 
 function OutreachFallback() {
   return (
-    <div aria-busy="true">
+    <div aria-busy="true" className="flex flex-col gap-6">
       <PageHead eyebrow="Outreach · daily prospecting with Claude Cowork" title="Outreach" />
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-3 mb-6">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <Skeleton key={i} className="h-24 rounded-admin" />
         ))}

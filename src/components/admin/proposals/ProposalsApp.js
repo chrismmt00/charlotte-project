@@ -2,17 +2,20 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { PageHead, Chip, Empty, Skeleton, btnPrimary, btnSecondary, btnGhost } from "@/components/admin/ui";
-import { AlertIcon, DevStateSwitch, Toast, api, useToast } from "@/components/admin/clients/kit";
-import { PROPOSAL_STATUSES, PROPOSAL_TONE, usd } from "@/components/proposal/model";
-import ProposalBuilder, { newDraft, totalsOf } from "./ProposalBuilder";
+import { btnPrimary, btnSecondary } from "@/components/admin/ui";
+import { DevStateSwitch, EmptyCard, ErrorCard, FilterChip, Skel, Toast, TitleBlock, api, btnS, tdCls, thCls, trCls, useToast } from "@/components/admin/clients/kit";
+import { PROPOSAL_STATUSES, usd } from "@/components/proposal/model";
+import ProposalBuilder, { StatusChip, newDraft, totalsOf } from "./ProposalBuilder";
 
+// Board: surface-2 tile, radius 16, padding 18 20, value 32/500.
 function Total({ label, value, note }) {
   return (
-    <div className="bg-surface border border-border rounded-admin px-5 py-4 flex flex-col gap-1.5 min-w-0">
+    <div className="bg-surface-2 border border-border rounded-admin px-5 py-[18px] box-border flex flex-col gap-1.5 min-w-0">
       <span className="text-[13px] text-muted-2">{label}</span>
-      <span className="text-[28px] font-medium leading-none tabular-nums">{value}</span>
-      <span className="text-[13px] text-muted-2">{note}</span>
+      <span className="flex flex-wrap items-baseline gap-2.5">
+        <span className="text-[32px] font-medium leading-none tabular-nums">{value}</span>
+        <span className="text-[13px] text-muted">{note}</span>
+      </span>
     </div>
   );
 }
@@ -53,33 +56,34 @@ export default function ProposalsApp({ initialRoute }) {
 
   const patch = (id, fields) => setProposals((list) => (list || []).map((x) => (x.id === id ? { ...x, ...fields } : x)));
   const upsert = (p) => setProposals((list) => ((list || []).some((x) => x.id === p.id) ? list.map((x) => (x.id === p.id ? { ...x, ...p } : x)) : [p, ...(list || [])]));
+  const newProposal = () => setRoute({ view: "builder", fresh: true, leadId: "" });
 
   if (route.view === "builder") {
     const found = route.fresh ? null : all.find((x) => x.id === route.id);
     if (!route.fresh && !found) {
       if (failed) {
         return (
-          <div role="alert" className="border border-fg rounded-admin bg-surface px-6 py-10 text-center flex flex-col items-center gap-3">
-            <AlertIcon size={28} />
-            <h2 className="text-[18px] font-medium m-0">Couldn’t load that proposal</h2>
-            <div className="flex gap-2">
-              <button type="button" onClick={retry} className={btnPrimary}>
-                Retry
-              </button>
-              <button type="button" onClick={() => setRoute({ view: "list" })} className={btnSecondary}>
-                All proposals
-              </button>
-            </div>
-          </div>
+          <ErrorCard title="Couldn’t load that proposal" onRetry={retry}>
+            Nothing was changed. Try again, or go back to all proposals.
+          </ErrorCard>
         );
       }
       return proposals === null ? (
-        <div aria-busy="true" aria-label="Loading proposal" className="flex flex-col gap-4">
-          <Skeleton className="h-8 w-80" />
-          <Skeleton className="h-64 w-full" />
+        <div aria-busy="true" aria-label="Loading proposal" className="flex flex-col gap-5">
+          <Skel className="h-10 w-80" />
+          <Skel className="h-64 w-full" />
         </div>
       ) : (
-        <Empty title="No proposal with that id" action={<button type="button" onClick={() => setRoute({ view: "list" })} className={btnPrimary}>All proposals</button>} />
+        <EmptyCard
+          title="No proposal with that id"
+          actions={
+            <button type="button" onClick={() => setRoute({ view: "list" })} className={btnPrimary}>
+              All proposals
+            </button>
+          }
+        >
+          It may have been removed. Go back to the list to pick another.
+        </EmptyCard>
       );
     }
     return (
@@ -113,39 +117,40 @@ export default function ProposalsApp({ initialRoute }) {
 
   return (
     <>
-      <PageHead eyebrow={`Proposals · ${all.length} total`} title="Proposals">
-        <DevStateSwitch value={force} onChange={setForce} options={["auto", "live", "loading", "empty", "error"]} />
-        <Link href="/admin/settings?tab=templates" className={btnSecondary}>
-          Templates
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[13px] text-muted">
+        <Link href="/admin/leads" className="text-muted-2 hover:text-fg">
+          Leads
         </Link>
-        <button type="button" onClick={() => setRoute({ view: "builder", fresh: true, leadId: "" })} className={btnPrimary}>
-          New proposal
-        </button>
-      </PageHead>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page" className="text-fg">
+          Proposals
+        </span>
+      </nav>
 
-      <section aria-label="Totals" className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 mb-4">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <TitleBlock eyebrow={`Proposals · ${all.length} total`} title="Proposals" />
+        <div className="flex flex-wrap items-center gap-2">
+          <DevStateSwitch value={force} onChange={setForce} options={["auto", "live", "loading", "empty", "error"]} />
+          <Link href="/admin/settings?tab=templates" className={btnSecondary}>
+            Templates
+          </Link>
+          <button type="button" onClick={newProposal} className={btnPrimary}>
+            New proposal
+          </button>
+        </div>
+      </header>
+
+      <section aria-label="Totals" className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-4">
         <Total label="Out for signature" value={out.length} note={`${usd(sum(out))} in builds`} />
         <Total label="Accepted this month" value={acc.length} note={`${usd(sum(acc))} · counts toward $20,000 signed`} />
         <Total label="Acceptance rate" value="[x]%" note="last 90 days · needs 10+ sent" />
         <Total label="Days to sign" value="[x]" note="median · follow up at day 3" />
       </section>
 
-      <div role="group" aria-label="Filter proposals" className="flex flex-wrap gap-1.5 mb-4">
-        {["All", ...PROPOSAL_STATUSES].map((f) => {
-          const on = filter === f;
-          const n = f === "All" ? all.length : all.filter((x) => x.status === f).length;
-          return (
-            <button
-              key={f}
-              type="button"
-              aria-pressed={on}
-              onClick={() => setFilter(f)}
-              className={`min-h-9 px-3.5 rounded-full border text-[13px] inline-flex items-center gap-2 cursor-pointer ${on ? "bg-fg text-bg border-fg" : "bg-transparent text-muted-2 border-border-2 hover:text-fg"}`}
-            >
-              {f} <span className={`text-xs tabular-nums ${on ? "opacity-70" : "text-muted-2"}`}>{n}</span>
-            </button>
-          );
-        })}
+      <div role="group" aria-label="Filter proposals" className="flex flex-wrap gap-1.5">
+        {["All", ...PROPOSAL_STATUSES].map((f) => (
+          <FilterChip key={f} label={f} on={filter === f} onClick={() => setFilter(f)} count={f === "All" ? all.length : all.filter((x) => x.status === f).length} />
+        ))}
       </div>
 
       {mode === "loading" ? (
@@ -153,101 +158,107 @@ export default function ProposalsApp({ initialRoute }) {
           {[0, 1, 2, 3, 4].map((i) => (
             <div key={i} className="grid grid-cols-[2.4fr_1.4fr_1fr_1fr_1.8fr] max-md:grid-cols-[2fr_1fr] gap-4 items-center px-5 py-4 border-t border-border first:border-t-0">
               <span className="flex flex-col gap-2">
-                <Skeleton className={`h-3.5 ${["w-3/4", "w-2/3", "w-4/5", "w-3/5", "w-2/3"][i]}`} />
-                <Skeleton className="h-2.5 w-1/3" />
+                <Skel className={`h-3 ${["w-3/4", "w-2/3", "w-4/5", "w-3/5", "w-2/3"][i]}`} />
+                <Skel className="h-2.5 w-1/3" />
               </span>
-              <Skeleton className="h-6 w-3/5 !rounded-full" />
-              <Skeleton className="h-3.5 w-1/2 max-md:hidden" />
-              <Skeleton className="h-3.5 w-1/2 max-md:hidden" />
-              <Skeleton className="h-3.5 w-4/5 max-md:hidden" />
+              <Skel className="h-6 w-3/5 !rounded-full" />
+              <Skel className="h-3 w-1/2 max-md:hidden" />
+              <Skel className="h-3 w-1/2 max-md:hidden" />
+              <Skel className="h-3 w-4/5 max-md:hidden" />
             </div>
           ))}
         </div>
       ) : null}
 
       {mode === "error" ? (
-        <div role="alert" className="border border-fg rounded-admin bg-surface px-6 py-10 flex flex-col items-center text-center gap-3">
-          <AlertIcon size={28} />
-          <h2 className="text-[18px] font-medium m-0">Couldn’t load proposals</h2>
-          <p className="m-0 text-[13px] text-muted-2 max-w-[420px] leading-relaxed">
-            <code className="text-xs">GET /api/admin/proposals</code> returned 500. Nothing was changed. Try again.
-          </p>
-          <button type="button" onClick={retry} className={btnPrimary}>
-            Retry
-          </button>
-        </div>
+        <ErrorCard title="Couldn’t load proposals" onRetry={retry}>
+          <code className="font-mono text-xs">GET /api/admin/proposals</code> returned 500. Nothing was changed. Try again.
+        </ErrorCard>
       ) : null}
 
       {mode === "empty" ? (
-        <Empty
+        <EmptyCard
           title="No proposals yet"
-          action={
-            <div className="flex flex-wrap justify-center gap-2.5">
-              <button type="button" onClick={() => setRoute({ view: "builder", fresh: true, leadId: "" })} className={btnPrimary}>
+          actions={
+            <>
+              <button type="button" onClick={newProposal} className={btnPrimary}>
                 New proposal
               </button>
               <Link href="/admin/leads" className={btnSecondary}>
                 Open Leads
               </Link>
-            </div>
+            </>
           }
         >
           A proposal is the price page for one lead: offer, scope, 50 / 30 / 20 schedule, the optional monthly, and a signature box. Start one from a lead, or here.
-        </Empty>
+        </EmptyCard>
       ) : null}
 
       {mode === "live" ? (
         <div className="bg-surface border border-border rounded-admin overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[920px] border-collapse text-[13px]">
+            <table className="w-full min-w-[980px] border-collapse text-[13px]">
               <caption className="sr-only">Proposals</caption>
               <thead>
-                <tr className="bg-surface-2 text-left text-muted-2">
-                  {["Proposal", "For", "Offer", "Build", "Monthly", "Status", "Sent · expires", "Actions"].map((h) => (
-                    <th key={h} scope="col" className={`font-medium px-4 py-3 whitespace-nowrap first:pl-5 ${h === "Actions" ? "text-right pr-5" : ""}`}>
+                <tr className="bg-surface-2">
+                  {[
+                    ["Proposal", ""],
+                    ["For", ""],
+                    ["Offer", ""],
+                    ["Build", "!text-right"],
+                    ["Monthly", "!text-right"],
+                    ["Status", ""],
+                    ["Sent · expires", ""],
+                  ].map(([h, c]) => (
+                    <th key={h} scope="col" className={`${thCls} ${c}`}>
                       {h}
                     </th>
                   ))}
+                  <th scope="col" className={`${thCls} !text-right`}>
+                    <span className="sr-only">Actions</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((x) => {
                   const t = totalsOf(x);
                   return (
-                    <tr key={x.id} className="border-t border-border hover:bg-surface-2">
-                      <td className="px-4 py-3 pl-5">
-                        <button type="button" onClick={() => setRoute({ view: "builder", id: x.id })} className="bg-transparent border-0 p-0 text-left text-fg font-medium hover:underline cursor-pointer text-[13px]">
+                    <tr key={x.id} className={trCls}>
+                      <td className={tdCls}>
+                        <button type="button" onClick={() => setRoute({ view: "builder", id: x.id })} className="bg-transparent border-0 p-0 font-[inherit] text-[13px] text-fg font-medium text-left cursor-pointer">
                           {x.id} · {x.name}
                         </button>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <Link href={x.leadId ? "/admin/leads" : "/admin/clients"} className="text-accent-light hover:text-fg">
+                      <td className={tdCls}>
+                        <Link href={x.leadId ? "/admin/leads" : "/admin/clients"} className="text-fg">
                           {x.business}
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-muted-2">{x.offerCode}</td>
-                      <td className="px-4 py-3 tabular-nums whitespace-nowrap">
+                      <td className={`${tdCls} text-muted-2 whitespace-nowrap`}>{x.offerCode}</td>
+                      <td className={`${tdCls} text-right tabular-nums whitespace-nowrap`}>
                         {t.buildFrom ? "from " : ""}
                         {usd(t.build)}
                       </td>
-                      <td className="px-4 py-3 text-muted-2 tabular-nums whitespace-nowrap">{t.monthlyOn ? `${usd(t.monthlyAmount)}/mo` : "—"}</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <Chip tone={PROPOSAL_TONE[x.status]}>{x.status}</Chip>
+                      <td className={`${tdCls} text-right tabular-nums whitespace-nowrap text-muted-2`}>{t.monthlyOn ? `${usd(t.monthlyAmount)}/mo` : "—"}</td>
+                      <td className={`${tdCls} whitespace-nowrap`}>
+                        <StatusChip status={x.status} />
                       </td>
-                      <td className="px-4 py-3 text-muted-2">{x.sentNote}</td>
-                      <td className="px-4 py-3 pr-5 text-right whitespace-nowrap">
-                        {x.status === "Draft" ? (
-                          <button type="button" onClick={() => setRoute({ view: "builder", id: x.id })} className={btnSecondary}>
-                            Send
+                      <td className={`${tdCls} text-muted-2 whitespace-nowrap`}>{x.sentNote}</td>
+                      <td className={`${tdCls} text-right whitespace-nowrap`}>
+                        <span className="inline-flex gap-2">
+                          {x.status === "Draft" ? (
+                            <button type="button" onClick={() => setRoute({ view: "builder", id: x.id })} className={btnS}>
+                              Send
+                            </button>
+                          ) : (
+                            <button type="button" onClick={() => copyLink(x)} className={btnS}>
+                              Copy link
+                            </button>
+                          )}
+                          <button type="button" onClick={() => setRoute({ view: "builder", id: x.id })} aria-label={`Open ${x.id}`} className={btnS}>
+                            Open
                           </button>
-                        ) : (
-                          <button type="button" onClick={() => copyLink(x)} className={btnGhost}>
-                            Copy link
-                          </button>
-                        )}{" "}
-                        <button type="button" onClick={() => setRoute({ view: "builder", id: x.id })} aria-label={`Open ${x.id}`} className={btnSecondary}>
-                          Open
-                        </button>
+                        </span>
                       </td>
                     </tr>
                   );
@@ -255,11 +266,11 @@ export default function ProposalsApp({ initialRoute }) {
               </tbody>
             </table>
           </div>
-          {rows.length === 0 ? <p className="m-0 px-5 py-8 text-[13px] text-muted-2 text-center">Nothing with that status.</p> : null}
+          {rows.length === 0 ? <p className="m-0 px-5 py-8 text-[13px] text-muted text-center">Nothing with that status.</p> : null}
         </div>
       ) : null}
 
-      <p className="text-[13px] text-muted-2 mt-4 mb-0">
+      <p className="text-[13px] text-muted m-0">
         Statuses: Draft → Sent → Viewed → Accepted (lead becomes a client, kickoff invoice goes out) or Declined / Expired after 14 days. Prices come from the catalog in Settings; a proposal freezes them for that client.
       </p>
       <Toast toast={toast} />

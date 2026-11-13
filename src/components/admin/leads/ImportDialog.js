@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Dialog, Icon, Alert, fieldCls } from "./Overlay";
+import { Dialog, Icon, Alert } from "./Overlay";
 import { api } from "./api";
 import { btnPrimary, btnSecondary } from "@/components/admin/ui";
 import { OFFERS } from "@/lib/offers";
@@ -166,7 +166,8 @@ export default function ImportDialog({ existingEmails, onClose, onImported }) {
     <Dialog
       eyebrow="Import leads"
       title={TITLES[step]}
-      size="lg"
+      width={760}
+      splitCancel
       onClose={onClose}
       busy={busy}
       footer={
@@ -191,9 +192,9 @@ export default function ImportDialog({ existingEmails, onClose, onImported }) {
     >
       <ol aria-label="Import steps" className="list-none p-0 m-0 grid grid-cols-4 gap-2">
         {LABELS.map((l, i) => (
-          <li key={l} aria-current={i === step ? "step" : undefined} className="flex flex-col gap-1.5">
-            <span className={`h-1 rounded-full ${i < step ? "bg-success" : i === step ? "bg-fg" : "bg-border-2"}`} />
-            <span className={`text-[12px] ${i <= step ? "text-fg" : "text-muted-2"}`}>
+          <li key={l} aria-current={i === step ? "step" : undefined} className="flex flex-col gap-2">
+            <span aria-hidden="true" className={`h-[3px] rounded-sm ${i < step ? "bg-success" : i === step ? "bg-fg" : "bg-border-2"}`} />
+            <span className={`text-xs ${i <= step ? "text-fg" : "text-muted"}`}>
               {i + 1} · {l}
             </span>
           </li>
@@ -215,17 +216,17 @@ export default function ImportDialog({ existingEmails, onClose, onImported }) {
               setOver(false);
               load(e.dataTransfer.files?.[0]);
             }}
-            className={`border border-dashed rounded-admin p-6 flex flex-col items-center text-center gap-2 ${over ? "border-fg bg-surface-2" : "border-border-2"}`}
+            className={`border border-dashed rounded-admin px-5 py-7 flex flex-col items-center text-center gap-2.5 bg-surface-2 ${over ? "border-fg" : "border-border-2"}`}
           >
             <Icon name="upload" size={28} />
-            <div>
+            <div className="font-medium">
               Drop a CSV or XLSX here, or{" "}
-              <button type="button" onClick={() => input.current?.click()} className="bg-transparent border-0 p-0 text-accent-light underline cursor-pointer text-[13px]">
+              <button type="button" onClick={() => input.current?.click()} className="bg-transparent border-0 p-0 text-accent-light underline cursor-pointer text-[13px] font-medium">
                 browse
               </button>
             </div>
             <input ref={input} type="file" accept=".csv,.xlsx" className="sr-only" aria-label="Choose a CSV or XLSX file" onChange={(e) => load(e.target.files?.[0])} />
-            <p className="m-0 text-muted-2 max-w-[460px]">
+            <p className="m-0 text-muted max-w-[460px]">
               Up to 5 MB. We read business, contact name, email, phone, offer, source and notes.{" "}
               <a href={TEMPLATE} download="klyvora-leads-template.csv" className="text-accent-light underline">
                 Download the template
@@ -242,16 +243,16 @@ export default function ImportDialog({ existingEmails, onClose, onImported }) {
             ) : null}
           </div>
           {file ? (
-            <div className="flex items-center gap-3 border border-border rounded-admin px-4 py-3">
-              <span className="text-[11px] border border-border-2 rounded-md px-1.5 py-0.5 text-muted-2">{file.csv ? "CSV" : "XLSX"}</span>
+            <div className="flex items-center gap-3 border border-border rounded-[12px] bg-surface px-3.5 py-3">
+              <span aria-hidden="true" className="w-9 h-9 rounded-[10px] bg-surface-2 border border-border-2 inline-flex items-center justify-center text-[10px] text-muted-2">{file.csv ? "CSV" : "XLSX"}</span>
               <div className="min-w-0 flex-1">
-                <div className="truncate">{file.name}</div>
-                <div className="text-[12px] text-muted-2">
+                <div className="truncate font-medium">{file.name}</div>
+                <div className="text-muted">
                   {file.csv ? `${rows.length} rows · ${file.headers.length} columns · ` : "Rows are counted on the server · "}
                   {sizeLabel(file.size)}
                 </div>
               </div>
-              <span className="text-success text-[12px]">Ready</span>
+              <span className="text-xs text-success border border-border-2 rounded-full px-2 py-0.5">Ready</span>
               <button
                 type="button"
                 aria-label="Remove file"
@@ -259,7 +260,7 @@ export default function ImportDialog({ existingEmails, onClose, onImported }) {
                   setFile(null);
                   if (input.current) input.current.value = "";
                 }}
-                className="w-9 h-9 rounded-[10px] border-0 bg-transparent text-muted-2 hover:text-fg hover:bg-surface-2 inline-flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-full border border-border-2 bg-transparent text-fg hover:bg-surface-2 inline-flex items-center justify-center cursor-pointer p-0"
               >
                 <Icon name="close" />
               </button>
@@ -270,27 +271,27 @@ export default function ImportDialog({ existingEmails, onClose, onImported }) {
 
       {step === 1 ? (
         <>
-          <p className="m-0 text-muted-2">Match each Klyvora field to a column in the file. We guessed from the header row; fix anything that looks off.</p>
+          <p className="m-0 text-muted-2 leading-[1.6]">Match each Klyvora field to a column in the file. We guessed from the header row; fix anything that looks off.</p>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[480px] border-collapse">
+            <table className="w-full min-w-[480px] border-collapse text-[13px]">
               <thead>
-                <tr className="text-left text-muted-2 text-[12px]">
-                  <th scope="col" className="py-2 pr-3 font-normal">Klyvora field</th>
-                  <th scope="col" className="py-2 pr-3 font-normal">Column in file</th>
-                  <th scope="col" className="py-2 font-normal">First value</th>
+                <tr className="text-left text-muted-2 bg-surface-2">
+                  <th scope="col" className="px-3 py-2.5 font-medium">Klyvora field</th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">Column in file</th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">First value</th>
                 </tr>
               </thead>
               <tbody>
                 {FIELDS.map((f) => (
                   <tr key={f.key} className="border-t border-border">
-                    <td className="py-2 pr-3">
-                      {f.label} {f.req ? <span className="text-[11px] text-muted-2">required</span> : null}
+                    <td className="px-3 py-2 font-medium">
+                      {f.label} {f.req ? <span className="text-muted font-normal">required</span> : null}
                     </td>
-                    <td className="py-2 pr-3">
+                    <td className="px-3 py-2">
                       <label htmlFor={`map-${f.key}`} className="sr-only">
                         {f.label} column
                       </label>
-                      <select id={`map-${f.key}`} className={fieldCls} value={map[f.key] || ""} onChange={(e) => setMap((m) => ({ ...m, [f.key]: e.target.value }))}>
+                      <select id={`map-${f.key}`} className="min-h-[34px] rounded-[10px] border border-border-2 bg-surface-2 text-fg px-2.5 text-[13px] cursor-pointer w-full" value={map[f.key] || ""} onChange={(e) => setMap((m) => ({ ...m, [f.key]: e.target.value }))}>
                         {file.headers.map((h) => (
                           <option key={h} value={h}>
                             {h}
@@ -299,7 +300,7 @@ export default function ImportDialog({ existingEmails, onClose, onImported }) {
                         <option value="">— skip —</option>
                       </select>
                     </td>
-                    <td className="py-2 text-muted-2 break-all">{(map[f.key] && rows[0]?.[map[f.key]]) || "—"}</td>
+                    <td className="px-3 py-2 text-muted text-xs break-all">{(map[f.key] && rows[0]?.[map[f.key]]) || "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -312,8 +313,8 @@ export default function ImportDialog({ existingEmails, onClose, onImported }) {
         <>
           {file.csv && dupes.length ? (
             <>
-              <p className="m-0">
-                <strong>
+              <p className="m-0 text-muted-2 leading-[1.6]">
+                <strong className="font-medium text-fg">
                   {dupes.length} of {rows.length} rows
                 </strong>{" "}
                 match leads you already have (same email). Pick what to do with them.
@@ -324,18 +325,18 @@ export default function ImportDialog({ existingEmails, onClose, onImported }) {
                   ["skip", "Skip them", `Import the other ${rows.length - dupes.length} only.`],
                   ["import", "Import as new rows anyway", "You will have two cards for the same business."],
                 ].map(([k, l, h]) => (
-                  <label key={k} className={`flex items-start gap-3 border rounded-admin px-4 py-3 cursor-pointer ${dupe === k ? "border-fg bg-surface-2" : "border-border-2"}`}>
+                  <label key={k} className={`flex items-start gap-3 border rounded-[12px] px-3.5 py-3 cursor-pointer ${dupe === k ? "border-fg bg-surface-2" : "border-border-2"}`}>
                     <input type="radio" name="dupe" checked={dupe === k} onChange={() => setDupe(k)} className="mt-0.5 accent-[var(--accent)]" />
                     <span>
-                      <span className="block">{l}</span>
-                      <span className="block text-[12px] text-muted-2">{h}</span>
+                      <span className="block font-medium">{l}</span>
+                      <span className="block text-muted">{h}</span>
                     </span>
                   </label>
                 ))}
               </div>
-              <details className="text-muted-2">
-                <summary className="cursor-pointer min-h-9 inline-flex items-center">Show the {dupes.length} matches</summary>
-                <ul className="m-0 mt-1 pl-5">
+              <details className="border border-border rounded-[12px] px-3.5 py-2.5 text-muted-2">
+                <summary className="cursor-pointer font-medium text-fg">Show the {dupes.length} matches</summary>
+                <ul className="m-0 mt-2.5 pl-[18px] leading-[1.8] text-xs">
                   {dupes.map((d, i) => (
                     <li key={i}>
                       {d[map.email]} · {d[map.business]}
@@ -352,15 +353,15 @@ export default function ImportDialog({ existingEmails, onClose, onImported }) {
       ) : null}
 
       {done && result ? (
-        <div className="flex flex-col items-center text-center gap-2 py-4">
-          <span className="w-12 h-12 rounded-full border border-[rgba(var(--success-rgb),.5)] text-success inline-flex items-center justify-center">
+        <div className="flex flex-col items-center text-center gap-2.5 pt-3 pb-1">
+          <span aria-hidden="true" className="w-12 h-12 rounded-full border border-success text-success inline-flex items-center justify-center">
             <Icon name="check" size={22} />
           </span>
           <h3 className="m-0 text-[18px] font-medium">
             {result.imported} leads imported, {result.updated} updated
           </h3>
-          <p className="m-0 text-muted-2 max-w-[460px]">
-            All {result.imported} start as <strong className="text-fg">New</strong>, owned by Chris, source “{result.source}”. {result.skipped} rows were skipped.
+          <p className="m-0 text-muted-2 leading-[1.6] max-w-[420px]">
+            All {result.imported} start as <strong className="font-medium text-fg">New</strong>, owned by Chris, source “{result.source}”. {result.skipped} rows were skipped.
           </p>
         </div>
       ) : null}

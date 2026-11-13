@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import ErrorScreen, { btnPrimary, btnSecondary } from "@/app/_errors/ErrorScreen";
+import ProposalHeader from "@/components/proposal/ProposalHeader";
 import { CONTACT } from "@/lib/site";
 
 // The proposal could not load. Nothing was signed or charged.
@@ -12,8 +13,10 @@ export default function ProposalError({ error, retry }) {
   }, [error]);
 
   return (
+    <>
+    <ProposalHeader />
     <ErrorScreen
-      as="div"
+      as="main"
       standalone={false}
       kind="500"
       code="500"
@@ -31,5 +34,6 @@ export default function ProposalError({ error, retry }) {
       }
       note={<>Or call {CONTACT.phone}. Klyvora · {CONTACT.city}</>}
     />
+    </>
   );
 }

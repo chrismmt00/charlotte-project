@@ -2,11 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Chip, btnPrimary, btnSecondary } from "@/components/admin/ui";
-import { STAGE_TONE } from "@/lib/admin/sample-clients";
 import { AddContactDialog, CancelPlanDialog, EditDialog, InviteDialog, RevokeDialog, StripeDialog } from "./ClientDialogs";
 import { Contacts, Files, Invoices, Notes, Overview, PortalUsers, Projects, Subscriptions } from "./ClientTabs";
-import { Toast, api, useToast } from "./kit";
+import { Toast, TitleBlock, api, btnS, useToast } from "./kit";
 
 const TABS = [
   ["overview", "Overview"],
@@ -70,11 +68,14 @@ export default function ClientDetail({ initial }) {
 
   const m = client.monthly;
   const planShort = m.on ? `$${client.monthly.price}/mo · ${m.status}` : "Self-managed · no monthly";
+  const stageTone = { "In build": "bg-accent-light", "Demo review": "bg-accent", Live: "bg-success", Paused: "bg-muted" }[client.stage];
+  const stageText = { "In build": "text-accent-light", "Demo review": "text-accent", Live: "text-success", Paused: "text-muted" }[client.stage];
+  const chip = "inline-flex items-center min-h-8 px-3 rounded-full border border-border-2 text-muted-2 box-border";
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[13px] text-muted-2 mb-4">
-        <Link href="/admin/clients" className="hover:text-fg">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[13px] text-muted">
+        <Link href="/admin/clients" className="text-muted-2 hover:text-fg">
           Clients
         </Link>
         <span aria-hidden="true">/</span>
@@ -83,48 +84,45 @@ export default function ClientDetail({ initial }) {
         </span>
       </nav>
 
-      <header className="flex flex-wrap items-end justify-between gap-4 mb-5">
-        <div className="min-w-0">
-          <div className="text-[11px] tracking-[.3em] uppercase text-muted-2 mb-2">
-            Client · since {client.since}
-            {client.leadId ? ` · from lead via ${client.source}` : ` · ${client.source}`}
-            <span className="md:hidden normal-case tracking-normal ml-2 border border-border-2 rounded-full px-2 py-0.5">Sample data</span>
-          </div>
-          <h1 className="font-display font-normal text-[clamp(32px,4vw,44px)] leading-none m-0">{client.business}</h1>
-          <div className="flex flex-wrap items-center gap-2 mt-3">
-            <Chip tone={STAGE_TONE[client.stage]}>{client.stage}</Chip>
-            <Chip>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <TitleBlock eyebrow={`Client · since ${client.since}${client.leadId ? ` · from lead via ${client.source}` : ` · ${client.source}`}`} title={client.business}>
+          <div className="flex flex-wrap items-center gap-2 text-[13px]">
+            <span className={`${chip} gap-2 bg-surface font-medium ${stageText}`}>
+              <span aria-hidden="true" className={`w-2 h-2 rounded-full ${stageTone}`} />
+              {client.stage}
+            </span>
+            <span className={chip}>
               {client.offer} · {client.offerCode}
-            </Chip>
-            <Chip tone={m.on ? "accent" : "muted"}>{planShort}</Chip>
-            <span className="inline-flex items-center gap-1.5 text-xs text-muted-2">
-              <span aria-hidden="true" className="w-6 h-6 rounded-full bg-surface border border-border-2 inline-flex items-center justify-center text-[11px] text-fg">
-                {client.owner[0]}
+            </span>
+            <span className={chip}>{planShort}</span>
+            <span className={`${chip} gap-2 !pl-1 !pr-3`}>
+              <span aria-hidden="true" className="w-6 h-6 rounded-full bg-surface-2 border border-border-2 inline-flex items-center justify-center text-[10px] font-medium text-fg">
+                {client.owner.slice(0, 2).toUpperCase()}
               </span>
               {client.owner}
             </span>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2 items-center">
-          <button type="button" onClick={() => open("edit")} className={btnSecondary}>
+        </TitleBlock>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => open("edit")} className={btnS}>
             Edit client
           </button>
-          <button type="button" onClick={() => open("invite")} className={btnSecondary}>
+          <button type="button" onClick={() => open("invite")} className={btnS}>
             Invite to portal
           </button>
-          <Link href="/admin/invoices?new=1" className={btnSecondary}>
+          <Link href="/admin/invoices?new=1" className={btnS}>
             New invoice
           </Link>
-          <Link href="/portal" className={btnSecondary}>
+          <Link href="/portal" className={btnS}>
             Open portal <span aria-hidden="true">↗</span>
           </Link>
-          <Link href="/app" className={btnPrimary}>
+          <Link href="/app" className={`${btnS} !bg-fg !text-bg !border-fg hover:!opacity-90`}>
             Their admin <span aria-hidden="true">↗</span>
           </Link>
         </div>
       </header>
 
-      <div role="tablist" aria-label="Client sections" className="flex gap-1 overflow-x-auto border-b border-border mb-5">
+      <div role="tablist" aria-label="Client sections" className="flex gap-1 border-b border-border overflow-x-auto">
         {TABS.map(([key, label], i) => {
           const on = tab === key;
           return (
@@ -141,16 +139,16 @@ export default function ClientDetail({ initial }) {
               tabIndex={on ? 0 : -1}
               onClick={() => setTab(key)}
               onKeyDown={(e) => onTabKey(e, i)}
-              className={`min-h-10 px-3.5 text-[13px] whitespace-nowrap bg-transparent border-0 border-b-2 -mb-px cursor-pointer inline-flex items-center gap-2 ${on ? "border-fg text-fg font-medium" : "border-transparent text-muted-2 hover:text-fg"}`}
+              className={`min-h-10 px-3.5 text-[13px] font-medium whitespace-nowrap bg-transparent border-0 border-b-2 -mb-px cursor-pointer inline-flex items-center gap-2 ${on ? "border-fg text-fg" : "border-transparent text-muted-2 hover:text-fg"}`}
             >
               {label}
-              {counts[key] != null ? <span className="text-xs text-muted-2 tabular-nums">{counts[key]}</span> : null}
+              {counts[key] != null ? <span className="text-xs text-muted tabular-nums">{counts[key]}</span> : null}
             </button>
           );
         })}
       </div>
 
-      <div id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={0} className="outline-offset-4">
+      <div id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={0} className="flex flex-col gap-5 outline-offset-4">
         {tab === "overview" ? (
           <Overview
             client={client}
@@ -196,8 +194,8 @@ export default function ClientDetail({ initial }) {
         {tab === "notes" ? <Notes client={client} notes={notes} onChange={changeNotes} saveState={saveState} savedAt={savedAt} /> : null}
       </div>
 
-      <p className="text-[13px] text-muted-2 mt-6 mb-0">
-        Reads <code className="text-xs">GET /api/admin/clients/[id]</code>; each tab loads its own list on first open. Stripe customer, subscription and invoices are Stripe objects mirrored here, never edited by hand.
+      <p className="text-[13px] text-muted m-0">
+        Reads <code className="font-mono text-xs text-muted-2">GET /api/admin/clients/[id]</code>; each tab loads its own list on first open. Stripe customer, subscription and invoices are Stripe objects mirrored here, never edited by hand.
       </p>
 
       {dialog?.type === "contact" ? (

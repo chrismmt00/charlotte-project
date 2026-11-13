@@ -17,7 +17,7 @@ export default function LeadsPage() {
 
 function LeadsFallback() {
   return (
-    <div aria-busy="true">
+    <div aria-busy="true" className="flex flex-col gap-6">
       <PageHead eyebrow="Leads" title="Leads" />
       <div className="border border-border rounded-admin bg-surface p-5 flex flex-col gap-4">
         {[1, 2, 3, 4, 5].map((i) => (

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Dialog from "./Dialog";
 import { TextField } from "./parts";
-import { btnPrimary, btnSecondary, btnDanger, money } from "@/components/admin/ui";
+import { btnPrimary, btnSecondary, btnDanger } from "@/components/admin/ui";
 import { PREVIEW_VARS } from "@/lib/admin/sample-settings";
 
 // Every dialog here calls a stub route, shows its own submitting and failed states, and hands the
@@ -60,13 +60,13 @@ export const ROLE_COPY = {
 function RolePicker({ value, onChange, disabled, name }) {
   return (
     <fieldset className="border-0 p-0 m-0 flex flex-col gap-2" disabled={disabled}>
-      <legend className="text-[12px] text-muted-2 mb-1.5">Role</legend>
+      <legend className="text-[12px] text-muted-2 mb-2">Role</legend>
       {Object.keys(ROLE_COPY).map((r) => (
-        <label key={r} className={`flex items-start gap-3 p-3 rounded-[12px] border cursor-pointer ${value === r ? "border-fg" : "border-border-2"}`}>
+        <label key={r} className={`flex items-start gap-3 px-3.5 py-3 rounded-[12px] border cursor-pointer ${value === r ? "border-fg" : "border-border-2"}`}>
           <input type="radio" name={name} value={r} checked={value === r} onChange={() => onChange(r)} className="mt-0.5 w-4 h-4 accent-[var(--accent)]" />
           <span className="flex flex-col gap-0.5">
-            <span className="text-[13px] text-fg">{r}</span>
-            <span className="text-[12px] text-muted-2">{ROLE_COPY[r]}</span>
+            <span className="text-[13px] font-medium">{r}</span>
+            <span className="text-[12px] text-muted">{ROLE_COPY[r]}</span>
           </span>
         </label>
       ))}
@@ -128,7 +128,7 @@ export function InviteDialog({ initialEmail = "", onClose, onDone }) {
         data-autofocus
       />
       <RolePicker value={role} onChange={setRole} disabled={busy} name="invite-role" />
-      <p className="m-0 text-[12px] text-muted-2 leading-relaxed">
+      <p className="m-0 text-[12px] text-muted leading-normal">
         They get an invite link that works for 7 days. Claude is not invited; it has the Agent role through an API key (Rotate key on the team list).
       </p>
     </Dialog>
@@ -210,7 +210,7 @@ export function RemoveDialog({ member, others, onClose, onDone }) {
       }
     >
       {failed ? <FailedLine>{failed}</FailedLine> : null}
-      <p className="m-0 text-[13px] text-muted-2 leading-relaxed">
+      <p className="m-0 text-muted-2 leading-normal">
         They lose access the moment you confirm. Their leads, notes and time logs stay, labelled with their name. Open items assigned to them move to:
       </p>
       <div className="flex flex-col gap-1.5">
@@ -265,7 +265,7 @@ export function KeyDialog({ onClose, onDone }) {
       }
     >
       {failed ? <FailedLine>{failed}</FailedLine> : null}
-      <p className="m-0 text-[13px] text-muted-2 leading-relaxed">
+      <p className="m-0 text-muted-2 leading-normal">
         The current key stops working at once. Tomorrow&rsquo;s run fails until the new key is set in Claude&rsquo;s environment. The new key is shown once, in that setup, never in this screen.
       </p>
     </Dialog>
@@ -349,11 +349,11 @@ export function PriceDialog({ offer, onClose, onDone, initialNoteError = false }
           disabled={busy}
         />
       </div>
-      <label className="flex items-start gap-3 text-[13px]">
-        <input type="checkbox" checked={offer.monthlyRequired} disabled readOnly className="mt-0.5 w-4 h-4 accent-[var(--accent)]" />
+      <label className="flex items-start gap-2.5 px-3.5 py-3 rounded-[12px] border border-border-2">
+        <input type="checkbox" checked={offer.monthlyRequired} disabled readOnly className="mt-0.5 accent-[var(--accent)]" />
         <span className="flex flex-col gap-0.5">
-          <span className={offer.monthlyRequired ? "text-fg" : "text-muted-2"}>Monthly plan is required</span>
-          <span className="text-[12px] text-muted-2">
+          <span className="font-medium">Monthly plan is required</span>
+          <span className="text-[12px] text-muted">
             {offer.monthlyRequired
               ? "On for the restaurant offers only, because ordering needs hosting, payments and support to keep running. A founder decision, not a Settings edit."
               : "Off for every offer except the restaurant ones. Clients who skip the optional plan still own the site and the code."}
@@ -375,17 +375,14 @@ export function PriceDialog({ offer, onClose, onDone, initialNoteError = false }
         error={noteBad ? "A note is required; it shows in the price history." : ""}
         disabled={busy}
       />
-      <div className="rounded-[12px] bg-surface-2 border border-border px-4 py-3">
-        <div className="text-[12px] text-muted-2 mb-1.5">What this changes</div>
-        <ul className="m-0 pl-4 text-[12px] text-muted-2 flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5 px-3.5 py-3 rounded-[12px] bg-surface-2 border border-border">
+        <span className="text-[12px] text-muted-2">What this changes</span>
+        <ul className="m-0 pl-4 list-disc text-muted-2 leading-relaxed">
           <li>New proposals, the public Pricing page and the estimator from the moment you save</li>
           <li>Signed proposals and running plans keep their price</li>
           <li>Logged to the price history with your name and the note</li>
         </ul>
       </div>
-      <p className="m-0 text-[12px] text-muted-2">
-        Now {money(offer.setup)} setup + {money(offer.monthly)}/mo{offer.usage ? " + usage" : ""}.
-      </p>
     </Dialog>
   );
 }
@@ -463,26 +460,26 @@ export function TemplateDialog({ template, isEmail, onClose, onDone }) {
         data-autofocus={isEmail ? undefined : true}
       />
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[12px] text-muted-2 mr-1">Insert:</span>
+        <span className="text-[12px] text-muted mr-0.5">Insert:</span>
         {VAR_BUTTONS[isEmail ? "email" : "proposal"].map((v) => (
           <button
             key={v}
             type="button"
             disabled={busy}
             onClick={() => setBody((b) => `${b}${b && !b.endsWith("\n") ? " " : ""}{{${v}}}`)}
-            className="min-h-8 px-2.5 rounded-full border border-border-2 bg-transparent text-[12px] text-fg hover:bg-surface-2 cursor-pointer font-mono"
+            className="min-h-[30px] px-2.5 rounded-full border border-border-2 bg-transparent text-[12px] text-fg hover:bg-surface-2 cursor-pointer font-mono"
           >
             {`{{${v}}}`}
           </button>
         ))}
       </div>
-      <div>
-        <div className="text-[12px] text-muted-2 mb-1.5">Preview with [Business name]</div>
-        <pre className="m-0 whitespace-pre-wrap break-words font-[inherit] text-[13px] leading-relaxed rounded-[12px] border border-border bg-surface-2 p-4 max-h-60 overflow-y-auto">
+      <div className="flex flex-col gap-2.5">
+        <span className="text-[12px] text-muted-2">Preview with [Business name]</span>
+        <pre className="m-0 whitespace-pre-wrap break-words font-[inherit] text-[13px] leading-[1.6] text-muted-2 rounded-[12px] border border-border bg-surface-2 p-3.5 min-h-[200px] max-h-72 overflow-y-auto">
           {(isEmail ? `Subject: ${fill(subject)}\n\n` : "") + fill(body)}
         </pre>
       </div>
-      <p className="m-0 text-[12px] text-muted-2 leading-relaxed">
+      <p className="m-0 text-[12px] text-muted">
         Variables fill from the record when the email or proposal is created. Plain text; links become buttons in the email layout. Outreach emails are drafts: a person approves and sends each one.
       </p>
     </Dialog>

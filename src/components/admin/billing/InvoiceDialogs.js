@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { btnDanger, btnGhost, btnPrimary, btnSecondary, money } from "@/components/admin/ui";
-import { FieldRow, FormError, Modal, Note, addDays, addMonths, api, checkClass, inputClass, shortDate, splitEven, textareaClass, thClass, useSubmit } from "@/components/admin/billing/kit";
+import { btnDanger, btnPrimary, btnSecondary, money } from "@/components/admin/ui";
+import { FieldRow, FormError, Modal, Note, addDays, addMonths, api, checkClass, checkLabelClass, inputClass, linkInline, shortDate, splitEven, useSubmit } from "@/components/admin/billing/kit";
 import { nextMilestoneFor } from "@/lib/admin/sample-projects";
 import { INVOICE_CLIENTS } from "@/lib/admin/sample-billing";
 
@@ -15,6 +15,11 @@ const KINDS = [
 const DUE_OPTIONS = ["On receipt", "7 days", "14 days", "On demo approval (trigger)", "On launch acceptance (trigger)"];
 const DUE_DAYS = { "On receipt": 0, "7 days": 7, "14 days": 14 };
 const CLIENT_KEY = { "Food truck [6]": "ft6", "Braids studio [7]": "br7", "Studio [9]": "st9", "Bakery [5]": "bk5", "Detailing [4]": "dt4" };
+
+const sel = `${inputClass} cursor-pointer`;
+const bad = (e) => (e ? "!border-danger" : "");
+// Board table inside a dialog: surface-2 header row, th 8px 10px, td 6px 10px.
+const dth = "text-left font-medium text-[13px] text-muted-2 px-2.5 py-2 whitespace-nowrap";
 
 function startLines(client, kind) {
   if (kind === "milestone") {
@@ -89,7 +94,7 @@ export function NewInvoiceDialog({ today, initial, onClose, onCreated }) {
       id="ni"
       eyebrow="Invoices"
       title="New invoice"
-      size="lg"
+      w={720}
       onClose={onClose}
       footer={
         <>
@@ -105,14 +110,14 @@ export function NewInvoiceDialog({ today, initial, onClose, onCreated }) {
       <form id="ni-form" onSubmit={submit} noValidate className="flex flex-col gap-3.5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <FieldRow id="ni-client" label="Client">
-            <select id="ni-client" data-autofocus value={client} onChange={(e) => pickClient(e.target.value)} className={inputClass}>
+            <select id="ni-client" data-autofocus value={client} onChange={(e) => pickClient(e.target.value)} className={sel}>
               {INVOICE_CLIENTS.map((c) => (
                 <option key={c}>{c}</option>
               ))}
             </select>
           </FieldRow>
           <FieldRow id="ni-kind" label="Kind">
-            <select id="ni-kind" value={kind} onChange={(e) => pickKind(e.target.value)} className={inputClass}>
+            <select id="ni-kind" value={kind} onChange={(e) => pickKind(e.target.value)} className={sel}>
               {KINDS.map((k) => (
                 <option key={k.value} value={k.value}>
                   {k.label}
@@ -122,75 +127,82 @@ export function NewInvoiceDialog({ today, initial, onClose, onCreated }) {
           </FieldRow>
         </div>
 
-        <fieldset className="border-0 p-0 m-0 min-w-0">
-          <legend className="text-[12px] text-muted-2 mb-1.5 p-0">Lines</legend>
-          <div className="border border-border rounded-[12px] overflow-x-auto">
-            <table className="w-full border-collapse min-w-[520px]">
+        <fieldset className="border-0 p-0 m-0 min-w-0 flex flex-col gap-1.5">
+          <legend className="text-xs text-muted-2 p-0 mb-1.5">Lines</legend>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse min-w-[480px]">
               <thead>
-                <tr>
-                  {["Description", "Qty", "Unit ($)", "Total"].map((h) => (
-                    <th key={h} scope="col" className={`${thClass} ${h === "Total" ? "text-right" : ""}`}>
-                      {h}
-                    </th>
-                  ))}
+                <tr className="bg-surface-2">
+                  <th scope="col" className={dth}>
+                    Description
+                  </th>
+                  <th scope="col" className={`${dth} w-[70px]`}>
+                    Qty
+                  </th>
+                  <th scope="col" className={`${dth} w-[120px] text-right`}>
+                    Unit
+                  </th>
+                  <th scope="col" className={`${dth} w-[110px] text-right`}>
+                    Total
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {lines.map((l, i) => (
-                  <tr key={i}>
-                    <td className="p-1.5">
-                      <input type="text" aria-label={`Line ${i + 1} description`} value={l.d} onChange={(e) => setLine(i, "d", e.target.value)} className={inputClass} />
+                  <tr key={i} className="border-t border-border">
+                    <td className="px-2.5 py-1.5">
+                      <input type="text" aria-label={`Line ${i + 1} description`} value={l.d} onChange={(e) => setLine(i, "d", e.target.value)} className={`${inputClass} !min-h-9`} />
                     </td>
-                    <td className="p-1.5 w-[70px]">
-                      <input type="text" inputMode="numeric" aria-label={`Line ${i + 1} quantity`} value={l.q} onChange={(e) => setLine(i, "q", e.target.value)} className={inputClass} />
+                    <td className="px-2.5 py-1.5">
+                      <input type="text" inputMode="numeric" aria-label={`Line ${i + 1} quantity`} value={l.q} onChange={(e) => setLine(i, "q", e.target.value)} className={`${inputClass} !min-h-9`} />
                     </td>
-                    <td className="p-1.5 w-[110px]">
-                      <input type="text" inputMode="numeric" aria-label={`Line ${i + 1} unit price in dollars`} value={l.u} onChange={(e) => setLine(i, "u", e.target.value)} placeholder={hardware ? "[quote]" : ""} className={inputClass} />
+                    <td className="px-2.5 py-1.5">
+                      <input type="text" inputMode="numeric" aria-label={`Line ${i + 1} unit price in dollars`} value={l.u} onChange={(e) => setLine(i, "u", e.target.value)} placeholder={hardware ? "[quote]" : ""} className={`${inputClass} !min-h-9 text-right`} />
                     </td>
-                    <td className="p-1.5 text-right w-[90px]">{l.u !== "" ? money(lineTotal(l)) : "—"}</td>
+                    <td className="px-2.5 py-1.5 text-right tabular-nums">{l.u !== "" ? money(lineTotal(l)) : "—"}</td>
                   </tr>
                 ))}
-                <tr>
-                  <td colSpan={3} className="p-1.5">
-                    <button type="button" className={btnGhost} onClick={() => setLines((ls) => [...ls, { d: "", q: "1", u: "" }])}>
+                <tr className="border-t border-border">
+                  <td colSpan={3} className="px-2.5 py-2">
+                    <button type="button" className={linkInline} onClick={() => setLines((ls) => [...ls, { d: "", q: "1", u: "" }])}>
                       + Add a line
                     </button>
                   </td>
-                  <td className="p-1.5 text-right font-medium">{total > 0 ? money(total) : "—"}</td>
+                  <td className="px-2.5 py-2 text-right font-medium tabular-nums">{total > 0 ? money(total) : "—"}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           {errors.lines ? (
-            <p id="ni-lines-err" role="alert" className="m-0 mt-1.5 text-[12px] text-danger">
+            <p id="ni-lines-err" role="alert" className="m-0 text-xs text-danger">
               {errors.lines}
             </p>
           ) : null}
         </fieldset>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <FieldRow id="ni-due" label="Due">
-            <select id="ni-due" value={due} onChange={(e) => setDue(e.target.value)} className={inputClass}>
+            <select id="ni-due" value={due} onChange={(e) => setDue(e.target.value)} className={sel}>
               {DUE_OPTIONS.map((o) => (
                 <option key={o}>{o}</option>
               ))}
             </select>
           </FieldRow>
+          <FieldRow id="ni-memo" label="Memo on the invoice">
+            <input id="ni-memo" type="text" value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Thanks — this covers the kiosk hardware" className={inputClass} />
+          </FieldRow>
           <FieldRow id="ni-pm" label="Payment methods">
-            <select id="ni-pm" value={methods} onChange={(e) => setMethods(e.target.value)} className={inputClass}>
+            <select id="ni-pm" value={methods} onChange={(e) => setMethods(e.target.value)} className={sel}>
               <option>Card + bank (ACH)</option>
               <option>Card only</option>
               <option>Bank only</option>
             </select>
           </FieldRow>
         </div>
-        <FieldRow id="ni-memo" label="Memo on the invoice">
-          <input id="ni-memo" type="text" value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Thanks — this covers the kiosk hardware" className={inputClass} />
-        </FieldRow>
-        {hardware ? <Note tone="accent">Hardware is invoiced at 100% before we order. Put the vendor quote number in the memo; the kiosk device plan ($29/mo each) starts when the device is activated.</Note> : null}
-        <label className="flex items-center gap-2.5 cursor-pointer min-h-9">
+        {hardware ? <Note>Hardware is invoiced at 100% before we order. Put the vendor quote number in the memo; the kiosk device plan ($29/mo each) starts when the device is activated.</Note> : null}
+        <label className={checkLabelClass}>
           <input type="checkbox" checked={sendNow} onChange={(e) => setSendNow(e.target.checked)} className={checkClass} />
-          <span>Send it now (otherwise it saves as a draft)</span>
+          Send it now (otherwise it saves as a draft)
         </label>
         <FormError message={sub.status === "failed" ? sub.error : ""} />
       </form>
@@ -204,24 +216,25 @@ export function SendDialog({ invoice, onClose, onSent }) {
   const [to, setTo] = useState(invoice.billingEmail);
   const [tpl, setTpl] = useState(remind ? (invoice.status === "Overdue" ? "Overdue · firm but kind" : "Due soon") : "New invoice");
   const [copy, setCopy] = useState(true);
-  const [err, setErr] = useState("");
+  const [error, setError] = useState("");
   const sub = useSubmit();
   const amount = invoice.amount == null ? "[amount]" : money(invoice.amount - invoice.paid);
   const label = invoice.forLabel.split(" · ")[0];
   const subject = remind ? `Quick reminder: ${invoice.number} for ${label}` : `Invoice ${invoice.number} from Klyvora · ${amount}`;
-  const body = invoice.status === "Overdue"
-    ? `Hi [First name], ${invoice.number} (${amount}) was due ${shortDate(invoice.due)}. Work on the next milestone picks back up as soon as it clears. Pay by card or bank from the link; reply if something is off.`
-    : remind
-      ? `Hi [First name], a quick note that ${invoice.number} (${amount}) is due ${shortDate(invoice.due)}. Pay by card or bank from the link.`
-      : `Hi [First name], here is ${invoice.number} for ${invoice.forLabel}. Pay by card or bank from the button; your receipt lands in the portal.`;
-  const templates = [remind ? tpl : "New invoice", "Friendly nudge", "Second reminder", "Final notice before pause"].filter((v, i, a) => a.indexOf(v) === i);
+  const body =
+    invoice.status === "Overdue"
+      ? `Hi [First name], ${invoice.number} (${amount}) was due ${shortDate(invoice.due)}. Work on the next milestone picks back up as soon as it clears. Pay by card or bank from the link; reply if something is off.`
+      : remind
+        ? `Hi [First name], a quick note that ${invoice.number} (${amount}) is due ${shortDate(invoice.due)}. Pay by card or bank from the link.`
+        : `Hi [First name], here is ${invoice.number} for ${invoice.forLabel}. Pay by card or bank from the button; your receipt lands in the portal.`;
+  const templates = [tpl, "Friendly nudge", "Second reminder", "Final notice before pause"].filter((v, i, a) => a.indexOf(v) === i);
   const submit = async (e) => {
     e.preventDefault();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
-      setErr("Enter a valid email address.");
+      setError("Enter a valid email address.");
       return;
     }
-    setErr("");
+    setError("");
     const out = await sub.run(() => api(`/api/admin/invoices/${invoice.id}/send`, { method: "POST", body: { to, template: tpl, copyMe: copy } }));
     if (out) onSent(out.kind);
   };
@@ -230,6 +243,7 @@ export function SendDialog({ invoice, onClose, onSent }) {
       id="sd"
       eyebrow={`${invoice.number} · ${amount}`}
       title={remind ? "Send a reminder" : "Send the invoice"}
+      w={560}
       onClose={onClose}
       footer={
         <>
@@ -243,26 +257,30 @@ export function SendDialog({ invoice, onClose, onSent }) {
       }
     >
       <form id="sd-form" onSubmit={submit} noValidate className="flex flex-col gap-3.5">
-        <FieldRow id="sd-to" label="To" error={err}>
-          <input id="sd-to" data-autofocus type="email" value={to} onChange={(e) => setTo(e.target.value)} aria-invalid={!!err} aria-describedby={err ? "sd-to-err" : undefined} className={`${inputClass} ${err ? "border-danger" : ""}`} />
-        </FieldRow>
-        <FieldRow id="sd-tpl" label="Template">
-          <select id="sd-tpl" value={tpl} onChange={(e) => setTpl(e.target.value)} className={inputClass}>
-            {templates.map((t) => (
-              <option key={t}>{t}</option>
-            ))}
-          </select>
-        </FieldRow>
-        <div className="bg-surface-2 border border-border rounded-[12px] p-3.5 leading-[1.6]">
-          <strong className="font-medium">{subject}</strong>
-          <p className="m-0 mt-2 text-muted-2">{body}</p>
-          <p className="m-0 mt-2">Pay {amount}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <FieldRow id="sd-to" label="To" error={error}>
+            <input id="sd-to" data-autofocus type="email" value={to} onChange={(e) => setTo(e.target.value)} aria-invalid={!!error} aria-describedby={error ? "sd-to-err" : undefined} className={`${inputClass} ${bad(error)}`} />
+          </FieldRow>
+          <FieldRow id="sd-tpl" label="Template">
+            <select id="sd-tpl" value={tpl} onChange={(e) => setTpl(e.target.value)} className={sel}>
+              {templates.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+          </FieldRow>
         </div>
-        <label className="flex items-center gap-2.5 cursor-pointer min-h-9">
+        <div className="border border-border rounded-xl p-3.5 bg-surface-2 leading-[1.6] text-muted-2">
+          <strong className="font-medium text-fg">{subject}</strong>
+          <br />
+          {body}
+          <br />
+          <span className="inline-block mt-2 rounded-full bg-fg text-bg px-3.5 py-1.5 font-medium">Pay {amount}</span>
+        </div>
+        <label className={checkLabelClass}>
           <input type="checkbox" checked={copy} onChange={(e) => setCopy(e.target.checked)} className={checkClass} />
-          <span>Copy me</span>
+          Copy me
         </label>
-        <p className="m-0 text-[12px] text-muted-2">{remind ? "Reminders go from your mailbox with the pay link. A second reminder goes out automatically in 7 days unless paid or paused." : "Sending moves the draft to Due and creates the Stripe invoice."}</p>
+        <p className="m-0 text-muted">{remind ? "Second reminder goes out automatically in 7 days unless paid or paused." : "Sending moves the draft to Due and creates the Stripe invoice."}</p>
         <FormError message={sub.status === "failed" ? sub.error : ""} />
       </form>
     </Modal>
@@ -277,14 +295,14 @@ export function PaymentDialog({ invoice, today, onClose, onRecorded }) {
   const [received, setReceived] = useState(today);
   const [reference, setReference] = useState("");
   const [note, setNote] = useState("");
-  const [err, setErr] = useState("");
+  const [error, setError] = useState("");
   const sub = useSubmit();
   const n = Number(amount);
   const submit = async (e) => {
     e.preventDefault();
-    if (!Number.isInteger(n) || n <= 0) return setErr("Enter whole dollars, like 450.");
-    if (n > balance) return setErr(`That is more than the ${money(balance)} still due.`);
-    setErr("");
+    if (!Number.isInteger(n) || n <= 0) return setError("Enter whole dollars, like 450.");
+    if (n > balance) return setError(`That is more than the ${money(balance)} still due.`);
+    setError("");
     const out = await sub.run(() => api(`/api/admin/invoices/${invoice.id}/payments`, { method: "POST", body: { kind: "manual", amount: n, method, receivedOn: received, reference, note } }));
     if (out) onRecorded(n, method);
   };
@@ -293,6 +311,7 @@ export function PaymentDialog({ invoice, today, onClose, onRecorded }) {
       id="mp"
       eyebrow={`${invoice.number} · ${invoice.client}`}
       title="Record a manual payment"
+      w={520}
       onClose={onClose}
       footer={
         <>
@@ -307,11 +326,11 @@ export function PaymentDialog({ invoice, today, onClose, onRecorded }) {
     >
       <form id="mp-form" onSubmit={submit} noValidate className="flex flex-col gap-3.5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <FieldRow id="mp-amt" label="Amount ($)" error={err}>
-            <input id="mp-amt" data-autofocus type="text" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} aria-invalid={!!err} aria-describedby={err ? "mp-amt-err" : undefined} className={`${inputClass} ${err ? "border-danger" : ""}`} />
+          <FieldRow id="mp-amt" label="Amount" error={error}>
+            <input id="mp-amt" data-autofocus type="text" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} aria-invalid={!!error} aria-describedby={error ? "mp-amt-err" : undefined} className={`${inputClass} ${bad(error)}`} />
           </FieldRow>
           <FieldRow id="mp-how" label="Method">
-            <select id="mp-how" value={method} onChange={(e) => setMethod(e.target.value)} className={inputClass}>
+            <select id="mp-how" value={method} onChange={(e) => setMethod(e.target.value)} className={sel}>
               {["Cash", "Check", "Zelle", "Cash App", "Bank transfer", "Other"].map((m) => (
                 <option key={m}>{m}</option>
               ))}
@@ -325,9 +344,9 @@ export function PaymentDialog({ invoice, today, onClose, onRecorded }) {
           </FieldRow>
         </div>
         <FieldRow id="mp-note" label="Note">
-          <textarea id="mp-note" rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Paid in person at the shop" className={textareaClass} />
+          <input id="mp-note" type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Paid in person at the shop" className={inputClass} />
         </FieldRow>
-        <p className="m-0 text-[12px] text-muted-2">Marks the Stripe invoice as paid out of band and sends the receipt. If the amount is less than the total, the rest stays due.</p>
+        <Note>Marks the Stripe invoice as paid out of band and sends the receipt. If the amount is less than the total, the rest stays due.</Note>
         <FormError message={sub.status === "failed" ? sub.error : ""} />
       </form>
     </Modal>
@@ -354,6 +373,7 @@ export function PlanDialog({ invoice, today, onClose, onSet }) {
       id="pp"
       eyebrow={`${invoice.number} · ${money(balance)}`}
       title="Set up a payment plan"
+      w={560}
       onClose={onClose}
       footer={
         <>
@@ -367,57 +387,61 @@ export function PlanDialog({ invoice, today, onClose, onSet }) {
       }
     >
       <form id="pp-form" onSubmit={submit} className="flex flex-col gap-3.5">
-        <fieldset className="border-0 p-0 m-0">
-          <legend className="text-[12px] text-muted-2 mb-1.5 p-0">Split into</legend>
-          <div role="radiogroup" aria-label="Number of payments" className="inline-flex p-0.5 rounded-[11px] border border-border-2">
+        <div className="flex flex-col gap-1.5">
+          <span id="pp-split" className="text-xs text-muted-2">
+            Split into
+          </span>
+          <div role="radiogroup" aria-labelledby="pp-split" className="inline-flex gap-1 p-1 border border-border-2 rounded-full self-start">
             {[2, 3, 4].map((n, i) => (
-              <button key={n} type="button" role="radio" aria-checked={count === n} data-autofocus={i === 0 ? "" : undefined} onClick={() => setCount(n)} className={`min-h-8 px-3 rounded-[9px] text-[13px] font-medium cursor-pointer border-0 ${count === n ? "bg-fg text-bg" : "bg-transparent text-muted-2 hover:text-fg"}`}>
+              <button key={n} type="button" role="radio" aria-checked={count === n} data-autofocus={i === 0 ? "" : undefined} onClick={() => setCount(n)} className={`min-h-8 px-3.5 rounded-full border-0 text-[13px] font-medium cursor-pointer ${count === n ? "bg-fg text-bg" : "bg-transparent text-muted-2 hover:text-fg"}`}>
                 {n} payments
               </button>
             ))}
           </div>
-        </fieldset>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <FieldRow id="pp-first" label="First payment">
             <input id="pp-first" type="date" value={first} onChange={(e) => setFirst(e.target.value)} className={inputClass} />
           </FieldRow>
           <FieldRow id="pp-every" label="Then every">
-            <select id="pp-every" value={every} onChange={(e) => setEvery(e.target.value)} className={inputClass}>
+            <select id="pp-every" value={every} onChange={(e) => setEvery(e.target.value)} className={sel}>
               <option>2 weeks</option>
               <option>Month</option>
             </select>
           </FieldRow>
         </div>
-        <div className="border border-border rounded-[12px] overflow-x-auto">
-          <table className="w-full border-collapse">
-            <caption className="sr-only">Payment schedule</caption>
-            <thead>
-              <tr>
-                {["Payment", "Due", "Amount"].map((h) => (
-                  <th key={h} scope="col" className={`${thClass} ${h === "Amount" ? "text-right" : ""}`}>
-                    {h}
-                  </th>
-                ))}
+        <table className="w-full border-collapse">
+          <caption className="sr-only">Payment schedule</caption>
+          <thead>
+            <tr className="bg-surface-2">
+              <th scope="col" className={dth}>
+                Payment
+              </th>
+              <th scope="col" className={dth}>
+                Due
+              </th>
+              <th scope="col" className={`${dth} text-right`}>
+                Amount
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {amounts.map((a, i) => (
+              <tr key={i} className="border-t border-border">
+                <td className="px-2.5 py-2">
+                  Payment {i + 1} of {count}
+                </td>
+                <td className="px-2.5 py-2 text-muted-2">{shortDate(dueOf(i))}</td>
+                <td className="px-2.5 py-2 text-right tabular-nums">{money(a)}</td>
               </tr>
-            </thead>
-            <tbody>
-              {amounts.map((a, i) => (
-                <tr key={i}>
-                  <td className="px-4 py-2.5 border-b border-border last:border-0">
-                    Payment {i + 1} of {count}
-                  </td>
-                  <td className="px-4 py-2.5 border-b border-border">{shortDate(dueOf(i))}</td>
-                  <td className="px-4 py-2.5 border-b border-border text-right">{money(a)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <label className="flex items-center gap-2.5 cursor-pointer min-h-9">
+            ))}
+          </tbody>
+        </table>
+        <label className={checkLabelClass}>
           <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} className={checkClass} />
-          <span>Charge the card on file automatically on each date</span>
+          Charge the card on file automatically on each date
         </label>
-        <p className="m-0 text-[12px] text-muted-2">Work on the next milestone still waits for the milestone to be fully paid. No fee for splitting.</p>
+        <p className="m-0 text-muted">Work on the next milestone still waits for the milestone to be fully paid. No fee for splitting.</p>
         <FormError message={sub.status === "failed" ? sub.error : ""} />
       </form>
     </Modal>
@@ -435,7 +459,8 @@ export function VoidDialog({ invoice, onClose, onVoided }) {
     <Modal
       id="vd"
       alert
-      size="sm"
+      tight
+      w={440}
       title={`Void ${invoice.number}?`}
       describedBy="vd-p"
       onClose={onClose}
@@ -450,7 +475,7 @@ export function VoidDialog({ invoice, onClose, onVoided }) {
         </>
       }
     >
-      <p id="vd-p" className="m-0 leading-[1.6]">
+      <p id="vd-p" className="m-0 text-muted-2 leading-[1.6]">
         {invoice.client} gets a notice that {invoice.number} is canceled and the pay link stops working. This cannot be undone; write a new invoice if it was a mistake.
       </p>
       <FormError message={sub.status === "failed" ? sub.error : ""} />

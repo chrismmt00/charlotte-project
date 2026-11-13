@@ -3,36 +3,44 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Empty, PageHead, btnPrimary, btnSecondary } from "@/components/admin/ui";
+import { PageHead, btnPrimary, btnSecondary } from "@/components/admin/ui";
 import {
   DevStates,
+  EmptyCard,
   FieldRow,
   FilterChips,
   FormError,
-  Icon,
   Kpi,
+  KpiGrid,
   ListError,
   ListSkeleton,
   Modal,
   Note,
-  StatusDot,
   TableBox,
   Toast,
   api,
+  btnSm,
   checkClass,
+  checkLabelClass,
+  emptyRowClass,
   hours,
   inputClass,
+  tableClass,
   tdClass,
   textareaClass,
+  theadRowClass,
   thClass,
+  trClass,
   useListState,
   useSubmit,
   useToast,
 } from "@/components/admin/billing/kit";
 import { ASSIGNEES, PRIORITIES, TICKET_SOURCES, TICKET_STATUSES, TICKET_TYPES, ticketHours } from "@/lib/admin/sample-support";
 
-const DOT = { Open: "accent-light", "In progress": "accent", "Waiting on client": "muted", Closed: "success" };
+const STATUS_COLOR = { Open: "text-accent-light", "In progress": "text-accent", "Waiting on client": "text-muted-2", Closed: "text-success" };
 const FILTERS = ["All", ...TICKET_STATUSES];
+const COLS = ["Ticket", "Client", "Type", "Status", "Assigned", "Opened", "Actions"];
+const sel = `${inputClass} cursor-pointer`;
 
 export default function TicketsView({ initialTickets, clients }) {
   const router = useRouter();
@@ -67,43 +75,54 @@ export default function TicketsView({ initialTickets, clients }) {
     <>
       <PageHead eyebrow="Tickets · support and small changes" title="Support">
         <button type="button" className={btnPrimary} onClick={() => setDialog(true)}>
-          <Icon name="plus" size={14} />
           New ticket
         </button>
       </PageHead>
 
-      <section aria-label="Totals" className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-5">
+      <KpiGrid label="Totals">
         <Kpi label="Open" value={count("Open") + count("In progress")} note="waiting on us" />
         <Kpi label="Waiting on client" value={count("Waiting on client")} note="asked a question" />
         <Kpi label="Closed this week" value={count("Closed")} note="median [x]h to close" />
         <Kpi label="Plan hours used" value={`${hours(usedAll)} / ${capAll}`} note="this month, all clients" />
-      </section>
+      </KpiGrid>
 
       <FilterChips label="Filter tickets" value={filter} onChange={setFilter} options={FILTERS.map((f) => ({ value: f, label: f, count: f === "All" ? tickets.length : count(f) }))} />
 
-      <DevStates value={dev} onChange={setDev} />
-
-      {state === "loading" ? <ListSkeleton label="Loading tickets" rows={5} /> : null}
+      {state === "loading" ? <ListSkeleton label="Loading tickets" rows={5} cols="2.2fr 1fr .8fr 1fr .8fr .8fr .6fr" /> : null}
       {state === "error" ? (
-        <ListError title="Couldn’t load tickets" retrying={list.retrying} onRetry={async () => { setDev("live"); await list.retry(); }}>
-          <code className="text-[12px]">GET /api/admin/tickets</code> failed. The portal still accepts new tickets. Try again.
+        <ListError
+          title="Couldn’t load tickets"
+          retrying={list.retrying}
+          onRetry={async () => {
+            setDev("live");
+            await list.retry();
+          }}
+        >
+          <code className="font-mono text-xs">GET /api/admin/tickets</code> failed. The portal still accepts new tickets. Try again.
         </ListError>
       ) : null}
       {state === "empty" || (state === "live" && tickets.length === 0) ? (
-        <Empty title="No tickets" action={<button type="button" className={btnPrimary} onClick={() => setDialog(true)}>New ticket</button>}>
+        <EmptyCard
+          title="No tickets"
+          actions={
+            <button type="button" className={btnPrimary} onClick={() => setDialog(true)}>
+              New ticket
+            </button>
+          }
+        >
           Quiet is good. Tickets arrive from the portal support form and [support address]; log a text or call by hand with New ticket.
-        </Empty>
+        </EmptyCard>
       ) : null}
 
       {state === "live" && tickets.length > 0 ? (
-        <TableBox>
-          <table className="w-full border-collapse min-w-[860px]">
+        <TableBox footer={rows.length === 0 ? <p className={emptyRowClass}>Nothing with that status.</p> : null}>
+          <table className={`${tableClass} min-w-[900px]`}>
             <caption className="sr-only">Tickets</caption>
             <thead>
-              <tr>
-                {["Ticket", "Client", "Type", "Status", "Assigned", "Opened", "Actions"].map((h) => (
-                  <th key={h} scope="col" className={thClass}>
-                    {h}
+              <tr className={theadRowClass}>
+                {COLS.map((h) => (
+                  <th key={h} scope="col" className={`${thClass} ${h === "Actions" ? "text-right" : ""}`}>
+                    {h === "Actions" ? <span className="sr-only">Actions</span> : h}
                   </th>
                 ))}
               </tr>
@@ -111,44 +130,43 @@ export default function TicketsView({ initialTickets, clients }) {
             <tbody>
               {rows.map((t) => {
                 const c = clientById[t.clientId];
-                const near = c && c.capHours > 0 && c.usedHours / c.capHours >= 0.75;
+                const near = c && c.capHours > 0 && c.usedHours / c.capHours >= 0.75 && t.status !== "Closed";
                 return (
-                  <tr key={t.id} className="hover:bg-surface-2">
-                    <td className={`${tdClass} max-w-[340px]`}>
-                      {t.local ? (
-                        <span className="text-fg font-medium">{t.subject}</span>
-                      ) : (
-                        <Link href={`/admin/support/${t.id}`} className="text-fg font-medium hover:text-accent-light">
-                          {t.subject}
-                        </Link>
-                      )}
-                      <div className="text-[12px] text-muted-2">
-                        {t.num} · {t.source} ·{" "}
-                        <span className={near && t.status !== "Closed" ? "text-warning" : ""}>
-                          {t.quoteRequest ? "quote request" : `${hours(ticketHours(t))} h logged${c && c.capHours ? ` · client ${hours(c.usedHours)} of ${c.capHours}` : ""}`}
-                        </span>
-                      </div>
-                    </td>
-                    <td className={tdClass}>{t.client}</td>
-                    <td className={tdClass}>{t.type}</td>
+                  <tr key={t.id} className={trClass}>
                     <td className={tdClass}>
-                      <span className="inline-flex items-center gap-2">
-                        <StatusDot tone={DOT[t.status]} />
-                        <label htmlFor={`st-${t.id}`} className="sr-only">
-                          Status for {t.num}
-                        </label>
-                        <select id={`st-${t.id}`} value={t.status} onChange={(e) => setStatus(t, e.target.value)} className="bg-transparent border border-border-2 rounded-[8px] text-[13px] text-fg min-h-9 px-2 cursor-pointer">
-                          {TICKET_STATUSES.map((s) => (
-                            <option key={s}>{s}</option>
-                          ))}
-                        </select>
+                      <span className="flex flex-col gap-0.5">
+                        {t.local ? (
+                          <span className="font-medium text-fg">{t.subject}</span>
+                        ) : (
+                          <Link href={`/admin/support/${t.id}`} className="font-medium text-fg">
+                            {t.subject}
+                          </Link>
+                        )}
+                        <span className="text-muted">
+                          {t.num} · {t.source} ·{" "}
+                          <span className={near ? "text-warning" : ""}>{t.quoteRequest ? "quote request" : `${hours(ticketHours(t))} h logged${c && c.capHours ? ` · client ${hours(c.usedHours)} of ${c.capHours}` : ""}`}</span>
+                        </span>
                       </span>
                     </td>
-                    <td className={tdClass}>{t.assigned}</td>
-                    <td className={`${tdClass} text-muted-2 whitespace-nowrap`}>{t.opened}</td>
-                    <td className={tdClass}>
+                    <td className={`${tdClass} text-muted-2`}>{t.client}</td>
+                    <td className={`${tdClass} whitespace-nowrap`}>
+                      <span className="text-xs border border-border-2 rounded-full px-2.5 py-1 text-muted-2 whitespace-nowrap">{t.type}</span>
+                    </td>
+                    <td className={`${tdClass} whitespace-nowrap`}>
+                      <label htmlFor={`st-${t.id}`} className="sr-only">
+                        Status for {t.num}
+                      </label>
+                      <select id={`st-${t.id}`} value={t.status} onChange={(e) => setStatus(t, e.target.value)} className={`min-h-9 rounded-full border border-border-2 bg-surface-2 px-3 text-[13px] cursor-pointer ${STATUS_COLOR[t.status]}`}>
+                        {TICKET_STATUSES.map((s) => (
+                          <option key={s}>{s}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className={`${tdClass} text-muted-2 whitespace-nowrap`}>{t.assigned}</td>
+                    <td className={`${tdClass} text-muted whitespace-nowrap`}>{t.opened}</td>
+                    <td className={`${tdClass} text-right`}>
                       {t.local ? null : (
-                        <Link href={`/admin/support/${t.id}`} aria-label={`Open ${t.num}`} className="text-accent-light hover:text-fg text-[13px]">
+                        <Link href={`/admin/support/${t.id}`} aria-label={`Open ${t.num}`} className={btnSm}>
                           Open
                         </Link>
                       )}
@@ -158,13 +176,14 @@ export default function TicketsView({ initialTickets, clients }) {
               })}
             </tbody>
           </table>
-          {rows.length === 0 ? <p className="m-0 p-6 text-center text-muted-2">Nothing with that status.</p> : null}
         </TableBox>
       ) : null}
 
-      <p className="text-[12px] text-muted-2 mt-4 mb-0 max-w-[820px]">
+      <p className="m-0 text-[13px] text-muted">
         Tickets come from the portal’s support form, email to [support address], or a text we log by hand. Each counts against the client’s plan hours, capped in their proposal (caps shown are placeholders). Clients without a monthly plan get a quote instead of a ticket.
       </p>
+
+      <DevStates value={dev} onChange={setDev} />
 
       {dialog ? (
         <NewTicketDialog
@@ -227,6 +246,7 @@ function NewTicketDialog({ clients, onClose, onCreated }) {
       id="nt"
       eyebrow="Logged by the team"
       title="New ticket"
+      w={600}
       onClose={onClose}
       footer={
         <>
@@ -240,73 +260,73 @@ function NewTicketDialog({ clients, onClose, onCreated }) {
       }
     >
       <form id="nt-form" onSubmit={submit} noValidate className="flex flex-col gap-3.5">
-        <FieldRow id="nt-client" label="Client">
-          <select id="nt-client" data-autofocus value={f.clientId} onChange={set("clientId")} className={inputClass}>
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} · {c.planLabel.split(" · ").slice(-1)[0]}
-              </option>
-            ))}
-          </select>
-        </FieldRow>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <FieldRow id="nt-client" label="Client">
+            <select id="nt-client" data-autofocus value={f.clientId} onChange={set("clientId")} className={sel}>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} · {c.planLabel.split(" · ").slice(-1)[0]}
+                </option>
+              ))}
+            </select>
+          </FieldRow>
           <FieldRow id="nt-contact" label="Who asked">
-            <select id="nt-contact" value={f.requester} onChange={set("requester")} className={inputClass}>
+            <select id="nt-contact" value={f.requester} onChange={set("requester")} className={sel}>
               <option>[Owner]</option>
               <option>[Manager]</option>
               <option>Someone else…</option>
             </select>
           </FieldRow>
           <FieldRow id="nt-type" label="Type">
-            <select id="nt-type" value={f.type} onChange={set("type")} className={inputClass}>
+            <select id="nt-type" value={f.type} onChange={set("type")} className={sel}>
               {TICKET_TYPES.map((t) => (
                 <option key={t}>{t}</option>
               ))}
             </select>
           </FieldRow>
           <FieldRow id="nt-src" label="Came in by">
-            <select id="nt-src" value={f.source} onChange={set("source")} className={inputClass}>
+            <select id="nt-src" value={f.source} onChange={set("source")} className={sel}>
               {TICKET_SOURCES.map((t) => (
-                <option key={t}>{t}</option>
-              ))}
-            </select>
-          </FieldRow>
-          <FieldRow id="nt-who" label="Assign to">
-            <select id="nt-who" value={f.assigned} onChange={set("assigned")} className={inputClass}>
-              {ASSIGNEES.map((t) => (
                 <option key={t}>{t}</option>
               ))}
             </select>
           </FieldRow>
         </div>
         <FieldRow id="nt-subj" label="Subject" error={errors.subject}>
-          <input id="nt-subj" type="text" value={f.subject} onChange={set("subject")} placeholder="Change Sunday hours on the home page" aria-invalid={!!errors.subject} aria-describedby={errors.subject ? "nt-subj-err" : undefined} className={`${inputClass} ${errors.subject ? "border-danger" : ""}`} />
+          <input id="nt-subj" type="text" value={f.subject} onChange={set("subject")} placeholder="Change Sunday hours on the home page" aria-invalid={!!errors.subject} aria-describedby={errors.subject ? "nt-subj-err" : undefined} className={`${inputClass} ${errors.subject ? "!border-danger" : ""}`} />
         </FieldRow>
         <FieldRow id="nt-body" label="What they need" error={errors.body}>
-          <textarea id="nt-body" rows={3} value={f.body} onChange={set("body")} placeholder="Exactly what they said, plus what you promised" aria-invalid={!!errors.body} aria-describedby={errors.body ? "nt-body-err" : undefined} className={`${textareaClass} ${errors.body ? "border-danger" : ""}`} />
+          <textarea id="nt-body" rows={3} value={f.body} onChange={set("body")} placeholder="Exactly what they said, plus what you promised" aria-invalid={!!errors.body} aria-describedby={errors.body ? "nt-body-err" : undefined} className={`${textareaClass} ${errors.body ? "!border-danger" : ""}`} />
         </FieldRow>
-        <FieldRow id="nt-pri" label="Priority">
-          <select id="nt-pri" value={f.priority} onChange={set("priority")} className={inputClass}>
-            {PRIORITIES.map((p) => (
-              <option key={p.value} value={p.value}>
-                {p.label}
-              </option>
-            ))}
-          </select>
-        </FieldRow>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <FieldRow id="nt-who" label="Assign to">
+            <select id="nt-who" value={f.assigned} onChange={set("assigned")} className={sel}>
+              {ASSIGNEES.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+          </FieldRow>
+          <FieldRow id="nt-pri" label="Priority">
+            <select id="nt-pri" value={f.priority} onChange={set("priority")} className={sel}>
+              {PRIORITIES.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </FieldRow>
+        </div>
         {quote ? (
-          <Note tone="accent">
+          <Note tone="fg">
             This client has no monthly plan, so the work is quoted, not ticketed. Saving creates the ticket as a <strong className="font-medium">quote request</strong> and opens a proposal draft.
           </Note>
         ) : client.startsAtLaunch ? (
           <Note>Their monthly plan starts at launch, so there is no hours cap yet. The ticket is still logged.</Note>
         ) : (
-          <label className="flex items-center gap-2.5 cursor-pointer min-h-9">
+          <label className={checkLabelClass}>
             <input type="checkbox" checked={f.counts} onChange={set("counts")} className={checkClass} />
-            <span>
-              Counts against plan hours · {hours(client.usedHours)} of {client.capHours} used this month
-              {client.usedHours / client.capHours >= 0.75 ? " · near the cap" : ""}
-            </span>
+            Counts against plan hours · {hours(client.usedHours)} of {client.capHours} used this month
+            {client.usedHours / client.capHours >= 0.75 ? " · near the cap" : ""}
           </label>
         )}
         <FormError message={sub.status === "failed" ? sub.error : ""} />

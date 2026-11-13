@@ -12,7 +12,7 @@ import ProspectDrawer from "./ProspectDrawer";
 import { EmailEditor, HandoffDialog, LogDialog, PartnerDialog } from "./Dialogs";
 
 const TAB_KEYS = ["approvals", "run", "prospects", "calls", "scripts", "partners"];
-const selectCls = "min-h-9 rounded-[10px] border border-border-2 bg-surface-2 px-2.5 text-[13px] text-fg font-[inherit] max-w-full";
+const selectCls = "min-h-8 rounded-[10px] border border-border-2 bg-surface-2 px-2.5 text-xs text-fg font-[inherit]";
 
 // Outreach. Claude drafts and builds; a person approves every email and demo. Nothing sends without that click.
 // Data comes from getOutreach() (sample) as `initial`; mutations call the /api/admin/outreach stubs.
@@ -145,7 +145,9 @@ export default function OutreachView({ initial }) {
 
   const foundToday = prospects.filter((p) => p.found === "Today").length;
   const demoOwners = [...new Set(prospects.filter((p) => p.phase === "Demo in progress").map((p) => p.owner))];
-  const tile = "bg-surface border border-border rounded-admin p-4 flex flex-col gap-1 min-w-0 text-left";
+  const tile = "bg-surface-2 border border-border rounded-admin px-6 py-5 flex flex-col gap-1.5 text-fg text-left box-border min-w-0";
+  const tileHover = "hover:border-border-2 transition-colors cursor-pointer";
+  const num = "text-[32px] font-medium leading-none tabular-nums";
 
   return (
     <>
@@ -175,103 +177,119 @@ export default function OutreachView({ initial }) {
         </label>
       </DevBar>
 
-      <section aria-label="Today" className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-3 mb-6">
+      <section aria-label="Today" className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-4">
         <div className={tile}>
-          <span className="text-muted-2">Prospects found today</span>
-          <span className="text-[26px] font-medium leading-none">{foundToday}</span>
-          <span className="text-[12px] text-muted-2">of {stats.dailyGoal} daily goal</span>
+          <span className="text-[13px] text-muted-2">Prospects found today</span>
+          <span className="flex items-baseline gap-2.5 flex-wrap">
+            <span className={num}>{foundToday}</span>
+            <span className="text-[13px] text-muted">of {stats.dailyGoal} daily goal</span>
+          </span>
         </div>
-        <button type="button" onClick={() => setTab("approvals")} className={`${tile} cursor-pointer hover:border-border-2`}>
-          <span className="text-muted-2">Awaiting your approval</span>
-          <span className="text-[26px] font-medium leading-none">{queue.length}</span>
-          <span className="text-[12px] text-muted-2">emails and demos drafted by Claude</span>
+        <button type="button" onClick={() => setTab("approvals")} className={`${tile} ${tileHover}`}>
+          <span className="text-[13px] text-muted-2">Awaiting your approval</span>
+          <span className="flex items-baseline gap-2.5 flex-wrap">
+            <span className={num}>{queue.length}</span>
+            <span className="text-[13px] text-muted">emails and demos drafted by Claude</span>
+          </span>
         </button>
         <div className={tile}>
-          <span className="text-muted-2">Emails sent this week</span>
-          <span className="text-[26px] font-medium leading-none">{sentWeek}</span>
-          <span className="text-[12px] text-muted-2">{stats.repliesWeek} replies</span>
+          <span className="text-[13px] text-muted-2">Emails sent this week</span>
+          <span className="flex items-baseline gap-2.5 flex-wrap">
+            <span className={num}>{sentWeek}</span>
+            <span className="text-[13px] text-muted">{stats.repliesWeek} replies</span>
+          </span>
         </div>
         <div className={tile}>
-          <span className="text-muted-2">Demos in progress</span>
-          <span className="text-[26px] font-medium leading-none">{prospects.filter((p) => p.phase === "Demo in progress").length}</span>
-          <span className="text-[12px] text-muted-2">{demoOwners.length ? demoOwners.join(", ") : "None right now"}</span>
+          <span className="text-[13px] text-muted-2">Demos in progress</span>
+          <span className="flex items-baseline gap-2.5 flex-wrap">
+            <span className={num}>{prospects.filter((p) => p.phase === "Demo in progress").length}</span>
+            <span className="text-[13px] text-muted">{demoOwners.length ? demoOwners.join(", ") : "None right now"}</span>
+          </span>
         </div>
-        <Link href="/admin/leads" className={`${tile} hover:border-border-2`}>
-          <span className="text-muted-2">Became leads this month</span>
-          <span className="text-[26px] font-medium leading-none">{prospects.filter((p) => p.phase === "Became a lead").length}</span>
-          <span className="text-[12px] text-muted-2">feeds the {money(TARGETS.signed)} signed target</span>
+        <Link href="/admin/leads" className={`${tile} ${tileHover}`}>
+          <span className="text-[13px] text-muted-2">Became leads this month</span>
+          <span className="flex items-baseline gap-2.5 flex-wrap">
+            <span className={num}>{prospects.filter((p) => p.phase === "Became a lead").length}</span>
+            <span className="text-[13px] text-muted">feeds the {money(TARGETS.signed)} signed target</span>
+          </span>
         </Link>
-        <Link href="/admin" className={`${tile} hover:border-border-2`}>
-          <span className="text-muted-2">Contacts this week</span>
-          <span className="text-[26px] font-medium leading-none">{contactsWeek}</span>
-          <span className="text-[12px] text-muted-2">of the {stats.weeklyGoal[0]}–{stats.weeklyGoal[1]} weekly goal</span>
+        <Link href="/admin" className={`${tile} ${tileHover}`}>
+          <span className="text-[13px] text-muted-2">Contacts this week</span>
+          <span className="flex items-baseline gap-2.5 flex-wrap">
+            <span className={num}>{contactsWeek}</span>
+            <span className="text-[13px] text-muted">
+              of the {stats.weeklyGoal[0]}–{stats.weeklyGoal[1]} weekly goal
+            </span>
+          </span>
         </Link>
       </section>
 
-      <div role="tablist" aria-label="Outreach views" className="flex gap-1 border-b border-border mb-5 overflow-x-auto">
-        {tabs.map(([k, label, count], i) => (
-          <button
-            key={k}
-            id={`tab-${k}`}
-            type="button"
-            role="tab"
-            aria-selected={tab === k}
-            aria-controls={`panel-${k}`}
-            tabIndex={tab === k ? 0 : -1}
-            onClick={() => setTab(k)}
-            onKeyDown={(e) => onTabKey(e, i)}
-            className={`min-h-11 px-4 whitespace-nowrap bg-transparent border-0 border-b-2 -mb-px text-[13px] cursor-pointer ${tab === k ? "border-fg text-fg font-medium" : "border-transparent text-muted-2 hover:text-fg"}`}
-          >
-            {label}
-            {count != null ? <span className="ml-1.5 text-[12px] text-muted-2 tabular-nums">{count}</span> : null}
-          </button>
-        ))}
-      </div>
+      <section aria-label="Outreach" className="flex flex-col gap-3.5">
+        <div role="tablist" aria-label="Outreach views" className="flex gap-1 border-b border-border overflow-x-auto">
+          {tabs.map(([k, label, count], i) => (
+            <button
+              key={k}
+              id={`tab-${k}`}
+              type="button"
+              role="tab"
+              aria-selected={tab === k}
+              aria-controls={`panel-${k}`}
+              tabIndex={tab === k ? 0 : -1}
+              onClick={() => setTab(k)}
+              onKeyDown={(e) => onTabKey(e, i)}
+              className={`min-h-10 px-3.5 -mb-px inline-flex items-center gap-2 whitespace-nowrap bg-transparent border-0 border-b-2 text-[13px] font-medium cursor-pointer font-[inherit] ${tab === k ? "border-fg text-fg" : "border-transparent text-muted-2 hover:text-fg"}`}
+            >
+              {label}
+              {count != null ? <span className="text-xs text-muted tabular-nums">{count}</span> : null}
+            </button>
+          ))}
+        </div>
 
-      <div id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={0} className="outline-offset-4">
-        {tab === "approvals" ? (
-          <ApprovalQueue
-            queue={queue}
-            loading={devState === "loading"}
-            busyId={busyId}
-            onApprove={(d) => approve(d, d.kind === "email" ? { to: (drafts[d.id]?.to || d.to).replace(/[[\]]/g, ""), subject: drafts[d.id]?.subject || d.subject, body: drafts[d.id]?.body || d.body } : undefined)}
-            onEdit={(d) => setDialog({ type: "draft", id: d.id })}
-            onSkip={skip}
-          />
-        ) : null}
-        {tab === "run" ? <RunTab run={run} runInfo={initial.run} onRun={startRun} onReview={() => setTab("approvals")} /> : null}
-        {tab === "prospects" ? <ProspectsTab prospects={prospects} state={prospectState} onOpen={setSel} onRetry={retry} onRun={startRun} onLog={() => setDialog({ type: "log" })} /> : null}
-        {tab === "calls" ? (
-          <CallsTab calls={calls} contactsWeek={contactsWeek} goal={stats.weeklyGoal} onOpen={setSel} onLog={(c) => setDialog({ type: "log", prospectId: c.prospectId, kind: "Call", callId: c.id })} onScript={() => setTab("scripts")} />
-        ) : null}
-        {tab === "scripts" ? (
-          <ScriptsTab
-            scripts={initial.scripts}
-            onCopy={async (sc) => {
-              try {
-                await navigator.clipboard.writeText(`${sc.title}\n\n${sc.lines.map((l) => `${l.k} ${l.t}`).join("\n")}`);
-                showToast("Script copied");
-              } catch {
-                showToast("Couldn’t copy. Select the text and copy it by hand.", { tone: "error" });
-              }
-            }}
-          />
-        ) : null}
-        {tab === "partners" ? (
-          <PartnersTab
-            partners={partners}
-            onAdd={() => setDialog({ type: "partner" })}
-            onTouch={async (pt) => {
-              const res = await api("POST", "/api/admin/outreach/partners", { partnerId: pt.id, touch: true });
-              if (!res.ok) return showToast("Couldn’t log the touch. Try again.", { tone: "error" });
-              setPartners((ps) => ps.map((x) => (x.id === pt.id ? { ...x, last: "just now", overdue: false } : x)));
-              showToast(`Touch logged for ${pt.name}`);
-            }}
-          />
-        ) : null}
-      </div>
+        <div id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`} className="flex flex-col gap-3.5 outline-offset-4">
+          {tab === "approvals" ? (
+            <ApprovalQueue
+              queue={queue}
+              loading={devState === "loading"}
+              busyId={busyId}
+              onApprove={(d) => approve(d, d.kind === "email" ? { to: (drafts[d.id]?.to || d.to).replace(/[[\]]/g, ""), subject: drafts[d.id]?.subject || d.subject, body: drafts[d.id]?.body || d.body } : undefined)}
+              onEdit={(d) => setDialog({ type: "draft", id: d.id })}
+              onSkip={skip}
+            />
+          ) : null}
+          {tab === "run" ? <RunTab run={run} runInfo={initial.run} onReview={() => setTab("approvals")} /> : null}
+          {tab === "prospects" ? <ProspectsTab prospects={prospects} state={prospectState} onOpen={setSel} onRetry={retry} onRun={startRun} onLog={() => setDialog({ type: "log" })} /> : null}
+          {tab === "calls" ? (
+            <CallsTab calls={calls} contactsWeek={contactsWeek} goal={stats.weeklyGoal} onOpen={setSel} onLog={(c) => setDialog({ type: "log", prospectId: c.prospectId, kind: "Call", callId: c.id })} onScript={() => setTab("scripts")} />
+          ) : null}
+          {tab === "scripts" ? (
+            <ScriptsTab
+              scripts={initial.scripts}
+              onCopy={async (sc) => {
+                try {
+                  await navigator.clipboard.writeText(`${sc.title}\n\n${sc.lines.map((l) => `${l.k} ${l.t}`).join("\n")}`);
+                  showToast("Script copied");
+                } catch {
+                  showToast("Couldn’t copy. Select the text and copy it by hand.", { tone: "error" });
+                }
+              }}
+            />
+          ) : null}
+          {tab === "partners" ? (
+            <PartnersTab
+              partners={partners}
+              onAdd={() => setDialog({ type: "partner" })}
+              onTouch={async (pt) => {
+                const res = await api("POST", "/api/admin/outreach/partners", { partnerId: pt.id, touch: true });
+                if (!res.ok) return showToast("Couldn’t log the touch. Try again.", { tone: "error" });
+                setPartners((ps) => ps.map((x) => (x.id === pt.id ? { ...x, last: "just now", overdue: false } : x)));
+                showToast(`Touch logged for ${pt.name}`);
+              }}
+            />
+          ) : null}
+        </div>
+      </section>
 
-      <p className="text-[12px] text-muted-2 mt-8 mb-0 max-w-[900px]">
+      <p className="text-[13px] text-muted m-0 leading-[1.6]">
         How it works: Claude Cowork runs each morning against the search brief in Settings, writes prospects to the prospect list, logs every step, and drafts emails into the approval queue. When a demo is assigned to Claude, it builds the demo from what it found and that lands in the same queue. A person approves before anything is sent. “Convert to lead” creates a row in Leads with source “Outreach”.
       </p>
 

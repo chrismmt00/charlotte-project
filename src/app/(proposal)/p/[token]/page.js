@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import ProposalHeader from "@/components/proposal/ProposalHeader";
 import ProposalView from "@/components/proposal/ProposalView";
 import { publicProposal } from "@/lib/admin/sample-proposals";
 
@@ -21,12 +22,15 @@ export default function ProposalPage({ params }) {
 
 function Fallback() {
   return (
-    <div aria-busy="true" aria-label="Loading your proposal" className="mx-auto w-full max-w-[880px] px-4 sm:px-8 pt-12 flex flex-col gap-5">
-      <div className="h-4 w-48 rounded-full bg-surface" />
-      <div className="h-[clamp(52px,8vw,96px)] max-w-[640px] rounded-card bg-surface" />
-      <div className="h-5 max-w-[520px] rounded-full bg-surface" />
-      <div className="h-56 rounded-card bg-surface" />
-    </div>
+    <>
+      <ProposalHeader />
+      <main id="main" aria-busy="true" aria-label="Loading your proposal" className="mx-auto w-full max-w-[880px] px-[clamp(16px,4vw,32px)] pt-10 flex flex-col gap-5">
+        <div className="h-4 w-48 rounded-full bg-surface" />
+        <div className="h-[clamp(52px,8vw,96px)] max-w-[640px] rounded-card bg-surface" />
+        <div className="h-5 max-w-[520px] rounded-full bg-surface" />
+        <div className="h-56 rounded-card bg-surface" />
+      </main>
+    </>
   );
 }
 

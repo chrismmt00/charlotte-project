@@ -271,7 +271,7 @@ function planLabel(c) {
   const o = getOffer(c.offerCode);
   if (!c.monthly.on) return "Self-managed · no monthly";
   const price = `$${o.monthly}/month`;
-  if (c.monthly.status === "starts at launch") return `${price} · ${o.monthlyRequired ? "required · " : ""}starts at launch`;
+  if (c.monthly.status === "starts at launch") return o.monthlyRequired ? `${price} · required` : `${price} · starts at launch`;
   if (c.monthly.status === "cancels at period end") return `${price} · cancels at period end`;
   return o.monthlyRequired ? `${price} · required` : price;
 }

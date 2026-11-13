@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { PageHead, Chip, Empty, Skeleton, btnPrimary, btnSecondary, money } from "@/components/admin/ui";
+import { PageHead, Chip, Skeleton, btnPrimary, btnSecondary, money } from "@/components/admin/ui";
 import { RANGES } from "@/lib/admin/sample-reports";
 import Dialog from "@/components/admin/settings/Dialog";
 import Toast, { useToast } from "@/components/admin/settings/Toast";
@@ -21,7 +21,7 @@ function Tile({ label, value, note, loading }) {
     <div className="bg-surface-2 border border-border rounded-admin px-5 py-[18px] flex flex-col gap-1.5 min-w-0">
       <span className="text-[12px] text-muted-2">{label}</span>
       {loading ? (
-        <Skeleton className="h-7 w-28" />
+        <Skeleton className="h-7 w-28 rounded-md!" />
       ) : (
         <span className="flex items-baseline gap-2 flex-wrap">
           <span className="text-[28px] font-medium leading-none tabular-nums">{value}</span>
@@ -37,9 +37,9 @@ function ChartCard({ title, sub, loading, legend, table, children }) {
     <section aria-label={title} className="bg-surface border border-border rounded-admin px-5 py-[18px] flex flex-col gap-3.5 min-w-0">
       <div className="flex flex-wrap justify-between items-baseline gap-3">
         <h2 className="text-[15px] font-medium m-0">{title}</h2>
-        <span className="text-[12px] text-muted-2">{sub}</span>
+        <span className="text-[12px] text-muted">{sub}</span>
       </div>
-      {loading ? <Skeleton className="h-[180px]" /> : children}
+      {loading ? <Skeleton className="h-[180px] rounded-[12px]!" /> : children}
       {legend}
       {!loading && table ? table : null}
     </section>
@@ -101,7 +101,7 @@ function ExportDialog({ query, label, onClose, onDone }) {
   }
 
   const busy = status === "submitting";
-  const box = "w-[18px] h-[18px] accent-[var(--accent)] flex-none";
+  const box = "accent-[var(--accent)] flex-none";
   return (
     <Dialog
       eyebrow="Reports"
@@ -136,14 +136,14 @@ function ExportDialog({ query, label, onClose, onDone }) {
           The export didn&rsquo;t download. Check your connection and try again.
         </div>
       ) : null}
-      <fieldset className="border-0 p-0 m-0 flex flex-col gap-1" aria-describedby={status === "invalid" ? "ex-err" : undefined}>
+      <fieldset className="border-0 p-0 m-0 flex flex-col gap-2" aria-describedby={status === "invalid" ? "ex-err" : undefined}>
         <legend className="text-[12px] text-muted-2 mb-1.5">What</legend>
         {[
           ["months", "Signed, cash and recurring by month"],
           ["pipeline", "Pipeline by stage"],
           ["outreach", "Outreach contacts by week"],
         ].map(([k, l]) => (
-          <label key={k} className="flex items-center gap-2.5 min-h-10 cursor-pointer">
+          <label key={k} className="flex items-center gap-2.5 px-3 py-2.5 rounded-[12px] border border-border-2 cursor-pointer">
             <input type="checkbox" className={box} checked={sections[k]} onChange={toggle(k)} disabled={busy} data-autofocus={k === "months" ? true : undefined} />
             {l}
           </label>
@@ -154,7 +154,7 @@ function ExportDialog({ query, label, onClose, onDone }) {
           Pick at least one section.
         </p>
       ) : null}
-      <p className="m-0 text-[12px] text-muted-2 leading-relaxed">CSV, one block per section. Prospects who opted out are left out of the outreach numbers.</p>
+      <p className="m-0 text-[12px] text-muted leading-normal">CSV, one block per section. Prospects who opted out are left out of the outreach numbers.</p>
     </Dialog>
   );
 }
@@ -262,51 +262,32 @@ export default function ReportsView({ initial }) {
         <button type="button" className={btnSecondary} onClick={() => setDialog("export")} disabled={view !== "live"}>
           Export CSV
         </button>
+        {dateError ? (
+          <p id="rp-err" role="alert" className="m-0 basis-full text-right text-[12px] text-danger">
+            {dateError}
+          </p>
+        ) : null}
       </PageHead>
-
-      {dateError ? (
-        <p id="rp-err" role="alert" className="-mt-3 mb-4 text-[12px] text-danger">
-          {dateError}
-        </p>
-      ) : null}
-
-      {DEV ? (
-        <div className="mb-4 flex flex-wrap items-center gap-2 text-[12px] text-muted-2" aria-label="Development state preview" role="group">
-          <span>Dev preview:</span>
-          {[null, "loading", "empty", "error"].map((s) => (
-            <button
-              key={s || "live"}
-              type="button"
-              aria-pressed={forced === s}
-              onClick={() => setForced(s)}
-              className={`min-h-7 px-2.5 rounded-full border text-[12px] cursor-pointer ${forced === s ? "border-fg text-fg" : "border-border-2 text-muted-2 bg-transparent"}`}
-            >
-              {s || "live"}
-            </button>
-          ))}
-        </div>
-      ) : null}
 
       {view === "error" ? (
         <ErrorCard onRetry={() => (forced ? setForced(null) : load(query))} />
       ) : view === "empty" ? (
-        <Empty
-          title="Nothing to chart yet"
-          action={
-            <span className="flex flex-wrap gap-2.5 justify-center">
-              <Link href="/admin/outreach" className={btnPrimary}>
-                Run today&rsquo;s outreach
-              </Link>
-              <Link href="/admin/settings?tab=general" className={btnSecondary}>
-                Change the targets
-              </Link>
-            </span>
-          }
-        >
-          Reports fill in from signed proposals, paid invoices and the outreach log. Day one shows the targets only: {money(tg.signed)} signed, {money(tg.cash)} cash, {money(tg.mrr)} recurring by month 3.
-        </Empty>
+        <div className="border border-dashed border-border-2 rounded-admin px-6 py-12 text-center flex flex-col items-center gap-2.5">
+          <h2 className="text-[17px] font-medium m-0">Nothing to chart yet</h2>
+          <p className="m-0 text-[12px] text-muted max-w-[460px] leading-[1.6]">
+            Reports fill in from signed proposals, paid invoices and the outreach log. Day one shows the targets only: {money(tg.signed)} signed, {money(tg.cash)} cash, {money(tg.mrr)} recurring by month 3.
+          </p>
+          <div className="flex flex-wrap gap-2.5 justify-center">
+            <Link href="/admin/outreach" className={btnPrimary}>
+              Run today&rsquo;s outreach
+            </Link>
+            <Link href="/admin/settings?tab=general" className={btnSecondary}>
+              Change the targets
+            </Link>
+          </div>
+        </div>
       ) : (
-        <div className="flex flex-col gap-4" aria-busy={loading}>
+        <div className="flex flex-col gap-6" aria-busy={loading}>
           <section aria-label="Totals" className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-4">
             <Tile loading={loading} label={`Signed · ${label}`} value={money(t.signed)} note={`of ${money(tg.signed)} target · ${pct(t.signed, tg.signed)}%`} />
             <Tile loading={loading} label="Cash collected" value={money(t.cash)} note={`of ${money(tg.cash)} target · ${pct(t.cash, tg.cash)}%`} />
@@ -444,6 +425,23 @@ export default function ReportsView({ initial }) {
           </section>
         </div>
       )}
+
+      {DEV ? (
+        <div className="flex flex-wrap items-center gap-2 text-[12px] text-muted-2" aria-label="Development state preview" role="group">
+          <span>Dev preview:</span>
+          {[null, "loading", "empty", "error"].map((s) => (
+            <button
+              key={s || "live"}
+              type="button"
+              aria-pressed={forced === s}
+              onClick={() => setForced(s)}
+              className={`min-h-7 px-2.5 rounded-full border text-[12px] cursor-pointer ${forced === s ? "border-fg text-fg" : "border-border-2 text-muted-2 bg-transparent"}`}
+            >
+              {s || "live"}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {dialog === "export" ? (
         <ExportDialog

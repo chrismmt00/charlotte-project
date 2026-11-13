@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { btnDanger, btnPrimary, btnSecondary, money } from "@/components/admin/ui";
-import { FieldRow, FormError, Modal, Note, api, checkClass, inputClass, textareaClass, useSubmit } from "@/components/admin/billing/kit";
+import { FieldRow, FormError, Modal, Note, api, checkClass, checkLabelClass, inputClass, textareaClass, useSubmit } from "@/components/admin/billing/kit";
 import { MILESTONE_IDS, MILESTONE_NAMES } from "@/lib/admin/sample-projects";
 
 const BUILDERS = ["Chris", "Geoffrey", "Demetrius"];
+const err = (e) => (e ? "!border-danger" : "");
 
 // ---------- New task ----------
 export function NewTaskDialog({ project, team, today, onClose, onCreated }) {
@@ -42,18 +43,18 @@ export function NewTaskDialog({ project, team, today, onClose, onCreated }) {
     >
       <form id="nt-form" onSubmit={submit} noValidate className="flex flex-col gap-3.5">
         <FieldRow id="nt-title" label="Title" error={errors.title}>
-          <input id="nt-title" data-autofocus type="text" value={f.title} onChange={set("title")} placeholder="Write the services page copy" aria-invalid={!!errors.title} aria-describedby={errors.title ? "nt-title-err" : undefined} className={`${inputClass} ${errors.title ? "border-danger" : ""}`} />
+          <input id="nt-title" data-autofocus type="text" value={f.title} onChange={set("title")} placeholder="Write the services page copy" aria-invalid={!!errors.title} aria-describedby={errors.title ? "nt-title-err" : undefined} className={`${inputClass} ${err(errors.title)}`} />
         </FieldRow>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <FieldRow id="nt-who" label="Assign">
-            <select id="nt-who" value={f.who} onChange={set("who")} className={inputClass}>
+            <select id="nt-who" value={f.who} onChange={set("who")} className={`${inputClass} cursor-pointer`}>
               {team.map((p) => (
                 <option key={p.name}>{p.name}</option>
               ))}
             </select>
           </FieldRow>
           <FieldRow id="nt-ms" label="Milestone">
-            <select id="nt-ms" value={f.milestone} onChange={set("milestone")} className={inputClass}>
+            <select id="nt-ms" value={f.milestone} onChange={set("milestone")} className={`${inputClass} cursor-pointer`}>
               {MILESTONE_IDS.map((m) => (
                 <option key={m} value={m}>
                   {MILESTONE_NAMES[m]}
@@ -65,15 +66,15 @@ export function NewTaskDialog({ project, team, today, onClose, onCreated }) {
             <input id="nt-due" type="date" value={f.due} onChange={set("due")} className={inputClass} />
           </FieldRow>
           <FieldRow id="nt-est" label="Estimate (h)" error={errors.est}>
-            <input id="nt-est" type="text" inputMode="decimal" value={f.est} onChange={set("est")} aria-invalid={!!errors.est} aria-describedby={errors.est ? "nt-est-err" : undefined} className={`${inputClass} ${errors.est ? "border-danger" : ""}`} />
+            <input id="nt-est" type="text" inputMode="decimal" value={f.est} onChange={set("est")} aria-invalid={!!errors.est} aria-describedby={errors.est ? "nt-est-err" : undefined} className={`${inputClass} ${err(errors.est)}`} />
           </FieldRow>
         </div>
         <FieldRow id="nt-desc" label="Notes">
           <textarea id="nt-desc" rows={2} value={f.notes} onChange={set("notes")} placeholder="Links, what done looks like" className={textareaClass} />
         </FieldRow>
-        <label className="flex items-center gap-2.5 cursor-pointer min-h-9">
+        <label className={checkLabelClass}>
           <input type="checkbox" checked={f.needsClient} onChange={set("needsClient")} className={checkClass} />
-          <span>Needs something from the client (shows in their portal)</span>
+          Needs something from the client (shows in their portal)
         </label>
         <FormError message={sub.status === "failed" ? sub.error : ""} />
       </form>
@@ -94,8 +95,9 @@ export function AssignDialog({ project, task, team, loads, onClose, onAssigned }
   return (
     <Modal
       id="as"
+      tight
+      w={420}
       title={`Reassign “${task.title}”`}
-      size="sm"
       onClose={onClose}
       footer={
         <>
@@ -109,23 +111,23 @@ export function AssignDialog({ project, task, team, loads, onClose, onAssigned }
       }
     >
       <form id="as-form" onSubmit={submit} className="flex flex-col gap-3">
-        <div role="radiogroup" aria-label="Assign to" className="flex flex-col gap-2">
+        <div role="radiogroup" aria-label="Assign to" className="flex flex-col gap-1.5">
           {team.map((p, i) => (
-            <label key={p.name} className={`flex items-center gap-3 border rounded-[12px] px-3 py-2.5 cursor-pointer min-h-12 ${pick === p.name ? "border-fg bg-surface-2" : "border-border-2"}`}>
-              <input type="radio" name="assign" data-autofocus={i === 0 ? "" : undefined} checked={pick === p.name} onChange={() => setPick(p.name)} className={checkClass} />
-              <span aria-hidden="true" className="w-8 h-8 rounded-full bg-surface-2 border border-border-2 inline-flex items-center justify-center text-[11px] flex-none">
+            <label key={p.name} className={`flex items-center gap-3 px-3 py-2.5 border rounded-xl cursor-pointer ${pick === p.name ? "border-fg bg-surface-2" : "border-border-2 bg-transparent"}`}>
+              <input type="radio" name="assign" data-autofocus={i === 0 ? "" : undefined} checked={pick === p.name} onChange={() => setPick(p.name)} className="m-0 accent-[var(--accent)]" />
+              <span aria-hidden="true" className="w-6 h-6 rounded-full bg-surface-2 border border-border-2 inline-flex items-center justify-center text-[10px] font-medium flex-none">
                 {p.initials}
               </span>
-              <span className="flex flex-col min-w-0">
-                <span className="text-fg">{p.name}</span>
-                <span className="text-[12px] text-muted-2">{p.note || loads[p.name]}</span>
+              <span className="flex flex-col gap-0.5 min-w-0">
+                <span className="font-medium">{p.name}</span>
+                <span className="text-muted">{p.note || loads[p.name]}</span>
               </span>
             </label>
           ))}
         </div>
-        <label className="flex items-center gap-2.5 cursor-pointer min-h-9">
+        <label className={checkLabelClass}>
           <input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} className={checkClass} />
-          <span>Notify them</span>
+          Notify them
         </label>
         <FormError message={sub.status === "failed" ? sub.error : ""} />
       </form>
@@ -138,24 +140,24 @@ export function LogTimeDialog({ project, task, onClose, onLogged }) {
   const [hoursText, setHoursText] = useState("1.5");
   const [who, setWho] = useState(task.who === "Claude" ? "Geoffrey" : task.who);
   const [what, setWhat] = useState(task.title);
-  const [err, setErr] = useState("");
+  const [error, setError] = useState("");
   const sub = useSubmit();
   const h = Number(hoursText);
   const submit = async (e) => {
     e.preventDefault();
     if (!(h > 0) || h > 24) {
-      setErr("Enter hours between 0 and 24, like 1.5.");
+      setError("Enter hours between 0 and 24, like 1.5.");
       return;
     }
-    setErr("");
+    setError("");
     const out = await sub.run(() => api(`/api/admin/projects/${project.id}/tasks`, { method: "PATCH", body: { taskId: task.id, logTime: { hours: h, who, what } } }));
     if (out) onLogged({ id: out.entry.id, what, who, hours: h });
   };
   return (
     <Modal
       id="lt"
+      w={440}
       title={`Log time on “${task.title}”`}
-      size="sm"
       onClose={onClose}
       footer={
         <>
@@ -170,11 +172,11 @@ export function LogTimeDialog({ project, task, onClose, onLogged }) {
     >
       <form id="lt-form" onSubmit={submit} noValidate className="flex flex-col gap-3.5">
         <div className="grid grid-cols-2 gap-3.5">
-          <FieldRow id="lt-hours" label="Hours" error={err}>
-            <input id="lt-hours" data-autofocus type="text" inputMode="decimal" value={hoursText} onChange={(e) => setHoursText(e.target.value)} aria-invalid={!!err} aria-describedby={err ? "lt-hours-err" : undefined} className={`${inputClass} ${err ? "border-danger" : ""}`} />
+          <FieldRow id="lt-hours" label="Hours" error={error}>
+            <input id="lt-hours" data-autofocus type="text" inputMode="decimal" value={hoursText} onChange={(e) => setHoursText(e.target.value)} aria-invalid={!!error} aria-describedby={error ? "lt-hours-err" : undefined} className={`${inputClass} ${err(error)}`} />
           </FieldRow>
           <FieldRow id="lt-who" label="Who">
-            <select id="lt-who" value={who} onChange={(e) => setWho(e.target.value)} className={inputClass}>
+            <select id="lt-who" value={who} onChange={(e) => setWho(e.target.value)} className={`${inputClass} cursor-pointer`}>
               {BUILDERS.map((n) => (
                 <option key={n}>{n}</option>
               ))}
@@ -184,7 +186,7 @@ export function LogTimeDialog({ project, task, onClose, onLogged }) {
         <FieldRow id="lt-what" label="What">
           <input id="lt-what" type="text" value={what} onChange={(e) => setWhat(e.target.value)} className={inputClass} />
         </FieldRow>
-        <p className="m-0 text-[12px] text-muted-2">Build hours are informational (fixed price). Plan hours on tickets are what the client is billed against.</p>
+        <p className="m-0 text-muted leading-[1.5]">Build hours are informational (fixed price); plan hours on tickets are what the client is billed against.</p>
         <FormError message={sub.status === "failed" ? sub.error : ""} />
       </form>
     </Modal>
@@ -202,7 +204,8 @@ export function DeleteTaskDialog({ project, task, onClose, onDeleted }) {
     <Modal
       id="dt"
       alert
-      size="sm"
+      tight
+      w={440}
       title="Delete this task?"
       describedBy="dt-p"
       onClose={onClose}
@@ -217,7 +220,7 @@ export function DeleteTaskDialog({ project, task, onClose, onDeleted }) {
         </>
       }
     >
-      <p id="dt-p" className="m-0 leading-[1.6]">
+      <p id="dt-p" className="m-0 text-muted-2 leading-[1.6]">
         “{task.title}” and its {task.time.length} time {task.time.length === 1 ? "entry" : "entries"} are removed from {project.client}. This cannot be undone.
       </p>
       <FormError message={sub.status === "failed" ? sub.error : ""} />
@@ -238,13 +241,13 @@ export function MilestoneDialog({ project, milestone, openTasks, onClose, onComp
     const out = await sub.run(() => api(`/api/admin/projects/${project.id}/milestones/${milestone.id}/complete`, { method: "POST", body: { link, note } }));
     if (out) onCompleted(out);
   };
-  const title = isDemo ? "Mark the demo accepted?" : "Mark the site launched?";
   return (
     <Modal
       id="ms"
       alert
-      title={title}
-      eyebrow={project.client}
+      tight
+      w={520}
+      title={isDemo ? "Mark the demo accepted?" : "Mark the site launched?"}
       describedBy="ms-p"
       onClose={onClose}
       footer={
@@ -258,27 +261,32 @@ export function MilestoneDialog({ project, milestone, openTasks, onClose, onComp
         </>
       }
     >
-      <p id="ms-p" className="m-0 leading-[1.6]">
+      <p id="ms-p" className="m-0 text-muted-2 leading-[1.6]">
+        For {project.client}.{" "}
         {isDemo ? (
           <>
-            This marks the working demo accepted and <strong className="font-medium">sends the {milestone.percent}% invoice ({money(milestone.amount)})</strong> to the client’s billing contact. Open tasks under Working demo move to Launch.
+            This marks the working demo accepted and <strong className="font-medium text-fg">sends the {milestone.percent}% invoice ({money(milestone.amount)})</strong> to the client’s billing contact. Open tasks under Working demo move to Launch.
           </>
         ) : (
           <>
-            This marks the site launched and <strong className="font-medium">sends the {milestone.percent}% invoice ({money(milestone.amount)})</strong>.{" "}
+            This marks the site launched and <strong className="font-medium text-fg">sends the {milestone.percent}% invoice ({money(milestone.amount)})</strong>.{" "}
             {monthly ? `The monthly plan (${money(project.monthly)}/mo) starts today.` : "No monthly plan was chosen, so none starts; the client takes the code and data at final payment."}
           </>
         )}
       </p>
-      {monthly && !isDemo ? <Note tone="accent">{project.monthlyRequired ? "The monthly plan is required for this offer, so it starts now." : "They chose the monthly plan, so the first charge goes out today."}</Note> : null}
-      {openTasks > 0 ? <Note tone="warning">{openTasks} task{openTasks === 1 ? "" : "s"} under {MILESTONE_NAMES[milestone.id]} {openTasks === 1 ? "is" : "are"} not done yet. {isDemo ? "They move to Launch." : "They stay open on the board."}</Note> : null}
+      {monthly && !isDemo ? <Note>{project.monthlyRequired ? "The monthly plan is required for this offer, so it starts now." : "They chose the monthly plan, so the first charge goes out today."}</Note> : null}
+      {openTasks > 0 ? (
+        <Note tone="warning">
+          {openTasks} task{openTasks === 1 ? "" : "s"} under {MILESTONE_NAMES[milestone.id]} {openTasks === 1 ? "is" : "are"} not done yet. {isDemo ? "They will move to Launch." : "They stay open on the board."}
+        </Note>
+      ) : null}
       {isDemo ? (
         <FieldRow id="ms-link" label="Demo link the client sees">
-          <input id="ms-link" type="text" value={link} onChange={(e) => setLink(e.target.value)} className={inputClass} />
+          <input id="ms-link" type="text" value={link} onChange={(e) => setLink(e.target.value)} className={`${inputClass} font-mono !text-xs`} />
         </FieldRow>
       ) : null}
       <FieldRow id="ms-note" label="Note for the client">
-        <textarea id="ms-note" rows={3} value={note} onChange={(e) => setNote(e.target.value)} className={textareaClass} />
+        <textarea id="ms-note" rows={2} value={note} onChange={(e) => setNote(e.target.value)} className={textareaClass} />
       </FieldRow>
       <FormError message={sub.status === "failed" ? sub.error : ""} />
     </Modal>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { btnDanger, btnPrimary, btnSecondary } from "@/components/admin/ui";
 import { OFFERS, getOffer, money } from "@/lib/offers";
 import { CLIENT_STAGES, OWNERS } from "@/lib/admin/sample-clients";
-import { CheckRow, Dialog, EMAIL_RE, FailBanner, FieldRow, api, inputCls } from "./kit";
+import { CheckRow, Dialog, EMAIL_RE, FailBanner, FieldRow, api, groupCls, inputCls, selectCls } from "./kit";
 
 // Every form dialog here has five states: idle, validation error, submitting, success (closes, parent toasts), failed.
 // Parents mount a dialog to open it and unmount it to close it.
@@ -66,7 +66,7 @@ export function AddContactDialog({ client, onClose, onDone }) {
         </FieldRow>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <FieldRow id="ac-role" label="Role">
-            <select id="ac-role" value={v.role} onChange={set("role")} className={inputCls}>
+            <select id="ac-role" value={v.role} onChange={set("role")} className={selectCls}>
               {ROLES.map((r) => (
                 <option key={r}>{r}</option>
               ))}
@@ -79,15 +79,15 @@ export function AddContactDialog({ client, onClose, onDone }) {
         <FieldRow id="ac-email" label="Email *" error={errors.email}>
           <input id="ac-email" type="email" value={v.email} onChange={set("email")} aria-invalid={!!errors.email} aria-describedby={errors.email ? "ac-email-err" : undefined} placeholder="name@business.com" className={inputCls} />
         </FieldRow>
-        <fieldset className="border-0 p-0 m-0 flex flex-col gap-2">
-          <legend className="text-[13px] text-muted-2 mb-1">Gets</legend>
+        <fieldset className={groupCls}>
+          <legend className="text-xs text-muted-2 px-1.5">Gets</legend>
           {GETS.map(([k, label]) => (
             <CheckRow key={k} checked={v.gets.includes(k)} onChange={() => setV((c) => ({ ...c, gets: c.gets.includes(k) ? c.gets.filter((x) => x !== k) : [...c.gets, k] }))}>
               {label}
             </CheckRow>
           ))}
         </fieldset>
-        <CheckRow checked={v.invite} onChange={() => setV((c) => ({ ...c, invite: !c.invite }))}>
+        <CheckRow className="!text-muted-2" checked={v.invite} onChange={() => setV((c) => ({ ...c, invite: !c.invite }))}>
           Invite to the portal now (magic link)
         </CheckRow>
         <p className="m-0 text-xs text-muted-2">The primary contact signs proposals and receives invoices. “Gets” controls which emails each person receives.</p>
@@ -152,21 +152,25 @@ export function InviteDialog({ client, contactId, onClose, onDone }) {
             <input id="iv-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={!!error} aria-describedby={error ? "iv-email-err" : undefined} placeholder="name@business.com" className={inputCls} />
           </FieldRow>
         ) : null}
-        <fieldset className="border-0 p-0 m-0 flex flex-col gap-2">
-          <legend className="text-[13px] text-muted-2 mb-1">They can</legend>
+        <fieldset className="border-0 p-0 m-0 flex flex-col gap-1.5">
+          <legend className="text-xs text-muted-2 p-0 mb-1.5">They can</legend>
+          <div className={groupCls}>
           {CAN.map(([k, label]) => (
             <CheckRow key={k} checked={can.includes(k)} onChange={() => setCan((c) => (c.includes(k) ? c.filter((x) => x !== k) : [...c, k]))}>
               {label}
             </CheckRow>
           ))}
+          </div>
         </fieldset>
-        <div className="rounded-input border border-border bg-surface-2 p-3.5 text-[13px] leading-relaxed">
-          <div className="text-xs text-muted-2 mb-1.5">Email preview</div>
-          <strong className="font-medium">Your Klyvora portal for {client.business}</strong>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs text-muted-2">Email preview</span>
+        <div className="rounded-xl border border-border bg-surface-2 p-3.5 leading-[1.6] text-muted-2">
+          <strong className="font-medium text-fg">Your Klyvora portal for {client.business}</strong>
           <br />
           Hi [First name], {owner} set up a portal where you can follow the build, see files and approve the demo. Tap the button to sign in; the link works for 7 days and there is no password to remember.
           <br />
-          <span className="inline-block mt-2 px-3 py-1.5 rounded-full bg-fg text-bg text-xs font-medium">Open my portal</span>
+          <span className="inline-block mt-2 px-3.5 py-1.5 rounded-full bg-fg text-bg font-medium">Open my portal</span>
+        </div>
         </div>
       </form>
     </Dialog>
@@ -195,8 +199,8 @@ export function StripeDialog({ client, onClose, onConnectStarted, onMarkConnecte
   const connected = conn.status === "connected";
   const pending = conn.status === "pending";
   const fee = (
-    <div className="rounded-input border border-border bg-surface-2 p-3.5 text-[13px] leading-relaxed">
-      Checkout runs through <strong className="font-medium">their own Stripe account</strong>, which they fully control, with full access to their Stripe dashboard. Klyvora’s fee on their sales is <strong className="font-medium">$0</strong>. Our own Stripe customer for them only bills setup invoices and the monthly plan.
+    <div className="rounded-xl border border-border bg-surface-2 px-3.5 py-3 text-[13px] leading-[1.6] text-muted-2">
+      Checkout runs through <strong className="font-medium text-fg">their own Stripe account</strong>, which they fully control, with full access to their Stripe dashboard. Klyvora’s fee on their sales is <strong className="font-medium text-fg">$0</strong>. Our own Stripe customer for them only bills setup invoices and the monthly plan.
     </div>
   );
 
@@ -234,7 +238,7 @@ export function StripeDialog({ client, onClose, onConnectStarted, onMarkConnecte
   }
 
   return (
-    <Dialog eyebrow={client.business} title={connected ? "Stripe is connected" : pending ? "Waiting on Stripe onboarding" : "Connect their Stripe account"} onClose={onClose} busy={busy} footer={footer}>
+    <Dialog eyebrow={client.business} title={connected ? "Stripe is connected" : pending ? "Waiting on Stripe onboarding" : "Connect their Stripe account"} size="stripe" onClose={onClose} busy={busy} footer={footer}>
       {status === "failed" ? <FailBanner>Stripe didn’t start the onboarding. Nothing was created; try again.</FailBanner> : null}
       {connected ? (
         <>
@@ -255,7 +259,7 @@ export function StripeDialog({ client, onClose, onConnectStarted, onMarkConnecte
           <p className="m-0 text-[13px] leading-relaxed text-muted-2">
             {sentTo ? `We emailed the onboarding link to ${sentTo}. ` : "The onboarding link is ready. "}They add their business and bank details on Stripe’s own page; the card or bank is never typed here. This turns to Connected on its own when they finish.
           </p>
-          <div className="rounded-input border border-border bg-surface-2 p-3 text-xs break-all font-mono">https://connect.stripe.com/setup/[…]</div>
+          <div className="rounded-xl border border-border bg-surface-2 p-3 text-xs break-all font-mono">https://connect.stripe.com/setup/[…]</div>
           {fee}
         </>
       ) : (
@@ -264,12 +268,12 @@ export function StripeDialog({ client, onClose, onConnectStarted, onMarkConnecte
             {client.business} takes {getOffer(client.offerCode)?.name ? `payments on their ${getOffer(client.offerCode).name}` : "payments"}, so they need their own Stripe account for deposits, orders and payouts. Connect onboarding is the client’s own form; we only start it.
           </p>
           <fieldset className="border-0 p-0 m-0 flex flex-col gap-2">
-            <legend className="text-[13px] text-muted-2 mb-1.5">How they get the link</legend>
+            <legend className="text-xs text-muted-2 p-0 mb-1.5">How they get the link</legend>
             {[
               ["email", "Email it to the primary contact", "Usual choice. Sent from the portal address."],
               ["link", "Just give me the link", "To text or read out on a call."],
             ].map(([k, label, help]) => (
-              <label key={k} className={`flex gap-2.5 items-start p-3 rounded-input border cursor-pointer ${delivery === k ? "border-fg bg-surface-2" : "border-border-2"}`}>
+              <label key={k} className={`flex gap-3 items-start px-3.5 py-3 rounded-xl border cursor-pointer ${delivery === k ? "border-fg bg-surface-2" : "border-border-2"}`}>
                 <input type="radio" name="stripe-delivery" checked={delivery === k} onChange={() => setDelivery(k)} className="mt-0.5 accent-[var(--accent)]" />
                 <span className="flex flex-col gap-0.5">
                   <span className="text-fg">{label}</span>
@@ -341,7 +345,7 @@ export function EditDialog({ client, onClose, onDone }) {
           <input id="ed-addr" value={v.address} onChange={set("address")} className={inputCls} />
         </FieldRow>
         <FieldRow id="ed-offer" label="Offer">
-          <select id="ed-offer" value={v.offerCode} onChange={set("offerCode")} className={inputCls}>
+          <select id="ed-offer" value={v.offerCode} onChange={set("offerCode")} className={selectCls}>
             {OFFERS.map((o) => (
               <option key={o.code} value={o.code}>
                 {o.name} ({o.code})
@@ -350,35 +354,36 @@ export function EditDialog({ client, onClose, onDone }) {
           </select>
         </FieldRow>
         <FieldRow id="ed-stage" label="Stage">
-          <select id="ed-stage" value={v.stage} onChange={set("stage")} className={inputCls}>
+          <select id="ed-stage" value={v.stage} onChange={set("stage")} className={selectCls}>
             {CLIENT_STAGES.map((s) => (
               <option key={s}>{s}</option>
             ))}
           </select>
         </FieldRow>
         <FieldRow id="ed-owner" label="Owner">
-          <select id="ed-owner" value={v.owner} onChange={set("owner")} className={inputCls}>
+          <select id="ed-owner" value={v.owner} onChange={set("owner")} className={selectCls}>
             {OWNERS.map((s) => (
               <option key={s}>{s}</option>
             ))}
           </select>
         </FieldRow>
         <FieldRow id="ed-domain" label="Domain">
-          <input id="ed-domain" value={v.domain} onChange={set("domain")} className={inputCls} />
+          <input id="ed-domain" value={v.domain} onChange={set("domain")} className={`${inputCls} font-mono !text-xs`} />
         </FieldRow>
-        <div className="sm:col-span-2 flex flex-col gap-2.5">
-          <CheckRow checked={required || v.monthly} disabled={required} onChange={() => setV((c) => ({ ...c, monthly: !c.monthly }))}>
-            Monthly plan · {price}
-            <span className="block text-xs text-muted-2 mt-0.5">
-              {required ? "Required for restaurants: ordering and menu updates need our hosting and admin." : "Optional. Hosting, their admin and support. Untick if they take the code and self-host."}
+        <div className={`sm:col-span-2 ${groupCls} !gap-2.5 bg-surface-2`}>
+          <CheckRow align="start" checked={required || v.monthly} disabled={required} onChange={() => setV((c) => ({ ...c, monthly: !c.monthly }))}>
+            <span className="flex flex-col gap-0.5">
+              <span className="font-medium text-fg">Monthly plan · {price}</span>
+              <span className="text-muted">
+                {required ? "Required for restaurants: ordering and menu updates need our hosting and admin." : "Optional. Hosting, their admin and support. Untick if they take the code and self-host."}
+              </span>
             </span>
           </CheckRow>
-          <CheckRow checked={v.template} onChange={() => setV((c) => ({ ...c, template: !c.template }))}>
-            Using a Klyvora template
-            <span className="block text-xs text-muted-2 mt-0.5">The template license stays with us; everything else is theirs.</span>
+          <CheckRow className="!text-muted-2" checked={v.template} onChange={() => setV((c) => ({ ...c, template: !c.template }))}>
+            Using a Klyvora template (license stays with us; everything else is theirs)
           </CheckRow>
-          <p className="m-0 text-xs text-muted-2">Changing offer or plan writes an audit line on the Overview and does not touch Stripe until you confirm on the Subscriptions tab.</p>
         </div>
+        <p className="sm:col-span-2 m-0 text-xs text-muted">Changing offer or plan writes an audit line on the Overview and does not touch Stripe until you confirm on the Subscriptions tab.</p>
       </form>
     </Dialog>
   );
@@ -418,11 +423,11 @@ export function CancelPlanDialog({ client, onClose, onDone }) {
   );
 
   return (
-    <Dialog alert title="Cancel the monthly plan?" describedBy="cp-p" onClose={onClose} busy={busy} footer={footer}>
+    <Dialog alert size="sm" title="Cancel the monthly plan?" describedBy="cp-p" onClose={onClose} busy={busy} footer={footer}>
       {locked ? (
         <div id="cp-p" className="flex flex-col gap-3">
-          <div role="note" className="rounded-input border border-border-2 bg-surface-2 p-3.5 text-[13px] leading-relaxed">
-            <strong className="font-medium">The monthly plan is required for restaurants.</strong> {client.business} is on {offer.name} ({offer.code}), and ordering, kiosks and kitchen operations run on our platform and need daily maintenance. An active restaurant plan can’t be cancelled here.
+          <div role="note" className="rounded-xl border border-border-2 bg-surface-2 px-3.5 py-3 text-[13px] leading-[1.6] text-muted-2">
+            <strong className="font-medium text-fg">The monthly plan is required for restaurants.</strong> {client.business} is on {offer.name} ({offer.code}), and ordering, kiosks and kitchen operations run on our platform and need daily maintenance. An active restaurant plan can’t be cancelled here.
           </div>
           <p className="m-0 text-[13px] text-muted-2 leading-relaxed">To end the relationship, move them to a different offer from Edit client, or talk to Chris about a handover. The site, code and data are theirs on final payment either way.</p>
         </div>

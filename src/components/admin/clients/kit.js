@@ -68,6 +68,9 @@ export function Card({ title, titleId, sub, action, flush = false, className = "
 // Table: th 13px/500 muted-2, padding 12px 16px (first cell pl 20, last pr 20), rows border-top, hover tint.
 export const thCls = "text-left font-medium text-[13px] text-muted-2 px-4 py-3 whitespace-nowrap first:pl-5 last:pr-5";
 export const tdCls = "px-4 py-3 first:pl-5 last:pr-5";
+// Same, for a table inside a padded card (no extra first/last cell padding).
+export const thIn = "text-left font-medium text-[13px] text-muted-2 px-4 py-3 whitespace-nowrap";
+export const tdIn = "px-4 py-3";
 export const trCls = "border-t border-border [&:hover>td]:bg-[rgba(var(--fg-rgb),.03)]";
 
 // Page title block for the detail and builder pages: breadcrumb is separate; this is eyebrow with the sample chip inline, serif H1.
@@ -282,6 +285,11 @@ export function DevStateSwitch({ value, onChange, options }) {
       </select>
     </label>
   );
+}
+
+// Skeleton bar from the boards: 12px, radius 6, surface-2 to border gradient.
+export function Skel({ className = "" }) {
+  return <div aria-hidden="true" className={`rounded-md bg-[linear-gradient(90deg,var(--surface-2)_25%,var(--border)_50%,var(--surface-2)_75%)] bg-[length:200%_100%] animate-pulse ${className}`} />;
 }
 
 // List state cards (boards: error = fg border, 40px 24px; empty = dashed border-2, 56px 24px).
