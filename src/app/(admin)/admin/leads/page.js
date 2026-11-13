@@ -1,29 +1,10 @@
 import { Suspense } from "react";
-import { PageHead, Skeleton } from "@/components/admin/ui";
 import LeadsView from "@/components/admin/leads/LeadsView";
-import { listLeads } from "@/lib/admin/sample-leads";
-
+import { adminData, supportClients } from "@/lib/server/views";
 export const metadata = { title: "Leads" };
+export default function Page() { return <Suspense fallback={<div aria-busy="true">Loading…</div>}><Content /></Suspense>; }
+async function Content() {
+  const data = await adminData("leads");
 
-// The client view reads ?view=board and ?new=1 with useSearchParams, so it sits inside Suspense.
-// Rows come from listLeads() (sample data) until GET /api/admin/leads is real.
-export default function LeadsPage() {
-  return (
-    <Suspense fallback={<LeadsFallback />}>
-      <LeadsView initial={listLeads()} />
-    </Suspense>
-  );
-}
-
-function LeadsFallback() {
-  return (
-    <div aria-busy="true">
-      <PageHead eyebrow="Leads" title="Leads" />
-      <div className="border border-border rounded-admin bg-surface p-5 flex flex-col gap-4">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={i} className="h-5" />
-        ))}
-      </div>
-    </div>
-  );
+  return <LeadsView initial={data.leads} />;
 }

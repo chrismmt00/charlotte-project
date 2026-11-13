@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { STAGE_COPY, TEAM, UPLOAD_MAX_MB, files as buildFiles, money2, partAmount, timeline as buildTimeline } from "@/lib/portal/sample";
+import { STAGE_COPY, UPLOAD_MAX_MB, money2, partAmount } from "@/lib/portal/sample";
 import { listState, planStartLine, usePortal } from "./PortalContext";
 import { Card, Chip, Icon, ListStatus, PageHead, RingCard, Spinner, btnPrimary, btnSecondary, linkBtn } from "./ui";
 import ApproveDialog from "./ApproveDialog";
@@ -57,8 +57,8 @@ export default function ProjectView() {
   const [dialog, setDialog] = useState(null); // approve | signoff
   const [uploads, setUploads] = useState({}); // id -> { state: uploading | failed, message }
   const copy = STAGE_COPY[p.stage];
-  const tl = buildTimeline(p.stage);
-  const fl = buildFiles(p.stage);
+  const tl = p.timeline;
+  const fl = p.files;
   const ckStatus = listState(p, p.checklist.length);
   const done = p.checklist.filter((c) => c.state === "received").length;
 
@@ -141,6 +141,7 @@ export default function ProjectView() {
             </ol>
           </Card>
 
+          {!p.privateUploadsEnabled?<p className="text-sm text-muted-2">Please email project files to <a href={`mailto:${p.uploadEmail}`} className="text-accent-light underline">{p.uploadEmail}</a>. Private uploads are currently disabled.</p>:null}
           <Card id="content" titleId="ck-h" title={`Your content · ${done} of ${p.checklist.length}`} className="scroll-mt-24" action={<span className="text-[13px] text-muted-2">Photos: JPG or HEIC, as big as you have. Text: anything, we tidy it.</span>}>
             {ckStatus !== "live" ? (
               <ListStatus status={ckStatus} rows={4} label="your content list" empty={{ text: "Nothing to send yet. We will list what we need here.", action: <Link href="/portal/support" className={linkBtn}>Ask a question</Link> }} onRetry={p.retry} />
@@ -161,7 +162,7 @@ export default function ProjectView() {
                       </span>
                       <span className="inline-flex items-center gap-2.5">
                         <Chip tone={tone}>{label}</Chip>
-                        {c.state !== "received" ? (
+                        {c.state !== "received" && p.privateUploadsEnabled ? (
                           <>
                             <input id={inputId} type="file" multiple accept={c.id === "logo" ? "image/*,.svg" : "image/*,.heic,.pdf,.doc,.docx,.txt"} className="sr-only" tabIndex={-1} aria-label={`Choose files for ${c.title}`} onChange={(e) => { upload(c, e.target.files); e.target.value = ""; }} />
                             <button type="button" disabled={state === "uploading"} aria-busy={state === "uploading"} onClick={() => document.getElementById(inputId)?.click()} className={btnSecondary}>
@@ -217,7 +218,7 @@ export default function ProjectView() {
 
           <Card titleId="team-h" title="Your team at Klyvora">
             <ul className="list-none m-0 p-0 flex flex-col">
-              {TEAM.map((m) => (
+              {p.team.map((m) => (
                 <li key={m.name} className="flex items-center gap-3 min-h-14 border-t border-border py-2">
                   <span aria-hidden="true" className="w-9 h-9 rounded-full bg-surface-2 border border-border-2 inline-flex items-center justify-center text-[13px] font-medium flex-none">
                     {m.initial}

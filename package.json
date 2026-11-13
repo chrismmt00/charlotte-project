@@ -3,20 +3,55 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "dev": "node scripts/env.mjs next dev",
+    "build": "node scripts/env.mjs --env production scripts/build.mjs",
+    "start": "node scripts/env.mjs --env production next start",
+    "lint": "eslint",
+    "db:create": "node scripts/create-local-db.mjs",
+    "db:migrate": "node scripts/env.mjs prisma migrate dev",
+    "db:deploy": "node scripts/env.mjs --env production prisma migrate deploy",
+    "db:validate": "node scripts/env.mjs prisma validate",
+    "db:seed": "node prisma/seed.mjs",
+    "db:seed:production": "node prisma/seed.mjs --production",
+    "db:generate": "prisma generate",
+    "test:backend": "node scripts/env.mjs scripts/test-backend.mjs",
+    "jobs": "node scripts/env.mjs scripts/jobs.mjs",
+    "build:local": "node scripts/env.mjs scripts/build.mjs",
+    "start:local": "node scripts/env.mjs next start",
+    "stripe:listen": "node scripts/stripe-listen.mjs"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.3",
+    "@aws-sdk/client-s3": "^3.1168.0",
+    "@aws-sdk/s3-request-presigner": "^3.1168.0",
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "csv-parse": "^7.0.3",
     "next": "16.4.3",
+    "next-auth": "^5.0.0-beta.32",
+    "nodemailer": "^10.5.0",
+    "pg": "^8.23.1",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "read-excel-file": "^9.3.17",
+    "server-only": "^0.0.1",
+    "stripe": "^23.1.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "@tailwindcss/turbopack": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "prettier": "^3.10.1",
+    "prisma": "^7.10.1",
     "tailwindcss": "^4"
+  },
+  "type": "module",
+  "overrides": {
+    "nodemailer": "$nodemailer"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }

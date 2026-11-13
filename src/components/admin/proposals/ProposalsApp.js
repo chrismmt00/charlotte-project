@@ -20,6 +20,7 @@ function Total({ label, value, note }) {
 // route: { view: "list" } | { view: "builder", id } | { view: "builder", fresh: true, leadId }
 export default function ProposalsApp({ initialRoute }) {
   const [proposals, setProposals] = useState(null);
+  const [leads, setLeads] = useState([]);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [route, setRoute] = useState(initialRoute);
@@ -29,8 +30,9 @@ export default function ProposalsApp({ initialRoute }) {
 
   useEffect(() => {
     let alive = true;
-    api("/api/admin/proposals")
-      .then((d) => {
+    Promise.all([api("/api/admin/proposals"), api("/api/admin/leads")])
+      .then(([d, leadData]) => {
+        setLeads(leadData.leads);
         if (!alive) return;
         setProposals(d.proposals);
         setFailed(false);
@@ -85,7 +87,8 @@ export default function ProposalsApp({ initialRoute }) {
     return (
       <ProposalBuilder
         key={route.fresh ? `new-${route.leadId || ""}` : route.id}
-        initial={found || newDraft(route.leadId)}
+        initial={found || newDraft(route.leadId, leads)}
+        leads={leads}
         onBack={() => setRoute({ view: "list" })}
         onSaved={(p) => {
           upsert(p);

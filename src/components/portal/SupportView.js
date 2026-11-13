@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { HOURS, KB, TICKET_STATUS } from "@/lib/portal/sample";
+import { KB, TICKET_STATUS } from "@/lib/portal/sample";
 import { listState, usePortal } from "./PortalContext";
 import { Alert, Card, Chip, Icon, ListStatus, PageHead, Spinner, btnPrimary, inputCls } from "./ui";
 import SupportForm from "./SupportForm";
@@ -93,8 +93,8 @@ export default function SupportView() {
   const p = usePortal();
   const open = p.tickets.filter((t) => t.status !== "closed").length;
   const status = listState(p, p.tickets.length);
-  const used = HOURS.used;
-  const cap = HOURS.cap;
+  const used = p.hours.used;
+  const cap = p.hours.cap;
   const pct = Math.min(100, (used / cap) * 100);
   const over = used >= cap;
   const near = used >= cap * 0.75;
@@ -131,7 +131,7 @@ export default function SupportView() {
                 <div className="flex items-baseline gap-2">
                   <span className="text-[28px] font-medium tabular-nums">{used.toFixed(1)} h</span>
                   <span className="text-sm text-muted-2">
-                    of {cap} h used · resets {HOURS.resetsOn}
+                    of {cap} h used · resets {p.hours.resetsOn}
                   </span>
                 </div>
                 <div role="progressbar" aria-label="Plan hours used" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={used} className="h-2 rounded-full bg-border overflow-hidden">

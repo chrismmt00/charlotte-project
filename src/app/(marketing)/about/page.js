@@ -1,3 +1,4 @@
+import { getCatalog } from "@/lib/server/catalog";
 import Button from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Section";
 import { CheckIcon } from "@/components/ui/Bits";
@@ -70,7 +71,11 @@ function PinIcon() {
   );
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const catalog = await getCatalog();
+  const getOffer = code => catalog.find(o => o.code === code);
+  const offersFor = slug => catalog.filter(o => o.slug === slug && !o.addOnOf);
+  const RESTAURANT_ADD_ONS = catalog.filter(o => o.addOnOf);
   const starter = getOffer("W1");
   return (
     <>

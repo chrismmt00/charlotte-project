@@ -1,4 +1,5 @@
 "use client";
+import { signOut, useSession } from "next-auth/react";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -165,6 +166,7 @@ function CommandPalette({ onClose }) {
 }
 
 function UserMenu({ onClose, themeLabel, toggleTheme }) {
+  const {data:session} = useSession();
   const ref = useRef(null);
   useEffect(() => {
     ref.current?.querySelector("[role=menuitem]")?.focus();
@@ -183,8 +185,8 @@ function UserMenu({ onClose, themeLabel, toggleTheme }) {
   return (
     <div ref={ref} role="menu" aria-label="Account" className="menu-user absolute right-0 top-11 w-60 bg-surface border border-border-2 rounded-admin p-1.5 shadow-[0_20px_50px_rgba(0,0,0,calc(.45*var(--shadow-k)))] flex flex-col gap-0.5 z-[60]">
       <div className="px-3 pt-2.5 pb-2 flex flex-col gap-0.5">
-        <span className="text-[13px] font-medium">Chris [Last name]</span>
-        <span className="text-xs text-muted">Owner · [email]</span>
+        <span className="text-[13px] font-medium">{session?.user?.name || "Team member"}</span>
+        <span className="text-xs text-muted">{session?.user?.role} · {session?.user?.email}</span>
       </div>
       <span role="separator" className="h-px bg-border my-0.5" />
       <Link href="/admin/settings?tab=team" role="menuitem" className={item} onClick={onClose}>
@@ -200,7 +202,7 @@ function UserMenu({ onClose, themeLabel, toggleTheme }) {
         View client portal
       </Link>
       <span role="separator" className="h-px bg-border my-0.5" />
-      <Link href="/admin/signin" role="menuitem" className={item} onClick={onClose}>
+      <Link href="/admin/signin" role="menuitem" className={item} onClick={e=>{e.preventDefault();signOut({callbackUrl:"/admin/signin"});}}>
         Sign out
       </Link>
     </div>
@@ -224,6 +226,7 @@ function Wordmark({ collapsed }) {
 }
 
 export default function AdminShell({ children }) {
+  const {data:session} = useSession();
   const pathname = usePathname() || "/admin";
   const [theme, setTheme] = useTheme();
   const collapsed = useSyncExternalStore(subscribeCollapsed, readCollapsed, () => false);
@@ -323,7 +326,7 @@ export default function AdminShell({ children }) {
                 C
               </span>
               <span className="flex flex-col leading-[1.2] min-w-0">
-                <span className="text-sm">Chris</span>
+                <span className="text-sm">{session?.user?.name || "Account"}</span>
                 <span className="text-xs text-muted-2">Owner · [email]</span>
               </span>
             </div>

@@ -1,0 +1,427 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("contact")
+  active        Boolean   @default(true)
+  accounts      Account[]
+  sessions      Session[]
+  contact       Contact?
+  createdAt     DateTime  @default(now())
+}
+
+model Account {
+  id                String @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@unique([identifier, token])
+}
+
+model Offer {
+  code            String  @id
+  slug            String
+  name            String
+  setupCents      Int
+  monthlyCents    Int
+  monthlyRequired Boolean @default(false)
+  setupFrom       Boolean @default(false)
+  addOnOf         String?
+  active          Boolean @default(true)
+  sortOrder       Int     @default(0)
+  data            Json    @default("{}")
+  updatedAt       DateTime @updatedAt
+}
+
+model Lead {
+  id           String   @id @default(cuid())
+  name         String
+  business     String
+  email        String
+  phone        String   @default("")
+  siteUrl      String   @default("")
+  message      String   @default("")
+  source       String   @default("Website")
+  offerCode    String?
+  status       String   @default("New")
+  owner        String   @default("")
+  score        Int      @default(0)
+  tags         String[] @default([])
+  nextActionAt DateTime?
+  data         Json     @default("{}")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  client       Client?
+  activities   Activity[]
+  proposals    Proposal[]
+  @@index([email])
+  @@index([phone])
+  @@index([status, createdAt])
+}
+
+model Client {
+  id                       String @id @default(cuid())
+  leadId                   String? @unique
+  business                 String
+  offerCode                String
+  kind                     String @default("booking")
+  owner                    String @default("")
+  stage                    String @default("kickoff")
+  monthly                  Boolean @default(false)
+  stripeCustomerId         String? @unique
+  stripeConnectedAccountId String? @unique
+  connectStatus            String @default("not-connected")
+  data                     Json @default("{}")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  lead                     Lead? @relation(fields: [leadId], references: [id])
+  contacts                 Contact[]
+  projects                 Project[]
+  proposals                Proposal[]
+  invoices                 Invoice[]
+  subscriptions            Subscription[]
+  tickets                  Ticket[]
+  files                    File[]
+  activities               Activity[]
+  bookings                 Booking[]
+  customers                Customer[]
+  catalog                  CatalogItem[]
+  workspace                Workspace?
+}
+
+model Contact {
+  id            String @id @default(cuid())
+  clientId      String
+  userId        String @unique
+  name          String
+  email         String
+  phone         String @default("")
+  role          String @default("member")
+  notifications Json @default("{\"milestone\":true,\"invoice\":true,\"ticket\":true,\"text\":false}")
+  client        Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user          User @relation(fields: [userId], references: [id])
+  @@unique([clientId, email])
+}
+
+model Activity {
+  id        String @id @default(cuid())
+  leadId    String?
+  clientId  String?
+  userId    String?
+  type      String
+  body      String
+  meta      Json @default("{}")
+  createdAt DateTime @default(now())
+  lead      Lead? @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  client    Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  @@index([createdAt, type])
+}
+
+model Proposal {
+  id             String @id @default(cuid())
+  token          String @unique
+  leadId         String?
+  clientId       String?
+  name           String
+  business       String
+  email          String
+  offerCode      String
+  setupCents     Int
+  monthlyCents   Int
+  monthly        Boolean
+  status         String @default("Draft")
+  items          Json
+  terms          String
+  data           Json @default("{}")
+  validUntil     DateTime?
+  acceptedAt     DateTime?
+  signatureName  String?
+  signatureIp    String?
+  version        Int @default(1)
+  signedVersion  Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  lead           Lead? @relation(fields: [leadId], references: [id])
+  client         Client? @relation(fields: [clientId], references: [id])
+  project        Project?
+  @@index([status, acceptedAt])
+}
+
+model Project {
+  id         String @id @default(cuid())
+  clientId   String
+  proposalId String? @unique
+  name       String
+  offerCode  String
+  status     String @default("kickoff")
+  setupCents Int
+  data       Json @default("{}")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  client     Client @relation(fields: [clientId], references: [id])
+  proposal   Proposal? @relation(fields: [proposalId], references: [id])
+  milestones Milestone[]
+  tasks      Task[]
+  time       TimeEntry[]
+  files      File[]
+  invoices   Invoice[]
+}
+
+model Milestone {
+  id          String @id @default(cuid())
+  projectId   String
+  name        String
+  percent     Int
+  amountCents Int
+  position    Int
+  acceptedAt  DateTime?
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  invoice     Invoice?
+  @@unique([projectId, position])
+}
+
+model Task {
+  id        String @id @default(cuid())
+  projectId String
+  title     String
+  done      Boolean @default(false)
+  assignee  String @default("")
+  clientTask Boolean @default(false)
+  dueAt     DateTime?
+  data      Json @default("{}")
+  createdAt DateTime @default(now())
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model TimeEntry {
+  id        String @id @default(cuid())
+  projectId String
+  userId    String
+  minutes   Int
+  note      String @default("")
+  createdAt DateTime @default(now())
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id          String @id @default(cuid())
+  stripeId    String? @unique
+  clientId    String
+  projectId   String?
+  milestoneId String? @unique
+  kind        String @default("milestone")
+  amountCents Int
+  paidCents   Int @default(0)
+  status      String @default("Draft")
+  dueAt       DateTime?
+  paidAt      DateTime?
+  data        Json @default("{}")
+  createdAt   DateTime @default(now())
+  client      Client @relation(fields: [clientId], references: [id])
+  project     Project? @relation(fields: [projectId], references: [id])
+  milestone   Milestone? @relation(fields: [milestoneId], references: [id])
+  @@index([status, paidAt])
+}
+
+model Subscription {
+  id          String @id @default(cuid())
+  stripeId    String? @unique
+  clientId    String
+  projectId   String? @unique
+  offerCode   String
+  mrrCents    Int
+  status      String @default("pending")
+  startedAt   DateTime?
+  canceledAt  DateTime?
+  data        Json @default("{}")
+  client      Client @relation(fields: [clientId], references: [id])
+}
+
+model Ticket {
+  id        String @id @default(cuid())
+  clientId  String
+  subject   String
+  status    String @default("Open")
+  priority  String @default("Normal")
+  minutes   Int @default(0)
+  data      Json @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  client    Client @relation(fields: [clientId], references: [id])
+  messages  TicketMessage[]
+}
+
+model TicketMessage {
+  id        String @id @default(cuid())
+  ticketId  String
+  userId    String
+  who       String
+  text      String
+  internal  Boolean @default(false)
+  createdAt DateTime @default(now())
+  ticket    Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+model File {
+  id        String @id @default(cuid())
+  clientId  String
+  projectId String?
+  name      String
+  key       String
+  type      String
+  size      Int
+  createdAt DateTime @default(now())
+  client    Client @relation(fields: [clientId], references: [id])
+  project   Project? @relation(fields: [projectId], references: [id])
+}
+
+model Workspace {
+  clientId String @id
+  data     Json @default("{}")
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Customer {
+  id         String @id @default(cuid())
+  clientId   String
+  name       String
+  email      String @default("")
+  phone      String @default("")
+  spendCents Int @default(0)
+  data       Json @default("{}")
+  client     Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  @@index([clientId])
+}
+
+model Booking {
+  id         String @id @default(cuid())
+  clientId   String
+  name       String
+  status     String @default("Confirmed")
+  amountCents Int @default(0)
+  startsAt   DateTime?
+  data       Json @default("{}")
+  client     Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  @@index([clientId, startsAt])
+}
+
+model CatalogItem {
+  id         String @id @default(cuid())
+  clientId   String
+  name       String
+  priceCents Int
+  group      String @default("General")
+  position   Int @default(0)
+  hidden     Boolean @default(false)
+  data       Json @default("{}")
+  client     Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  @@index([clientId, position])
+}
+
+model Setting {
+  key       String @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String
+  meta      Json @default("{}")
+  createdAt DateTime @default(now())
+  @@index([entity, entityId])
+}
+
+model RateLimit {
+  key       String @id
+  count     Int
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+
+model WebhookEvent {
+  id        String @id
+  createdAt DateTime @default(now())
+}
+
+model Job {
+  id        String @id @default(cuid())
+  key       String @unique
+  type      String
+  payload   Json
+  status    String @default("pending")
+  attempts  Int @default(0)
+  runAt     DateTime @default(now())
+  lockedAt  DateTime?
+  lastError String?
+  createdAt DateTime @default(now())
+  @@index([status, runAt])
+}
+
+model Prospect {
+  id        String @id @default(cuid())
+  business  String
+  phase     String @default("Found")
+  owner     String @default("")
+  data      Json @default("{}")
+  createdAt DateTime @default(now())
+}
+
+model Approval {
+  id         String @id @default(cuid())
+  prospectId String
+  kind       String
+  status     String @default("pending")
+  approvedBy String?
+  data       Json @default("{}")
+}
+
+model Demo {
+  id         String @id @default(cuid())
+  prospectId String
+  status     String @default("building")
+  data       Json @default("{}")
+}
+
+model Partner {
+  id   String @id @default(cuid())
+  name String
+  data Json @default("{}")
+}

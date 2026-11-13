@@ -1,4 +1,5 @@
 "use client";
+import { useCatalog } from "@/components/site/CatalogProvider";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -57,8 +58,10 @@ function PlusMinus({ plus }) {
 // The five-step estimator: offer -> add-ons -> estimate -> details -> sent.
 // Posts to POST /api/leads { name, business, email, phone, siteUrl, message, source: "quote", offerCode, quote } -> 201 { id }.
 export default function QuoteEstimator({ initialOffer = null }) {
+  const catalog = useCatalog();
+  const QUOTE_OFFERS = catalog.filter(o => !o.setupFrom && !o.addOnOf);
   const [step, setStep] = useState(1);
-  const [offerCode, setOfferCode] = useState(() => quoteOffer(initialOffer)?.code || DEFAULT_OFFER_CODE);
+  const [offerCode, setOfferCode] = useState(() => quoteOffer(initialOffer, catalog)?.code || DEFAULT_OFFER_CODE);
   const [picked, setPicked] = useState({});
   const [kiosks, setKiosks] = useState(1);
   const [plan, setPlan] = useState(true);
@@ -69,9 +72,9 @@ export default function QuoteEstimator({ initialOffer = null }) {
   const formRef = useRef(null);
   const moved = useRef(false);
 
-  const offer = quoteOffer(offerCode);
-  const addOns = addOnsFor(offer);
-  const est = computeEstimate(offer, { picked, kiosks, plan });
+  const offer = quoteOffer(offerCode, catalog);
+  const addOns = addOnsFor(offer, catalog);
+  const est = computeEstimate(offer, { picked, kiosks, plan, catalog });
 
   // Move focus to the new step's heading after Back / Next (not on first load).
   useEffect(() => {

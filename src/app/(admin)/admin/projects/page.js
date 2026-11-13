@@ -1,10 +1,10 @@
+import { Suspense } from "react";
 import ProjectsView from "@/components/admin/projects/ProjectsView";
-import { PROJECTS, SAMPLE_TODAY, TEAM } from "@/lib/admin/sample-projects";
-
+import { adminData, supportClients } from "@/lib/server/views";
 export const metadata = { title: "Projects" };
+export default function Page() { return <Suspense fallback={<div aria-busy="true">Loading…</div>}><Content /></Suspense>; }
+async function Content() {
+  const data = await adminData("projects");
 
-// Reads GET /api/admin/projects once the back end ships it; sample data until then.
-// Money is whole dollars here, cents in the API.
-export default function ProjectsPage() {
-  return <ProjectsView initialProjects={PROJECTS} team={TEAM} today={SAMPLE_TODAY} />;
+  return <ProjectsView initialProjects={data.projects} team={data.team} today={data.today} />;
 }

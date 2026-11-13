@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import ProposalView from "@/components/proposal/ProposalView";
-import { publicProposal } from "@/lib/admin/sample-proposals";
+import { getPublicProposal } from "@/lib/server/data";
 
 export const metadata = {
   title: "Your proposal",
@@ -32,7 +32,7 @@ function Fallback() {
 
 async function Content({ params }) {
   const { token } = await params;
-  const proposal = publicProposal(token);
+  const proposal = await getPublicProposal(token);
   if (!proposal) notFound();
   return <ProposalView key={proposal.token} proposal={proposal} />;
 }

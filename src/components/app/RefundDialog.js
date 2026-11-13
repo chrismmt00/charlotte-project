@@ -10,6 +10,7 @@ import { api } from "./api";
 // payment: { id, who, what, amount }; onDone(payment) runs after the stub says yes.
 export default function RefundDialog({ payment, onClose, onDone }) {
   const [amount, setAmount] = useState("full");
+  const [requestId] = useState(() => crypto.randomUUID());
   const [other, setOther] = useState("");
   const [reason, setReason] = useState("Customer asked");
   const [bad, setBad] = useState("");
@@ -23,7 +24,7 @@ export default function RefundDialog({ payment, onClose, onDone }) {
     }
     setBad("");
     const r = await run(
-      () => api(`/api/app/payments/${encodeURIComponent(payment.id)}/refund`, { body: { amount, other: other.trim() || undefined, reason } }),
+      () => api(`/api/app/payments/${encodeURIComponent(payment.id)}/refund`, { body: { requestId, amount: amount === "other" ? Number(other) : "full", reason } }),
       "The refund didn’t go through. Nothing was sent to Stripe. Try again."
     );
     if (r.ok) onDone(payment);

@@ -88,7 +88,7 @@ export default function ClientDetail({ initial }) {
           <div className="text-[11px] tracking-[.3em] uppercase text-muted-2 mb-2">
             Client · since {client.since}
             {client.leadId ? ` · from lead via ${client.source}` : ` · ${client.source}`}
-            <span className="md:hidden normal-case tracking-normal ml-2 border border-border-2 rounded-full px-2 py-0.5">Sample data</span>
+
           </div>
           <h1 className="font-display font-normal text-[clamp(32px,4vw,44px)] leading-none m-0">{client.business}</h1>
           <div className="flex flex-wrap items-center gap-2 mt-3">

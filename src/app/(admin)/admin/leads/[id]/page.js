@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import LeadDetail from "@/components/admin/leads/LeadDetail";
 import { Skeleton } from "@/components/admin/ui";
-import { getLead } from "@/lib/admin/sample-leads";
+import { getLead } from "@/lib/server/data";
 
 export const metadata = { title: "Lead" };
 
@@ -27,7 +27,7 @@ function LeadFallback() {
 // Unknown id -> notFound(). The data is sample until GET /api/admin/leads/[id] is real.
 async function LeadContent({ params }) {
   const { id } = await params;
-  const lead = getLead(id);
+  const lead = await getLead(id);
   if (!lead) notFound();
   return <LeadDetail lead={lead} />;
 }

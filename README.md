@@ -6,12 +6,12 @@ Planning context and decisions live in [docs/PROJECT-BRIEF.md](docs/PROJECT-BRIE
 
 ## Current status
 
-The marketing site, internal admin, client portal, client business dashboard and public proposal screens are implemented. Most API routes return sample data or simulate actions; authentication, database persistence, Stripe billing and Brevo email delivery are still planned. Forms and sign-in screens do not yet complete real business transactions. This is a frontend preview, with backend work tracked in [docs/prompts/BACKEND-LOOP.md](docs/prompts/BACKEND-LOOP.md).
+The marketing site, internal admin, client portal, client business dashboard and proposals use PostgreSQL-backed services. Auth.js provides allowlisted email login and database sessions. Leads, proposals, milestone billing, support, settings and client records persist; Stripe and email work through server-only wrappers and durable jobs. See [docs/API.md](docs/API.md) for contracts and [docs/RUNBOOK.md](docs/RUNBOOK.md) for deployment, checks and remaining external configuration.
 
 ## Stack
 
 - Next.js 16 (App Router), React 19, JavaScript (not TypeScript), Tailwind CSS 4
-- Planned: PostgreSQL on Neon + Prisma, Auth.js, Vercel, Cloudflare Images/Stream, Brevo, Stripe
+- PostgreSQL on Neon + Prisma 7, Auth.js, Vercel, Cloudflare Images/private R2, SMTP/Brevo, Stripe
 
 Pages and features: [docs/SITE-PLAN.md](docs/SITE-PLAN.md). Design tokens: [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md). Build prompts: [docs/prompts/](docs/prompts/) (design, front end, back end loops).
 
@@ -19,7 +19,12 @@ Pages and features: [docs/SITE-PLAN.md](docs/SITE-PLAN.md). Design tokens: [docs
 
 ```bash
 npm install
+npm run db:create
+npm run db:migrate
+npm run db:seed
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+Use the existing `.env.local` for development and `.env.production` for production. Variable names are documented in `.env.example`; no credentials belong in Git. Run `npm run build:local` then `npm run test:backend -- --browser` for local integration and browser checks. Production builds use `npm run build`.

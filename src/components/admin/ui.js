@@ -3,14 +3,7 @@ import Link from "next/link";
 // Admin density, matched to the design boards: 13px body, 16px panel radius, 1px border dividers,
 // content on bg-deep. Page titles are the serif display face at clamp(32px, 4vw, 44px).
 
-export function SamplePill() {
-  return (
-    <span className="inline-flex items-center gap-2 text-xs text-muted-2 border border-border-2 rounded-full px-3 py-1.5">
-      <span aria-hidden="true" className="w-[7px] h-[7px] rounded-full bg-accent-light inline-block" />
-      Sample data
-    </span>
-  );
-}
+export function SamplePill() { return null; }
 
 // Page header: eyebrow, serif H1, and on the right the Sample data pill plus any actions.
 export function PageHead({ eyebrow, title, children, sample = true }) {

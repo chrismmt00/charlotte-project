@@ -1,3 +1,4 @@
+import { getCatalog } from "@/lib/server/catalog";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Section, { Eyebrow, PageHeader } from "@/components/ui/Section";
@@ -63,7 +64,11 @@ function cents(n) {
   return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const catalog = await getCatalog();
+  const getOffer = code => catalog.find(o => o.code === code);
+  const offersFor = slug => catalog.filter(o => o.slug === slug && !o.addOnOf);
+  const RESTAURANT_ADD_ONS = catalog.filter(o => o.addOnOf);
   const wb = getOffer("WB");
   const split = MILESTONES.map((m) => (wb.setup * m.percent) / 100);
   return (

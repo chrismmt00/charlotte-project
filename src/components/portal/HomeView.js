@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { INVOICE_STATUS, STAGE_COPY, invoices as buildInvoices, milestones as buildMilestones, money2 } from "@/lib/portal/sample";
+import { INVOICE_STATUS, STAGE_COPY, milestones as buildMilestones, money2 } from "@/lib/portal/sample";
 import { money } from "@/lib/offers";
 import { usePortal, listState, planLine } from "./PortalContext";
 import { Card, Chip, KeyRow, ListStatus, PageHead, RingCard, btnPrimary, linkBtn } from "./ui";
@@ -29,7 +29,7 @@ export default function HomeView() {
   const [card, setCard] = useState(false);
   const copy = STAGE_COPY[p.stage];
   const ms = buildMilestones(p.offer, p.stage);
-  const invs = buildInvoices(p.offer, p.stage, p.paidExtra);
+  const invs = p.invoices;
   const open = p.tickets.filter((t) => t.status !== "closed").length;
   const todo = needs(p, invs);
   const invStatus = listState(p, invs.length);

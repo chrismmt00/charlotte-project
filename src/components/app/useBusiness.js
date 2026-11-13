@@ -1,75 +1,68 @@
 "use client";
-
-import { useSyncExternalStore } from "react";
-import { CURRENT_BUSINESS_KIND, getBusiness } from "@/lib/app/sample";
-import { KINDS } from "@/lib/app/kinds";
-
-// The signed-in owner's business. Until auth ships it is the sample "current business"
-// (CURRENT_BUSINESS_KIND); in development a kind switch in the shell overrides it so every
-// kind's words and catalog shape can be checked. Production always uses the real business.
-
-export const IS_DEV = process.env.NODE_ENV !== "production";
-
-const KIND_KEY = "klyvora-app-kind";
-const EVENT = "klyvora-app-dev";
-
-function emit() {
-  window.dispatchEvent(new Event(EVENT));
+import { createContext, useContext, useEffect, useState } from "react";
+const Context = createContext(null);
+export const IS_DEV = false;
+export function BusinessProvider({ children }) {
+  const [business, setBusiness] = useState(null);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    Promise.all([
+      fetch("/api/app/business").then(read),
+      fetch("/api/app/payments").then(read),
+    ])
+      .then(([biz, payments]) => {
+        if (alive) {
+          setBusiness({
+            ...biz,
+            payments: payments.rows,
+            payouts: payments.payouts,
+          });
+          setFailed(false);
+        }
+      })
+      .catch(() => {
+        if (alive) setFailed(true);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [attempt]);
+  if (failed)
+    return (
+      <div role="alert" className="p-8">
+        We could not load your business.{" "}
+        <button className="underline" onClick={() => setAttempt((n) => n + 1)}>
+          Try again
+        </button>
+      </div>
+    );
+  if (!business)
+    return (
+      <div aria-busy="true" className="p-8">
+        Loading your business…
+      </div>
+    );
+  return <Context.Provider value={business}>{children}</Context.Provider>;
 }
-
-function subscribe(cb) {
-  window.addEventListener(EVENT, cb);
-  window.addEventListener("storage", cb);
-  return () => {
-    window.removeEventListener(EVENT, cb);
-    window.removeEventListener("storage", cb);
-  };
+async function read(res) {
+  if (!res.ok) throw new Error("Could not load business");
+  return res.json();
 }
-
-function readKind() {
-  if (!IS_DEV) return CURRENT_BUSINESS_KIND;
-  try {
-    const k = localStorage.getItem(KIND_KEY);
-    return KINDS.includes(k) ? k : CURRENT_BUSINESS_KIND;
-  } catch {
-    return CURRENT_BUSINESS_KIND;
-  }
-}
-
-export function setDevKind(kind) {
-  try {
-    localStorage.setItem(KIND_KEY, kind);
-  } catch {}
-  emit();
-}
-
-export function useKind() {
-  return useSyncExternalStore(subscribe, readKind, () => CURRENT_BUSINESS_KIND);
-}
-
 export function useBusiness() {
-  return getBusiness(useKind());
+  const b = useContext(Context);
+  if (!b) throw new Error("Business provider is required");
+  return b;
 }
-
-// Dev only: make the next request to a /api/app stub fail, to see every form's failed state.
-let failNext = false;
-
-export function setFailNext(v) {
-  failNext = !!v;
-  emit();
+export function useKind() {
+  return useBusiness().kind;
 }
-
-export function consumeFailNext() {
-  if (!IS_DEV || !failNext) return false;
-  failNext = false;
-  emit();
-  return true;
-}
-
+export function setDevKind() {}
+export function setFailNext() {}
 export function useFailNext() {
-  return useSyncExternalStore(
-    subscribe,
-    () => failNext,
-    () => false
-  );
+  return false;
+}
+export function consumeFailNext() {
+  return false;
 }

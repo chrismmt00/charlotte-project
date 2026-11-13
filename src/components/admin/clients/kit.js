@@ -76,7 +76,7 @@ export function TitleBlock({ eyebrow, title, children }) {
     <div className="flex flex-col gap-2.5 min-w-0">
       <div className="text-[11px] tracking-[.3em] uppercase text-muted-2 flex flex-wrap items-center gap-2.5">
         {eyebrow}
-        <span className="tracking-normal normal-case text-[11px] text-muted border border-border-2 rounded-full px-2 py-0.5">Sample data</span>
+
       </div>
       <h1 className="font-display font-normal text-[clamp(32px,4vw,44px)] leading-none m-0 break-words">{title}</h1>
       {children}

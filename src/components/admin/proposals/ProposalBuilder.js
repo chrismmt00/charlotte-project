@@ -1,11 +1,12 @@
 "use client";
+import { useCatalog } from "@/components/site/CatalogProvider";
 
 import Link from "next/link";
 import { useState } from "react";
 import { Panel, Chip, btnPrimary, btnSecondary, btnGhost, btnDanger } from "@/components/admin/ui";
 import { CheckRow, Dialog, EMAIL_RE, FailBanner, FieldRow, Toast, api, inputCls, useToast } from "@/components/admin/clients/kit";
 import { OFFERS, getOffer, money } from "@/lib/offers";
-import { LEADS } from "@/lib/admin/sample";
+
 import { BILLED_SEPARATELY, NEEDS_CONNECT, OWNERSHIP_TERMS, PROPOSAL_TONE, SCOPE_CAPS, addOnsFor, computeTotals, defaultCaps, isRestaurant, monthlyNote, usd } from "@/components/proposal/model";
 
 const TERMS = [
@@ -17,8 +18,8 @@ const TERMS = [
 const termsFor = (code) => (getOffer(code)?.monthlyRequired ? "restaurant" : code === "EC" ? "ecommerce" : code === "CA" ? "custom" : "standard");
 
 // A new draft from a lead (or blank).
-export function newDraft(leadId) {
-  const lead = LEADS.find((l) => l.id === leadId);
+export function newDraft(leadId, leads = []) {
+  const lead = leads.find((l) => l.id === leadId);
   const offerCode = lead && getOffer(lead.offerCode) ? lead.offerCode : "WB";
   const offer = getOffer(offerCode);
   return {
@@ -27,7 +28,7 @@ export function newDraft(leadId) {
     leadId: lead ? lead.id : "",
     business: lead ? lead.business : "",
     contactName: lead ? lead.name : "",
-    email: "",
+    email: lead?.email || "",
     name: lead ? `${offer.name} for ${lead.business}` : "",
     offerCode,
     addOns: {},
@@ -38,7 +39,7 @@ export function newDraft(leadId) {
     caps: defaultCaps(offerCode),
     termsTemplate: termsFor(offerCode),
     validDays: 14,
-    earliestStart: "2026-11-17",
+    earliestStart: new Date().toISOString().slice(0,10),
     status: "Draft",
     created: "just now · Chris",
     sentNote: "not sent",
@@ -225,7 +226,9 @@ function ConfirmDialog({ title, body, confirm, danger, onClose, onConfirm }) {
 }
 
 // onSaved(proposal): saved to the list. onStatus(id, status): status moved (sent, accepted, declined). onBack: back to the list.
-export default function ProposalBuilder({ initial, onBack, onSaved, onStatus }) {
+export default function ProposalBuilder({ initial, onBack, onSaved, onStatus, leads = [] }) {
+  const catalog = useCatalog();
+  const OFFERS = catalog.filter(o => !o.addOnOf);
   const [p, setP] = useState(initial);
   const [nameTouched, setNameTouched] = useState(!!initial.id);
   const [dialog, setDialog] = useState(null);
@@ -233,15 +236,15 @@ export default function ProposalBuilder({ initial, onBack, onSaved, onStatus }) 
   const [errors, setErrors] = useState({});
   const [toast, showToast] = useToast();
 
-  const totals = computeTotals({ offerCode: p.offerCode, addOns: p.addOns, monthly: p.monthly, quote: p.quote });
+  const totals = computeTotals({ offerCode: p.offerCode, addOns: p.addOns, monthly: p.monthly, quote: p.quote, catalog });
   const offer = totals.offer;
   const frozen = p.status !== "Draft";
   const closed = p.status === "Accepted";
-  const addOns = addOnsFor(p.offerCode);
+  const addOns = addOnsFor(p.offerCode, catalog);
   const set = (k) => (e) => setP((c) => ({ ...c, [k]: e.target.value }));
 
   function pickLead(e) {
-    const lead = LEADS.find((l) => l.id === e.target.value);
+    const lead = leads.find((l) => l.id === e.target.value);
     setP((c) => {
       if (!lead) return { ...c, leadId: "", business: "" };
       const code = getOffer(lead.offerCode) ? lead.offerCode : c.offerCode;
@@ -309,7 +312,7 @@ export default function ProposalBuilder({ initial, onBack, onSaved, onStatus }) 
   }
 
   async function copyLink() {
-    const url = `klyvora.ai/p/${p.token}`;
+    const url = `${window.location.host}/p/${p.token}`;
     try {
       await navigator.clipboard.writeText(`https://${url}`);
       showToast(`Link copied · ${url}`);
@@ -343,7 +346,7 @@ export default function ProposalBuilder({ initial, onBack, onSaved, onStatus }) 
       <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
         <div className="min-w-0">
           <div className="text-[11px] tracking-[.3em] uppercase text-muted-2 mb-2">
-            {eyebrow} <span className="md:hidden normal-case tracking-normal ml-2 border border-border-2 rounded-full px-2 py-0.5">Sample data</span>
+            {eyebrow}
           </div>
           <h1 className="font-display font-normal text-[clamp(32px,4vw,44px)] leading-none m-0 break-words">{p.name || "New proposal"}</h1>
         </div>
@@ -380,7 +383,7 @@ export default function ProposalBuilder({ initial, onBack, onSaved, onStatus }) 
             <FieldRow id="pb-lead" label="Lead or client" error={errors.lead}>
               <select id="pb-lead" value={p.leadId} onChange={pickLead} aria-invalid={!!errors.lead} aria-describedby={errors.lead ? "pb-lead-err" : undefined} className={inputCls}>
                 <option value="">{p.business && !p.leadId ? p.business : "Pick a lead…"}</option>
-                {LEADS.filter((l) => l.status !== "Lost").map((l) => (
+                {leads.filter((l) => l.status !== "Lost").map((l) => (
                   <option key={l.id} value={l.id}>
                     {l.business} · {l.name}
                   </option>

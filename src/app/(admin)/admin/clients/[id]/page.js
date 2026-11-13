@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import ClientDetail from "@/components/admin/clients/ClientDetail";
 import { Skeleton } from "@/components/admin/ui";
-import { getClient } from "@/lib/admin/sample-clients";
+import { getClient } from "@/lib/server/data";
 
 export const metadata = { title: "Client" };
 
@@ -29,7 +29,7 @@ function Fallback() {
 // Reads GET /api/admin/clients/[id]; the sample file stands in until the route is real.
 async function Content({ params }) {
   const { id } = await params;
-  const client = getClient(id);
+  const client = await getClient(id);
   if (!client) notFound();
   return <ClientDetail key={client.id} initial={client} />;
 }

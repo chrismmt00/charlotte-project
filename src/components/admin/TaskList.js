@@ -5,6 +5,8 @@ import { useState } from "react";
 // Checkable task list. Ticking is local until PATCH /api/admin/tasks/[id] { done } exists.
 export default function TaskList({ tasks }) {
   const [done, setDone] = useState({});
+  const [error,setError] = useState("");
+  async function toggle(task,i){const value=!done[i];setDone(d=>({...d,[i]:value}));try{const r=await fetch(`/api/admin/tasks/${task.id}`,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({done:value})});if(!r.ok)throw new Error();setError("");}catch{setDone(d=>({...d,[i]:!value}));setError("The task did not save. Try again.");}}
   const open = tasks.filter((_, i) => !done[i]).length;
   return (
     <>
@@ -14,6 +16,7 @@ export default function TaskList({ tasks }) {
         </h2>
         <span className="text-[13px] text-muted">{open} open · next actions from leads, projects and outreach</span>
       </div>
+      {error?<p role="alert" className="px-6 text-sm">{error}</p>:null}
       <ul className="list-none m-0 p-0 px-2 pb-2">
         {tasks.map((t, i) => (
           <li key={t.text} className="flex flex-wrap items-center gap-x-3.5 gap-y-2 px-4 py-2 rounded-[12px] min-h-12 box-border">
@@ -21,7 +24,7 @@ export default function TaskList({ tasks }) {
               <input
                 type="checkbox"
                 checked={!!done[i]}
-                onChange={() => setDone((d) => ({ ...d, [i]: !d[i] }))}
+                onChange={() => toggle(t,i)}
                 aria-label={`Mark done: ${t.text}`}
                 className="w-[18px] h-[18px] accent-[#4E85BF] flex-none"
               />

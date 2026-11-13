@@ -2,6 +2,9 @@ import { Inter, Instrument_Serif, Geist_Mono } from "next/font/google";
 import { THEME_SCRIPT } from "@/lib/theme-script";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
+import { getCatalog } from "@/lib/server/catalog";
+import CatalogProvider from "@/components/site/CatalogProvider";
+import { Suspense } from "react";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -42,6 +45,11 @@ export const viewport = {
   ],
 };
 
+async function CatalogBoundary({ children }) {
+  const offers = await getCatalog();
+  return <CatalogProvider offers={offers}>{children}</CatalogProvider>;
+}
+
 export default function RootLayout({ children }) {
   return (
     <html
@@ -53,7 +61,17 @@ export default function RootLayout({ children }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <Suspense
+          fallback={
+            <div aria-busy="true" className="p-8">
+              Loading…
+            </div>
+          }
+        >
+          <CatalogBoundary>{children}</CatalogBoundary>
+        </Suspense>
+      </body>
     </html>
   );
 }

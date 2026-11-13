@@ -1,10 +1,10 @@
+import { Suspense } from "react";
 import ReportsView from "@/components/admin/reports/ReportsView";
-import { getReports } from "@/lib/admin/sample-reports";
-
+import { adminData, supportClients } from "@/lib/server/views";
 export const metadata = { title: "Reports" };
+export default function Page() { return <Suspense fallback={<div aria-busy="true">Loading…</div>}><Content /></Suspense>; }
+async function Content() {
+  const data = await adminData("reports");
 
-// The first paint uses the default 90-day report from the sample file; the client refetches
-// GET /api/admin/reports?range= when the range changes. The back end returns the same shape.
-export default function ReportsPage() {
-  return <ReportsView initial={getReports({ range: "90d" })} />;
+  return <ReportsView initial={data} />;
 }

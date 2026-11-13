@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import DemoReview from "@/components/admin/outreach/DemoReview";
 import { Skeleton } from "@/components/admin/ui";
-import { getDemo } from "@/lib/admin/sample-outreach";
+import { getDemo } from "@/lib/server/views";
 
 export const metadata = { title: "Review demo" };
 
@@ -26,5 +26,5 @@ function DemoFallback() {
 // The data is sample until GET /api/admin/outreach/demos/[id] is real.
 async function DemoContent({ params }) {
   const { id } = await params;
-  return <DemoReview demo={getDemo(id)} />;
+  return <DemoReview demo={await getDemo(id)} />;
 }

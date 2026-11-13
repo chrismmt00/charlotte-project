@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { INVOICE_STATUS, HOURS, invoices as buildInvoices, money2 } from "@/lib/portal/sample";
+import { INVOICE_STATUS, money2 } from "@/lib/portal/sample";
 import { money } from "@/lib/offers";
 import { listState, usePortal } from "./PortalContext";
 import { Card, Chip, ListStatus, PageHead, btnPrimary, btnSecondary, linkBtn } from "./ui";
@@ -14,7 +14,7 @@ const TH = "text-left font-medium text-[13px] text-muted-2 py-3 px-4 whitespace-
 export default function InvoicesView() {
   const p = usePortal();
   const [dialog, setDialog] = useState(null); // { type: "pay", id } | { type: "card" }
-  const invs = buildInvoices(p.offer, p.stage, p.paidExtra);
+  const invs = p.invoices;
   const status = listState(p, invs.length);
   const paid = invs.filter((i) => i.status === "paid").reduce((n, i) => n + i.amount, 0);
   const payInv = dialog?.type === "pay" ? invs.find((i) => i.id === dialog.id) : null;
@@ -102,7 +102,7 @@ export default function InvoicesView() {
                 {chip ? <Chip tone={chip[1]}>{chip[0]}</Chip> : null}
               </div>
               <p className="m-0 text-sm leading-[1.6] text-muted-2">
-                Covers {p.offer.monthlyNote}, support and up to {HOURS.cap} hours of small changes a month.{" "}
+                Covers {p.offer.monthlyNote}, support and up to {p.hours.cap} hours of small changes a month.{" "}
                 {p.offer.monthlyRequired ? "It is required for restaurant clients because ordering and kitchen tools need daily care; the site stays yours." : "Optional: you chose it on the proposal, and you can end it any time from Account; the site and code stay yours."}
               </p>
               <Link href="/portal/account" className={`${linkBtn} self-start`}>

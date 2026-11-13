@@ -99,7 +99,7 @@ export default function TicketView({ ticket, capHours, usedByOthers, today }) {
       <header className="mb-5">
         <div className="text-[11px] tracking-[.2em] uppercase text-muted-2 mb-2">
           {ticket.num} · {ticket.type} · opened {ticket.openedLong} by {ticket.requester} in the {ticket.source}
-          <span className="md:hidden normal-case tracking-normal ml-2 border border-border-2 rounded-full px-2 py-0.5">Sample data</span>
+
         </div>
         <h1 className="font-display font-normal text-[clamp(28px,3.4vw,40px)] leading-[1.05] m-0 mb-4">{ticket.subject}</h1>
         <div className="flex flex-wrap items-end gap-3">
@@ -233,7 +233,7 @@ export default function TicketView({ ticket, capHours, usedByOthers, today }) {
                 </select>
               </div>
               <input ref={fileRef} type="file" className="sr-only" tabIndex={-1} aria-hidden="true" onChange={(e) => setFile(e.target.files?.[0]?.name || "")} />
-              <button type="button" className={btnSecondary} onClick={() => fileRef.current?.click()}>
+              <button type="button" className={btnSecondary} disabled title="Private attachments are disabled; use email" onClick={() => fileRef.current?.click()}>
                 <Icon name="clip" size={14} />
                 {file ? file : "Attach"}
               </button>

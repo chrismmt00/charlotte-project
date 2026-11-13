@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BOOKING_SERVICES, BOOKING_SLOTS } from "@/lib/app/sample";
+import { useBusiness } from "./useBusiness";
 import Dialog, { CancelButton } from "./Dialog";
 import { Checkbox, FieldError, FormGroup, Spinner, btnDestructive, btnPrimary, inputCls } from "./ui";
 import { useAction } from "./hooks";
@@ -80,9 +80,12 @@ export function BlockDialog({ days, defaultDay, onClose, onDone }) {
 // Add a booking (walk-in or phone). `initialName` prefills for Rebook. `showError` opens with the name error showing.
 // onDone({ name, service, slot, depositInPerson, id }).
 export function AddBookingDialog({ initialName = "", showError = false, onClose, onDone }) {
+  const biz = useBusiness();
+  const BOOKING_SERVICES = biz.catalog.items.map(i => i.name);
+  const [BOOKING_SLOTS] = useState(() => Array.from({length:8}, (_,i) => new Date(Date.now() + (i+1)*3600000).toISOString()));
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState("");
-  const [service, setService] = useState(BOOKING_SERVICES[0]);
+  const [service, setService] = useState(BOOKING_SERVICES[0] || "Consultation");
   const [slot, setSlot] = useState(BOOKING_SLOTS[0]);
   const [deposit, setDeposit] = useState(true);
   const [bad, setBad] = useState(showError);
@@ -96,9 +99,9 @@ export function AddBookingDialog({ initialName = "", showError = false, onClose,
     }
     const r = await run(
       () => api("/api/app/bookings", { body: { name: name.trim(), phone: phone.trim() || undefined, service, slot, depositInPerson: deposit } }),
-      "Couldn’t add that booking. The reminder text wasn’t sent. Try again."
+      "Couldn’t add that booking. The booking was not saved. Try again."
     );
-    if (r.ok) onDone({ name: name.trim(), service, slot, depositInPerson: deposit, id: r.data.id });
+    if (r.ok) onDone({ name: name.trim(), service, slot, depositInPerson: deposit, id: r.data.id, savedRow: r.data });
   };
 
   return (
@@ -140,7 +143,7 @@ export function AddBookingDialog({ initialName = "", showError = false, onClose,
         <FormGroup id="ab-svc" label="Service">
           <select id="ab-svc" value={service} onChange={(e) => setService(e.target.value)} className={`${inputCls} cursor-pointer`}>
             {BOOKING_SERVICES.map((s) => (
-              <option key={s}>{s}</option>
+              <option key={s} value={s}>{s.includes("T") ? new Date(s).toLocaleString("en-US",{weekday:"short",hour:"numeric",minute:"2-digit"}) : s}</option>
             ))}
           </select>
         </FormGroup>
@@ -312,7 +315,7 @@ export function DiscountDialog({ onClose, onDone }) {
           <option>10% off</option>
           <option>15% off</option>
           <option>$5 off</option>
-          <option>Free shipping</option>
+
         </select>
       </FormGroup>
       <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
