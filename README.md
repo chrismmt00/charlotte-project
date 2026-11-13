@@ -4,6 +4,10 @@ Klyvora's company site and the internal app that runs the business: public marke
 
 Planning context and decisions live in [docs/PROJECT-BRIEF.md](docs/PROJECT-BRIEF.md).
 
+## Current status
+
+The marketing site, internal admin, client portal, client business dashboard and public proposal screens are implemented. Most API routes return sample data or simulate actions; authentication, database persistence, Stripe billing and Brevo email delivery are still planned. Forms and sign-in screens do not yet complete real business transactions. This is a frontend preview, with backend work tracked in [docs/prompts/BACKEND-LOOP.md](docs/prompts/BACKEND-LOOP.md).
+
 ## Stack
 
 - Next.js 16 (App Router), React 19, JavaScript (not TypeScript), Tailwind CSS 4
