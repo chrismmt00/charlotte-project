@@ -1,4 +1,5 @@
 "use client";
+import { signOut, useSession } from "next-auth/react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -68,7 +69,7 @@ function Sheet({ items, pathname, biz, themeLabel, toggleTheme, onClose }) {
         <div className="flex justify-between items-center min-h-11">
           <span className="min-w-0 flex items-center gap-2">
             <span className="text-lg font-medium truncate">{biz.name}</span>
-            <span className="text-[11px] text-muted-2 border border-border-2 rounded-full px-2 py-0.5 whitespace-nowrap">Sample data</span>
+
           </span>
           <button
             type="button"
@@ -114,7 +115,7 @@ function Sheet({ items, pathname, biz, themeLabel, toggleTheme, onClose }) {
           <Link href="/portal" onClick={onClose} className="min-h-12 rounded-full bg-fg text-bg text-[15px] font-medium inline-flex items-center justify-center">
             Ask Klyvora for help
           </Link>
-          <Link href="/portal/signin" className="min-h-12 rounded-full text-muted-2 text-[15px] inline-flex items-center justify-center">
+          <Link href="/portal/signin" onClick={e=>{e.preventDefault();signOut({callbackUrl:"/portal/signin"});}} className="min-h-12 rounded-full text-muted-2 text-[15px] inline-flex items-center justify-center">
             Sign out
           </Link>
           <DevPanel />
@@ -160,7 +161,7 @@ export default function ClientShell({ children }) {
             <span className="flex flex-col leading-tight min-w-0">
               <span className="text-[15px] font-medium truncate">{biz.name}</span>
               <span className="text-xs text-muted-2">{planLabel}</span>
-              <span className="mt-1 self-start text-[11px] text-muted-2 border border-border-2 rounded-full px-2 py-0.5">Sample data</span>
+
             </span>
           </div>
           {items.map((it) => {
@@ -203,7 +204,7 @@ export default function ClientShell({ children }) {
               <Icon name={light ? "moon" : "sun"} />
               {themeLabel}
             </button>
-            <Link href="/portal/signin" className={`app-nav-signout ${navLink}`}>
+            <Link href="/portal/signin" onClick={e=>{e.preventDefault();signOut({callbackUrl:"/portal/signin"});}} className={`app-nav-signout ${navLink}`}>
               <Icon name="signout" />
               Sign out
             </Link>

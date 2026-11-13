@@ -117,7 +117,7 @@ export default function ProposalView({ proposal }) {
   const [declineFail, setDeclineFail] = useState(false);
   const [signedName, setSignedName] = useState(p.signatureName);
 
-  const totals = computeTotals({ offerCode: p.offerCode, addOns: p.addOns, monthly, quote: p.quote });
+  const totals = computeTotals({ offerCode: p.offerCode, addOns: p.addOns, monthly, quote: p.quote, snapshot: p });
   const offer = totals.offer;
   const monthlyOn = totals.monthlyOn;
   const kickoff = totals.schedule[0].amount;

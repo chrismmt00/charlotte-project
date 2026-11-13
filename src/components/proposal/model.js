@@ -30,9 +30,9 @@ export function splitMilestones(total) {
 }
 
 // Add-ons a proposal can carry for an offer. Restaurant modules for RC/RK; "booking later" for the two plain sites.
-export function addOnsFor(code) {
+export function addOnsFor(code, catalog = null) {
   if (isRestaurant(code)) {
-    return RESTAURANT_ADD_ONS.map((a) => ({
+    return (catalog ? catalog.filter(a => a.addOnOf?.split(",").includes(code)) : RESTAURANT_ADD_ONS).map((a) => ({
       code: a.code,
       name: code === "RK" && a.code === "KIOSK" ? "Extra kiosk" : a.name,
       setup: a.setup,
@@ -58,12 +58,16 @@ export function addOnsFor(code) {
 }
 
 // selected: { [addOnCode]: qty }. quote: build price for "from" offers (AH, CA), never below the catalog price.
-export function computeTotals({ offerCode, addOns = {}, monthly = true, quote = null }) {
-  const offer = getOffer(offerCode);
+export function computeTotals({ offerCode, addOns = {}, monthly = true, quote = null, catalog = null, snapshot = null }) {
+  const offer = (catalog ? catalog.find(o => o.code === offerCode) : getOffer(offerCode)) || (snapshot ? {code:offerCode,name:snapshot.lines[0]?.name||offerCode,monthlyRequired:isRestaurant(offerCode)} : null);
   if (!offer) return null;
+  if (snapshot) {
+    const lines=snapshot.lines.map(l=>({label:l.name,setup:l.setupCents/100,monthly:l.monthlyCents/100}));
+    return {offer,lines,build:snapshot.setup,buildFrom:false,schedule:splitMilestones(snapshot.setup),monthlyOn:offer.monthlyRequired||!!monthly,monthlyRequired:offer.monthlyRequired,monthlyAmount:snapshot.monthlyAmount,usage:!!offer.usage};
+  }
   const base = offer.setupFrom && quote ? Math.max(offer.setup, Number(quote) || offer.setup) : offer.setup;
   const lines = [{ label: offer.name, setup: base, monthly: offer.monthly, from: !!offer.setupFrom && !quote }];
-  for (const a of addOnsFor(offerCode)) {
+  for (const a of addOnsFor(offerCode, catalog)) {
     const qty = Number(addOns[a.code] || 0);
     if (qty > 0) lines.push({ label: qty > 1 ? `${a.name} × ${qty}` : a.name, setup: a.setup * qty, monthly: a.monthly * qty, from: a.setupFrom });
   }

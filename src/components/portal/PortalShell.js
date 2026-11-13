@@ -1,11 +1,12 @@
 "use client";
+import { signOut, useSession } from "next-auth/react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandMark } from "@/components/ui/Bits";
 import { useTheme } from "@/lib/theme";
 import { PortalProvider } from "./PortalContext";
-import DevSwitch from "./DevSwitch";
+
 import { Icon } from "./ui";
 
 const NAV = [
@@ -15,7 +16,7 @@ const NAV = [
   { href: "/portal/account", label: "Account" },
 ];
 
-const SHOW_DEV = process.env.NODE_ENV !== "production";
+
 
 // The client portal's own chrome: no public nav or footer. One sticky top bar with the portal nav;
 // on a phone the nav drops to a second, scrollable row under the logo. Sign-in renders bare.
@@ -70,6 +71,7 @@ export default function PortalShell({ children }) {
               </button>
               <Link
                 href="/portal/signin"
+                onClick={e=>{e.preventDefault();signOut({callbackUrl:"/portal/signin"});}}
                 aria-label="[First name] · account · sign out"
                 title="Sign out"
                 className="w-11 h-11 rounded-full bg-surface-2 border border-border-2 inline-flex items-center justify-center text-[13px] font-medium text-fg"
@@ -95,12 +97,12 @@ export default function PortalShell({ children }) {
                 Terms
               </Link>
               <Link href="/" className="min-h-11 inline-flex items-center hover:text-fg">
-                klyvora.ai
+                klyvorastudio.com
               </Link>
             </div>
           </div>
         </footer>
-        {SHOW_DEV ? <DevSwitch /> : null}
+
       </div>
     </PortalProvider>
   );

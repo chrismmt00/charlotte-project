@@ -187,7 +187,7 @@ const EMAIL = [
     body: "Thanks {{first_name}}, the working demo is approved. The 30% invoice is on its way and we start the launch checklist today.\n\n{{sender_name}}",
   },
 ];
-export const EMAIL_TEMPLATES = EMAIL.map((t) => ({ ...t, defaultSubject: t.subject, defaultBody: t.body, custom: false }));
+export const EMAIL_TEMPLATES = [...EMAIL, ...[["lead-received","Lead received"],["lead-confirmation","Lead confirmation"],["proposal-accepted","Proposal accepted"],["launch","Launch"],["review","Review request"],["ticket-update","Ticket updates"]].map(([id,name])=>({id,name,sub:"Transactional notification",subject:name,body:"{{message}}"}))].map((t) => ({ ...t, defaultSubject: t.subject, defaultBody: t.body, custom: false }));
 
 // Values used for the template preview. Real values fill from the record when the email or proposal is created.
 export const PREVIEW_VARS = {

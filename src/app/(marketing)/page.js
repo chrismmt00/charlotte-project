@@ -1,3 +1,4 @@
+import { getCatalog } from "@/lib/server/catalog";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Card, { FeaturedCard } from "@/components/ui/Card";
@@ -98,7 +99,11 @@ function JsonLd() {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const catalog = await getCatalog();
+  const getOffer = code => catalog.find(o => o.code === code);
+  const offersFor = slug => catalog.filter(o => o.slug === slug && !o.addOnOf);
+  const RESTAURANT_ADD_ONS = catalog.filter(o => o.addOnOf);
   const w1 = getOffer("W1");
   const wb = getOffer("WB");
   const rc = getOffer("RC");

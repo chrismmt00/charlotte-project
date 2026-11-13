@@ -1,20 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { btnDanger, btnPrimary, btnSecondary, money } from "@/components/admin/ui";
 import { FieldRow, FormError, Modal, Note, addDays, addMonths, api, checkClass, checkLabelClass, inputClass, linkInline, shortDate, splitEven, useSubmit } from "@/components/admin/billing/kit";
 import { nextMilestoneFor } from "@/lib/admin/sample-projects";
-import { INVOICE_CLIENTS } from "@/lib/admin/sample-billing";
 
 const KINDS = [
-  { value: "milestone", label: "Milestone (50 / 30 / 20)" },
   { value: "hardware", label: "Hardware (100% before order)" },
   { value: "add-on", label: "Add-on" },
   { value: "custom", label: "Custom" },
 ];
 const DUE_OPTIONS = ["On receipt", "7 days", "14 days", "On demo approval (trigger)", "On launch acceptance (trigger)"];
 const DUE_DAYS = { "On receipt": 0, "7 days": 7, "14 days": 14 };
-const CLIENT_KEY = { "Food truck [6]": "ft6", "Braids studio [7]": "br7", "Studio [9]": "st9", "Bakery [5]": "bk5", "Detailing [4]": "dt4" };
 
 const sel = `${inputClass} cursor-pointer`;
 const bad = (e) => (e ? "!border-danger" : "");
@@ -34,9 +31,28 @@ const lineTotal = (l) => (Number(l.q) || 0) * (Number(l.u) || 0);
 
 // ---------- New invoice ----------
 export function NewInvoiceDialog({ today, initial, onClose, onCreated }) {
-  const [client, setClient] = useState(initial?.client || INVOICE_CLIENTS[0]);
-  const [kind, setKind] = useState(initial?.kind || "milestone");
-  const [lines, setLines] = useState(initial?.lines || startLines(initial?.client || INVOICE_CLIENTS[0], initial?.kind || "milestone"));
+  const [clientRows, setClientRows] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    api("/api/admin/clients")
+      .then((d) => {
+        if (alive) setClientRows(d.clients);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const INVOICE_CLIENTS = clientRows.map((c) => c.business);
+  const CLIENT_KEY = Object.fromEntries(
+    clientRows.map((c) => [c.business, c.id]),
+  );
+  const [client, setClient] = useState(initial?.client || "");
+  const [kind, setKind] = useState(initial?.kind || "custom");
+  const [lines, setLines] = useState(
+    initial?.lines ||
+      startLines(initial?.client || "", initial?.kind || "custom"),
+  );
   const [due, setDue] = useState("On receipt");
   const [memo, setMemo] = useState("");
   const [methods, setMethods] = useState("Card + bank (ACH)");
@@ -45,7 +61,8 @@ export function NewInvoiceDialog({ today, initial, onClose, onCreated }) {
   const sub = useSubmit();
   const total = lines.reduce((a, l) => a + lineTotal(l), 0);
   const hardware = kind === "hardware";
-  const setLine = (i, k, v) => setLines((ls) => ls.map((l, j) => (j === i ? { ...l, [k]: v } : l)));
+  const setLine = (i, k, v) =>
+    setLines((ls) => ls.map((l, j) => (j === i ? { ...l, [k]: v } : l)));
   const pickClient = (v) => {
     setClient(v);
     setLines(startLines(v, kind));
@@ -59,17 +76,34 @@ export function NewInvoiceDialog({ today, initial, onClose, onCreated }) {
     e.preventDefault();
     const next = {};
     const filled = lines.filter((l) => l.d.trim());
-    if (!filled.length) next.lines = "Add at least one line with a description.";
-    else if (!hardware && total <= 0) next.lines = "Enter a unit price so the total is more than $0.";
-    else if (filled.some((l) => l.u !== "" && !(Number(l.u) >= 0))) next.lines = "Unit prices are whole dollars, like 450.";
-    if (sendNow && hardware && total <= 0) next.lines = "Add the vendor quote amount before sending, or save it as a draft.";
+    if (!filled.length)
+      next.lines = "Add at least one line with a description.";
+    else if (!hardware && total <= 0)
+      next.lines = "Enter a unit price so the total is more than $0.";
+    else if (filled.some((l) => l.u !== "" && !(Number(l.u) >= 0)))
+      next.lines = "Unit prices are whole dollars, like 450.";
+    if (sendNow && hardware && total <= 0)
+      next.lines =
+        "Add the vendor quote amount before sending, or save it as a draft.";
     setErrors(next);
     if (Object.keys(next).length) return;
     const out = await sub.run(() =>
       api("/api/admin/invoices", {
         method: "POST",
-        body: { clientId: CLIENT_KEY[client], kind, lines: filled.map((l) => ({ description: l.d.trim(), qty: Number(l.q) || 1, unit: Number(l.u) || 0 })), due, memo, methods, sendNow },
-      })
+        body: {
+          clientId: CLIENT_KEY[client],
+          kind,
+          lines: filled.map((l) => ({
+            description: l.d.trim(),
+            qty: Number(l.q) || 1,
+            unit: Number(l.u) || 0,
+          })),
+          due: addDays(today, DUE_DAYS[due] ?? 7),
+          memo,
+          methods: [methods],
+          sendNow,
+        },
+      }),
     );
     if (out) {
       const offset = DUE_DAYS[due];
@@ -80,11 +114,21 @@ export function NewInvoiceDialog({ today, initial, onClose, onCreated }) {
         forLabel: filled[0].d.trim(),
         due: offset != null ? addDays(today, offset) : null,
         paid: 0,
-        trigger: due.includes("trigger") ? due.replace(" (trigger)", "") : "Written by hand",
-        billingEmail: "billing@example.com",
-        stripe: "in_[…]",
-        lines: filled.map((l) => ({ description: l.d.trim(), note: "", amount: total > 0 ? lineTotal(l) : null })),
-        history: [{ when: "today", text: "Created by hand" }, ...(sendNow ? [{ when: "today", text: "Sent to billing@example.com" }] : [])],
+        trigger: due.includes("trigger")
+          ? due.replace(" (trigger)", "")
+          : "Written by hand",
+        billingEmail:
+          clientRows.find((c) => c.business === client)?.email || "",
+        stripe: out.invoice.stripe,
+        lines: filled.map((l) => ({
+          description: l.d.trim(),
+          note: "",
+          amount: total > 0 ? lineTotal(l) : null,
+        })),
+        history: [
+          { when: "today", text: "Created by hand" },
+          ...(sendNow ? [{ when: "today", text: "Queued for delivery" }] : []),
+        ],
         plan: null,
       });
     }
@@ -111,6 +155,7 @@ export function NewInvoiceDialog({ today, initial, onClose, onCreated }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <FieldRow id="ni-client" label="Client">
             <select id="ni-client" data-autofocus value={client} onChange={(e) => pickClient(e.target.value)} className={sel}>
+              <option value="">Choose a client</option>
               {INVOICE_CLIENTS.map((c) => (
                 <option key={c}>{c}</option>
               ))}

@@ -21,6 +21,10 @@
 
 import { lookup } from "node:dns/promises";
 import { BlockList, isIP } from "node:net";
+import { request as httpRequest } from "node:http";
+import { request as httpsRequest } from "node:https";
+import { Readable } from "node:stream";
+import { rateLimit, errorResponse } from "@/lib/server/http";
 import { buildFindings, normalizeUrl, pickVerdict } from "@/components/check/report";
 
 const TIMEOUT_MS = 8000;
@@ -99,7 +103,7 @@ async function checkTarget(urlString) {
     return { blocked: true, message: "We only check public websites." };
   }
   if (isIP(host)) {
-    return isBlockedAddress(host) ? { blocked: true, message: "We only check public websites." } : { ok: true };
+    return isBlockedAddress(host) ? { blocked: true, message: "We only check public websites." } : { ok: true, address: host, family: isIP(host) };
   }
   let answers;
   try {
@@ -110,7 +114,22 @@ async function checkTarget(urlString) {
   }
   if (!answers.length) return { unreachable: true };
   if (answers.some((a) => isBlockedAddress(a.address))) return { blocked: true, message: "We only check public websites." };
-  return { ok: true };
+  return { ok: true, address: answers[0].address, family: answers[0].family };
+}
+
+function pinnedFetch(url, target, signal) {
+  return new Promise((resolve,reject)=>{
+    const u=new URL(url);
+    const req=(u.protocol==="https:"?httpsRequest:httpRequest)(u,{
+      signal,
+      lookup(_host,options,callback) { if(options.all)callback(null,[{address:target.address,family:target.family}]);else callback(null,target.address,target.family); },
+      headers:{"User-Agent":"KlyvoraSiteCheck/1.0 (+https://klyvorastudio.com/check)",Accept:"text/html,application/xhtml+xml"},
+    },res=>{
+      const headers=new Headers();for(const [k,v]of Object.entries(res.headers))if(v!==undefined)headers.set(k,Array.isArray(v)?v.join(","):v);
+      resolve(new Response([204,205,304].includes(res.statusCode)?null:Readable.toWeb(res),{status:res.statusCode,headers}));
+    });
+    req.on("error",reject);req.end();
+  });
 }
 
 async function readHtml(res) {
@@ -148,7 +167,7 @@ function hasMobileViewport(html) {
 }
 
 export async function POST(request) {
-  // BACKEND: rate-limit by IP here.
+  try { await rateLimit(request,"site-check",5,600000); } catch(e) { return errorResponse(e); }
   let body;
   try {
     body = await request.json();
@@ -170,16 +189,8 @@ export async function POST(request) {
       const target = await checkTarget(current);
       if (target.blocked) return bad("blocked_url", target.message);
       if (target.unreachable) break;
-      res = await fetch(current, {
-        method: "GET",
-        redirect: "manual", // followed by hand so every hop is re-validated against private addresses
-        cache: "no-store",
-        signal: controller.signal,
-        headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; KlyvoraSiteCheck/0.1; +https://klyvora.ai/check)",
-          Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.5",
-        },
-      });
+      // DNS is resolved, validated and pinned for this connection; every redirect repeats the check.
+      res = await pinnedFetch(current,target,controller.signal);
       const location = res.status >= 300 && res.status < 400 ? res.headers.get("location") : null;
       if (!location) break;
       await res.body?.cancel().catch(() => {});

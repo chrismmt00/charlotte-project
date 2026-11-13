@@ -10,7 +10,7 @@ import { api } from "./api";
 import { consumeFailNext, useBusiness } from "./useBusiness";
 
 const MAX_BYTES = 25 * 1024 * 1024;
-const TODAY_INDEX = 3; // Thursday on the sample week
+const TODAY_INDEX = (new Date().getDay() + 6) % 7;
 const TINTS = ["bg-accent/25", "bg-accent-light/20", "bg-surface-2", "bg-accent/15", "bg-bg-deep", "bg-accent-light/10"];
 
 export default function SiteScreen() {

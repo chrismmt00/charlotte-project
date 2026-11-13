@@ -1,10 +1,10 @@
+import { Suspense } from "react";
 import SubscriptionsView from "@/components/admin/billing/SubscriptionsView";
-import { SUBSCRIPTIONS } from "@/lib/admin/sample-billing";
-
+import { adminData, supportClients } from "@/lib/server/views";
 export const metadata = { title: "Subscriptions" };
+export default function Page() { return <Suspense fallback={<div aria-busy="true">Loading…</div>}><Content /></Suspense>; }
+async function Content() {
+  const data = await adminData("subscriptions");
 
-// Reads GET /api/admin/subscriptions once the back end ships it; sample data until then.
-// Stripe is the source of truth. Money is whole dollars here, cents in the API.
-export default function SubscriptionsPage() {
-  return <SubscriptionsView initialSubs={SUBSCRIPTIONS} />;
+  return <SubscriptionsView initialSubs={data.subscriptions} />;
 }

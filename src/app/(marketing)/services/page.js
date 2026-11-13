@@ -1,3 +1,4 @@
+import { getCatalog } from "@/lib/server/catalog";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Section, { Eyebrow, PageHeader } from "@/components/ui/Section";
@@ -187,7 +188,11 @@ function Extra({ slug }) {
   return null;
 }
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const catalog = await getCatalog();
+  const getOffer = code => catalog.find(o => o.code === code);
+  const offersFor = slug => catalog.filter(o => o.slug === slug && !o.addOnOf);
+  const RESTAURANT_ADD_ONS = catalog.filter(o => o.addOnOf);
   return (
     <>
       <PageHeader

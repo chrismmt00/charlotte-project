@@ -82,14 +82,7 @@ export function Chip({ tone = "muted", children, className = "" }) {
   return <span className={`inline-flex items-center text-xs border rounded-full px-2.5 py-1 whitespace-nowrap ${TONES[tone] || TONES.muted} ${className}`}>{children}</span>;
 }
 
-export function SamplePill() {
-  return (
-    <span className="inline-flex items-center gap-2 text-xs text-muted-2 border border-border-2 rounded-full px-3 py-1.5 self-start sm:self-auto">
-      <span aria-hidden="true" className="w-[7px] h-[7px] rounded-full bg-accent-light inline-block" />
-      Sample data
-    </span>
-  );
-}
+export function SamplePill() { return null; }
 
 export function PageHead({ eyebrow, title, lede }) {
   return (

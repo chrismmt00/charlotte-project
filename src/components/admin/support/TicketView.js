@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { SamplePill, btnPrimary, btnSecondary } from "@/components/admin/ui";
+import { btnPrimary, btnSecondary } from "@/components/admin/ui";
 import { FieldRow, FormError, Icon, Modal, Note, Toast, api, btnSm, checkClass, checkLabelClass, clientLink, hours, inputClass, textareaClass, useSubmit, useToast } from "@/components/admin/billing/kit";
 import { ASSIGNEES, CANNED, TICKET_STATUSES, monthOf } from "@/lib/admin/sample-support";
 
@@ -111,9 +111,6 @@ export default function TicketView({ ticket, capHours, usedByOthers, today }) {
           <div className="text-[11px] tracking-[.3em] uppercase text-muted-2 flex flex-wrap items-center gap-2.5">
             <span>
               {ticket.num} · {ticket.type} · opened {ticket.openedLong} by {ticket.requester} in the {ticket.source}
-            </span>
-            <span className="normal-case tracking-normal">
-              <SamplePill />
             </span>
           </div>
           <h1 className="font-display font-normal text-[clamp(28px,3.4vw,40px)] leading-[1.05] m-0">{ticket.subject}</h1>
@@ -235,7 +232,7 @@ export default function TicketView({ ticket, capHours, usedByOthers, today }) {
                 ))}
               </select>
               <input ref={fileRef} type="file" className="sr-only" tabIndex={-1} aria-hidden="true" onChange={(e) => setFile(e.target.files?.[0]?.name || "")} />
-              <button type="button" className={`${btnSm} !min-h-[34px]`} onClick={() => fileRef.current?.click()}>
+              <button type="button" className={`${btnSm} !min-h-[34px]`} disabled title="Private attachments are disabled; use email" onClick={() => fileRef.current?.click()}>
                 <Icon name="clip" size={14} />
                 {file || "Attach"}
               </button>

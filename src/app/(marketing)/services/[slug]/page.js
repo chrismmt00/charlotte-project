@@ -1,3 +1,4 @@
+import { getCatalog } from "@/lib/server/catalog";
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -30,8 +31,8 @@ function monthlyBits(o) {
   return ["optional", m, o.usage ? "+ usage" : ""];
 }
 
-function PriceCard({ code, featured }) {
-  const o = getOffer(code);
+async function PriceCard({ code, featured }) {
+  const o = (await getCatalog()).find(o => o.code === code);
   const d = OFFER_DETAILS[code];
   const [lead, m, tail] = monthlyBits(o);
   const inner = (
@@ -93,6 +94,7 @@ function ServiceFallback() {
 }
 
 async function ServiceContent({ params }) {
+  const RESTAURANT_ADD_ONS = (await getCatalog()).filter(o => o.addOnOf);
   const { slug } = await params;
   const s = SERVICES[slug];
   if (!s) notFound();

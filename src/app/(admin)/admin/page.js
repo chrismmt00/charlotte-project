@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { PageHead, Ring, LEAD_STATUS_TONE, LinkArrow, money } from "@/components/admin/ui";
 import TaskList from "@/components/admin/TaskList";
-import { LEADS, LEAD_STATUSES, OUTREACH_TODAY, TASKS, getMetrics } from "@/lib/admin/sample";
+import { Suspense } from "react";
+import { LEAD_STATUSES } from "@/lib/admin/sample";
+import { getDashboard } from "@/lib/server/data";
+import { pageUser } from "@/lib/server/views";
 
 export const metadata = { title: "Dashboard" };
 
@@ -58,8 +61,11 @@ function Count({ href, label, value, note, noteClass = "text-muted", children })
   );
 }
 
-export default function Dashboard() {
-  const m = getMetrics();
+export default function Page() { return <Suspense fallback={<div aria-busy="true">Loading…</div>}><Dashboard /></Suspense>; }
+async function Dashboard() {
+  await pageUser();
+  const data = await getDashboard();
+  const { leads: LEADS, tasks: TASKS, outreach: OUTREACH_TODAY, metrics: m } = data;
   const t = m.targets;
   const counts = LEAD_STATUSES.map((s) => [s, LEADS.filter((l) => l.status === s).length]);
   const open = LEADS.filter((l) => l.status !== "Signed" && l.status !== "Lost").length;
@@ -67,7 +73,7 @@ export default function Dashboard() {
   const contactsNote = onPace ? "On pace" : `${65 - m.contactsThisWeek} to the low end`;
   return (
     <>
-      <PageHead eyebrow="Dashboard · this month" title="Where the business stands">
+      <PageHead eyebrow="Dashboard · business overview" title="Where the business stands">
         <LinkArrow href="/admin/leads">Open leads</LinkArrow>
       </PageHead>
 
@@ -76,7 +82,7 @@ export default function Dashboard() {
           Targets
         </h2>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
-          <Target label="Signed this month" value={m.signed} target={t.signed} />
+          <Target label="Signed project fees" value={m.signed} target={t.signed} />
           <Target label="Cash collected" value={m.cash} target={t.cash} />
           <Target label="Monthly recurring" value={m.mrr} target={t.mrr} unit="/mo" />
         </div>
@@ -102,7 +108,7 @@ export default function Dashboard() {
             Outreach · Claude ran at {OUTREACH_TODAY.ranAt}
           </h2>
           <span className="text-[13px] text-muted-2">
-            {OUTREACH_TODAY.found} new prospects, 3 emails and 1 demo waiting for your approval, {OUTREACH_TODAY.replies} reply overnight.
+            {OUTREACH_TODAY.found} new prospects, {OUTREACH_TODAY.toApprove} items waiting for your approval, {OUTREACH_TODAY.replies} reply overnight.
           </span>
         </div>
         <div className="flex flex-wrap gap-6 text-[13px]">

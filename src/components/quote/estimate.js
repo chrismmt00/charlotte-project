@@ -10,8 +10,8 @@ export const DEFAULT_OFFER_CODE = (OFFERS.find((o) => o.featured) || QUOTE_OFFER
 
 export const MAX_KIOSKS = 10;
 
-export function quoteOffer(code) {
-  const o = getOffer(code);
+export function quoteOffer(code, catalog = null) {
+  const o = catalog ? catalog.find(o=>o.code===code&&!o.addOnOf) : getOffer(code);
   return o && !o.setupFrom ? o : null;
 }
 
@@ -30,7 +30,7 @@ const RESTAURANT_NOTES = {
 };
 
 // The add-ons a given offer can take. Offers without priced add-ons return [] and the step shows what is included.
-export function addOnsFor(offer) {
+export function addOnsFor(offer, catalog = null) {
   if (!offer) return [];
   if (offer.code === "W1" || offer.code === "W2") {
     return [
@@ -44,7 +44,7 @@ export function addOnsFor(offer) {
     ];
   }
   if (offer.code === "RC" || offer.code === "RK") {
-    return RESTAURANT_ADD_ONS.map((a) => ({
+    return (catalog ? catalog.filter(a=>a.addOnOf?.split(",").includes(offer.code)) : RESTAURANT_ADD_ONS).map((a) => ({
       code: a.code,
       name: a.code === "KIOSK" ? (offer.code === "RK" ? "Extra kiosks" : "Self-serve kiosks") : a.name,
       note: RESTAURANT_NOTES[a.code] || "",
@@ -78,7 +78,7 @@ export function planNote(offer, planOn) {
 }
 
 // picked: { [addOnCode]: true }, kiosks: quantity for the per-device add-on, plan: monthly plan switch.
-export function computeEstimate(offer, { picked = {}, kiosks = 1, plan = true } = {}) {
+export function computeEstimate(offer, { picked = {}, kiosks = 1, plan = true, catalog = null } = {}) {
   const planRequired = !!offer.monthlyRequired;
   const planOn = planRequired || plan !== false;
   let setup = offer.setup;
@@ -92,11 +92,11 @@ export function computeEstimate(offer, { picked = {}, kiosks = 1, plan = true } 
     });
   }
   const addOns = [];
-  for (const a of addOnsFor(offer)) {
+  for (const a of addOnsFor(offer, catalog)) {
     if (!picked[a.code]) continue;
     const quantity = a.perDevice ? Math.min(MAX_KIOSKS, Math.max(1, kiosks)) : 1;
     setup += a.setup * quantity;
-    monthly += a.monthly * quantity;
+    if (planOn) monthly += a.monthly * quantity;
     if (a.setupFrom) setupFrom = true;
     addOns.push({ code: a.code, name: a.name, quantity, setup: a.setup * quantity, monthly: a.monthly * quantity, setupFrom: !!a.setupFrom });
     lines.push({

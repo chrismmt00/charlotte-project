@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { PLAN_ENDS, HOURS } from "@/lib/portal/sample";
+import {  } from "@/lib/portal/sample";
 import { usePortal } from "./PortalContext";
 import { Alert, Card, Chip, FieldError, KeyRow, PageHead, Spinner, btnDanger, btnPrimary, btnSecondary, inputCls, labelCls, linkBtn } from "./ui";
 import Dialog from "./Dialog";
@@ -147,7 +147,7 @@ function CancelPlanDialog({ onClose }) {
       await p.api("/api/portal/account/plan", { body: { action: "end", reason } });
       p.patch({ planCanceled: true });
       onClose();
-      p.toast(`Plan ends ${PLAN_ENDS}. Hand-off steps are on their way.`);
+      p.toast(`Plan ends ${(p.plan.endsOn || "the end of your billing period")}. Hand-off steps are on their way.`);
     } catch {
       setStatus("failed");
     }
@@ -167,7 +167,7 @@ function CancelPlanDialog({ onClose }) {
                 Ending…
               </>
             ) : (
-              `End the plan on ${PLAN_ENDS}`
+              `End the plan on ${(p.plan.endsOn || "the end of your billing period")}`
             )}
           </button>
         </Footer>
@@ -177,8 +177,8 @@ function CancelPlanDialog({ onClose }) {
       <ul className="m-0 pl-[18px] text-muted-2 flex flex-col gap-1">
         <li>Hosting moves to your own Vercel account; we send the steps and stay on a call while you do it</li>
         <li>Booking reminders by text stop unless you add your own Twilio account</li>
-        <li>Support becomes quoted per request instead of {HOURS.cap} hours a month</li>
-        <li>Nothing is charged after {PLAN_ENDS}</li>
+        <li>Support becomes quoted per request instead of {p.hours.cap} hours a month</li>
+        <li>Nothing is charged after {(p.plan.endsOn || "the end of your billing period")}</li>
       </ul>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="cp-why" className={labelCls}>
@@ -204,10 +204,11 @@ function ExportDialog({ onClose }) {
   async function confirm() {
     setStatus("busy");
     try {
-      await p.api("/api/portal/account/export", { body: {} });
+      const exported = await p.api("/api/portal/account/export", { body: {} });
+      if(exported.downloadUrl) window.location.assign(exported.downloadUrl);
       p.patch({ exportRequestedAt: "just now" });
       onClose();
-      p.toast("Export requested. Link arrives within 24 hours.");
+      p.toast("Your data download is ready.");
     } catch {
       setStatus("failed");
     }
@@ -216,7 +217,7 @@ function ExportDialog({ onClose }) {
     <Dialog
       size="small"
       eyebrow="Your data"
-      title="Email me a copy of my data"
+      title="Download a copy of my data"
       onClose={onClose}
       busy={busy}
       footer={
@@ -237,7 +238,7 @@ function ExportDialog({ onClose }) {
       }
     >
       <p className="m-0 text-muted-2">
-        We bundle your site content, photos, bookings, customers and invoices into a zip (CSV + files) and email a link to <strong className="text-fg font-medium">{p.client.email}</strong> within 24 hours. The link works for 7 days.
+        Download the records stored for your business. Private files remain available through your portal.
       </p>
       <p className="m-0 text-muted-2">Card numbers are never included; Stripe holds those.</p>
       {status === "failed" ? <Alert>We couldn’t start the export. Nothing was requested. Try again in a moment.</Alert> : null}
@@ -338,7 +339,7 @@ export default function AccountView() {
           <>
             <ul className="list-none m-0 p-0 flex flex-col">
               <KeyRow k="Starts">{p.live ? "[Date] · active" : "The day you sign off on the launch"}</KeyRow>
-              <KeyRow k="Includes">Covers {p.offer.monthlyNote}, up to {HOURS.cap} h of changes</KeyRow>
+              <KeyRow k="Includes">Covers {p.offer.monthlyNote}, up to {p.hours.cap} h of changes</KeyRow>
               <KeyRow k="If you end it">You keep the site, code and data</KeyRow>
             </ul>
             {required ? (
@@ -347,7 +348,7 @@ export default function AccountView() {
               </p>
             ) : p.planCanceled ? (
               <p role="status" className="m-0 text-sm text-muted-2">
-                Plan ends {PLAN_ENDS}. We email hosting hand-off steps a week before. Changed your mind?{" "}
+                Plan ends {(p.plan.endsOn || "the end of your billing period")}. We email hosting hand-off steps a week before. Changed your mind?{" "}
                 <button type="button" onClick={keepPlan} className="bg-transparent border-0 p-0 min-h-11 text-accent-light cursor-pointer font-[inherit] text-sm">
                   Keep the plan
                 </button>
@@ -376,7 +377,7 @@ export default function AccountView() {
         </div>
         {p.exportRequestedAt ? (
           <p role="status" className="m-0 text-sm text-muted-2">
-            Export requested {p.exportRequestedAt}. A download link arrives at {p.client.email} within 24 hours and works for 7 days.
+            Export requested {p.exportRequestedAt}. Your data download is available from this account.
           </p>
         ) : null}
         <div className="flex flex-wrap justify-between items-center gap-2 border-t border-border pt-3.5 text-[13px] text-muted-2">

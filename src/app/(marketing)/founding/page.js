@@ -1,3 +1,4 @@
+import { getCatalog } from "@/lib/server/catalog";
 import Button from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Section";
 import { CheckIcon, StatusDot } from "@/components/ui/Bits";
@@ -78,7 +79,11 @@ const FAQ = [
   },
 ];
 
-export default function FoundingPage() {
+export default async function FoundingPage() {
+  const catalog = await getCatalog();
+  const getOffer = code => catalog.find(o => o.code === code);
+  const offersFor = slug => catalog.filter(o => o.slug === slug && !o.addOnOf);
+  const RESTAURANT_ADD_ONS = catalog.filter(o => o.addOnOf);
   const starter = getOffer("W1");
   const GET = [
     <>

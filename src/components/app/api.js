@@ -12,7 +12,7 @@ export async function api(url, { method = "POST", body } = {}) {
     data = await res.json();
   } catch {}
   if (!res.ok) {
-    const err = new Error((data && data.error) || `Request failed (${res.status})`);
+    const err = new Error(data?.error?.message || `Request failed (${res.status})`);
     err.status = res.status;
     err.data = data;
     throw err;

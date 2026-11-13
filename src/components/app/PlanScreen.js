@@ -137,7 +137,7 @@ function Plan({ biz }) {
   const kind = biz.kind;
   const copy = PLAN_COPY[kind];
   const offer = getOffer(biz.offerCode);
-  const price = money(offer.monthly);
+  const price = money(biz.plan.price);
   const toast = useToast();
   const [dialog, setDialog] = useState(null); // "code" | "cancel"
   const [canceled, setCanceled] = useState(false);
@@ -320,7 +320,7 @@ function Plan({ biz }) {
           onDone={(data) => {
             setDialog(null);
             if (data.downloadUrl) window.location.assign(data.downloadUrl);
-            toast(`${data.filename} downloading; GitHub invite sent to ${data.inviteSentTo}`);
+            toast("Opening your source repository.");
           }}
         />
       ) : null}

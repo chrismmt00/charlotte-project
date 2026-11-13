@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { BOOKINGS_COPY, NEXT_STEP } from "@/lib/app/kinds";
-import { BOOKING_DAYS, BOOKING_TODAY } from "@/lib/app/sample";
+
 import { Card, CardTitle, DevStateSwitch, EmptyState, ErrorState, FieldError, FormGroup, Icon, Page, PageHeader, SkeletonRows, Spinner, StatusPill, Switch, btnPrimary, btnSecondary, inputCls } from "./ui";
 import { AddBookingDialog, BlockDialog, CancelBookingDialog, DiscountDialog, PauseDialog, RESUME_OPTIONS } from "./BookingDialogs";
 import RefundDialog from "./RefundDialog";
@@ -76,11 +76,13 @@ function RowMenu({ row, copy, onClose, onReschedule, onNoShow, onCancel }) {
 }
 
 function initialLists(biz) {
-  if (biz.kind === "booking") return Object.fromEntries(BOOKING_DAYS.map((d, i) => [i, d.rows]));
+  if (biz.kind === "booking") return Object.fromEntries(biz.days.map((d, i) => [i, d.rows]));
   return { 0: biz.orders };
 }
 
 function Bookings({ biz }) {
+  const BOOKING_DAYS = biz.days;
+  const BOOKING_TODAY = (new Date().getDay() + 6) % 7;
   const kind = biz.kind;
   const copy = BOOKINGS_COPY[kind];
   const toast = useToast();
@@ -139,7 +141,7 @@ function Bookings({ biz }) {
     try {
       await api(`/api/app/bookings/${encodeURIComponent(row.id)}`, { method: "PATCH", body: { action: "no-show" } });
       updateRow(row.id, { status: "No-show" });
-      toast(`${row.who} marked no-show; deposit kept`);
+      toast(`${row.who} marked no-show`);
     } catch {
       toast("Couldn’t mark that no-show. Try again.");
     }
@@ -160,7 +162,7 @@ function Bookings({ biz }) {
     try {
       await api(`/api/app/bookings/${encodeURIComponent(row.id)}`, { method: "PATCH", body: { action: "reschedule", day: i } });
       setLists((l) => ({ ...l, [day]: l[day].filter((r) => r.id !== row.id), [i]: [...(l[i] || []), row] }));
-      toast(`${row.who} moved to ${BOOKING_DAYS[i].label}; reminder text goes out`);
+      toast(`${row.who} moved to ${BOOKING_DAYS[i].label}`);
       setMoving(null);
     } catch {
       toast("Couldn’t move that booking. It’s still where it was. Try again.");
@@ -391,7 +393,7 @@ function Bookings({ biz }) {
           onClose={closeDialog}
           onDone={({ from, to }) => {
             closeDialog();
-            toast(`Blocked ${from}–${to}; the booking page updated`);
+            toast(`Availability block saved: ${from}–${to}`);
           }}
         />
       ) : null}
@@ -401,13 +403,13 @@ function Bookings({ biz }) {
           initialName={dialog.name || ""}
           showError={!!dialog.showError}
           onClose={closeDialog}
-          onDone={({ name, service, slot, depositInPerson, id }) => {
-            const target = slot.startsWith("Tomorrow") ? BOOKING_TODAY + 1 : BOOKING_TODAY;
-            const row = { id, time: slot.split(" ").pop(), who: name, what: `${service} · added by you`, status: depositInPerson ? "Deposit paid" : "No deposit", phone: "+1" };
+          onDone={({ name, service, slot, depositInPerson, id, savedRow }) => {
+            const target = (new Date(slot).getDay() + 6) % 7;
+            const row = savedRow || { id, time: new Date(slot).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}), who: name, what: `${service} · added by you`, status: depositInPerson ? "Deposit paid" : "No deposit", phone: "+1" };
             setLists((l) => ({ ...l, [target]: [row, ...(l[target] || [])] }));
             setDay(target);
             closeDialog();
-            toast(`Added ${name} at ${row.time}; reminder text goes out`);
+            toast(`Added ${name} at ${row.time}`);
           }}
         />
       ) : null}
@@ -419,7 +421,7 @@ function Bookings({ biz }) {
           onDone={({ refund }) => {
             setLists((l) => ({ ...l, [key]: l[key].filter((r) => r.id !== dialogRow.id) }));
             closeDialog();
-            toast(kind === "booking" ? `${dialogRow.who} canceled and texted${refund ? "; deposit refunded" : ""}` : `${dialogRow.who} canceled${refund ? " and refunded" : ""}; the customer was texted`);
+            toast(`${dialogRow.who} canceled`);
           }}
         />
       ) : null}

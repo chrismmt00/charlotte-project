@@ -6,7 +6,7 @@ import { usePortal } from "./PortalContext";
 import { Alert, Icon, Spinner, btnPrimary, btnSecondary } from "./ui";
 import { money2 } from "@/lib/portal/sample";
 
-// Pay one invoice through the client's Stripe.
+// Pay Klyvora service invoices on Klyvora’s Stripe account.
 // POST /api/portal/invoices/[id]/pay { method: "card" | "other" }
 //   200 { checkoutUrl, paid: false }   hand off to Stripe Checkout (a placeholder URL until the back end ships this)
 //   200 { paid: true }                 the card on file was charged
@@ -37,11 +37,6 @@ export default function PayDialog({ invoice, onClose }) {
     }
   }
 
-  function markPaidDev() {
-    p.patch((s) => ({ paidExtra: { ...s.paidExtra, [invoice.id]: true } }));
-    onClose();
-    p.toast(`${amount} paid. Receipt sent to ${p.client.email}.`);
-  }
 
   if (status === "handoff") {
     return (
@@ -65,11 +60,6 @@ export default function PayDialog({ invoice, onClose }) {
           <Icon name="lock" size={18} className="text-accent-light mt-0.5" />
           <span className="text-muted-2">Stripe’s secure page is ready for {amount}. We never see the card number. This page updates when Stripe confirms the payment, and the receipt arrives by email.</span>
         </div>
-        {process.env.NODE_ENV !== "production" ? (
-          <button type="button" onClick={markPaidDev} className="min-h-11 self-start bg-transparent border border-dashed border-border-2 rounded-full px-4 text-[13px] text-muted-2 cursor-pointer hover:text-fg">
-            Dev only: mark as paid
-          </button>
-        ) : null}
       </Dialog>
     );
   }

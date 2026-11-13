@@ -8,7 +8,7 @@ import Toast, { useToast } from "./Toast";
 import { GeneralTab, TeamTab, CatalogTab, TemplatesTab, OutreachTab, NotificationsTab } from "./Tabs";
 import { InviteDialog, RoleDialog, RemoveDialog, KeyDialog, PriceDialog, TemplateDialog } from "./Dialogs";
 
-const DEV = process.env.NODE_ENV !== "production";
+const DEV = false;
 const TABS = [
   ["general", "General"],
   ["team", "Team"],
@@ -43,7 +43,7 @@ export default function SettingsView({ initial }) {
   const tablist = useRef(null);
 
   const locked = role !== "owner";
-  const me = locked ? { id: "geoffrey", name: "Geoffrey", label: "Builder" } : { id: "chris", name: "Chris", label: "Owner" };
+  const me = {...initial.me, label:initial.me.role==="owner"?"Owner":"Builder"};
   const state = forced || (listState === "live" && (!team.length ? "empty" : "live")) || listState;
   const catalogState = forced || (listState === "live" && !catalog.length ? "empty" : listState);
   const tplState = forced || (listState === "live" && !proposalTpls.length && !emailTpls.length ? "empty" : listState);
