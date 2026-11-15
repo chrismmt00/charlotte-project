@@ -1,6 +1,13 @@
+import { MARKETING_REDIRECTS } from "./src/lib/marketing/redirects.js";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  async redirects() {
+    return MARKETING_REDIRECTS.map(([source, destination]) => ({
+      source,
+      destination,
+      statusCode: 301,
+    }));
+  },
   experimental: {
     agentFeedback: true,
   },

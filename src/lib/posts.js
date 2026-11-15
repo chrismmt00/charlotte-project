@@ -44,15 +44,21 @@ export const POST_TEMPLATE = {
   body: [
     { type: "p", text: "[Opening paragraph.]" },
     { type: "h2", text: "[Section heading]" },
-    { type: "p", text: "[Paragraph. Any price quoted here comes from the same menu as the site.]" },
-    { type: "quote", text: "[Pull quote, from the post itself or an owner who approved it.]" },
+    {
+      type: "p",
+      text: "[Paragraph. Any price quoted here comes from the same menu as the site.]",
+    },
+    {
+      type: "quote",
+      text: "[Pull quote, from the post itself or an owner who approved it.]",
+    },
     { type: "h2", text: "[Section heading]" },
     { type: "p", text: "[Paragraph with a list below.]" },
     { type: "ul", items: ["[Point one]", "[Point two]", "[Point three]"] },
   ],
 };
 
-const SHOW_TEMPLATE = process.env.NODE_ENV === "development";
+const SHOW_TEMPLATE = false; // Reference data is retained but never exposed on public routes.
 
 export function getPost(slug) {
   const found = POSTS.find((p) => p.slug === slug);
@@ -62,7 +68,9 @@ export function getPost(slug) {
 }
 
 export function postSlugs() {
-  return POSTS.length ? POSTS.map((p) => ({ slug: p.slug })) : [{ slug: POST_TEMPLATE.slug }];
+  return POSTS.length
+    ? POSTS.map((p) => ({ slug: p.slug }))
+    : [{ slug: POST_TEMPLATE.slug }];
 }
 
 // Up to `n` other posts, same topic first.
@@ -75,7 +83,12 @@ export function relatedPosts(post, n = 2) {
 
 export function formatDate(iso) {
   if (!iso) return "[date]";
-  return new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 export function byline(p) {

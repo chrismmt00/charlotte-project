@@ -8,10 +8,10 @@ import { CONTACT } from "@/lib/site";
 import ThemeButton, { ThemeSegment } from "./ThemeButton";
 
 const LINKS = [
-  { key: "services", label: "Services", href: "/services" },
+  { key: "solutions", label: "Industry Solutions", href: "/solutions" },
+  { key: "websites", label: "Custom Websites", href: "/websites" },
+  { key: "ai-software", label: "AI & Software", href: "/ai-software" },
   { key: "pricing", label: "Pricing", href: "/pricing" },
-  { key: "process", label: "How it works", href: "/#process" },
-  { key: "work", label: "Work", href: "/work" },
 ];
 
 function isCurrent(pathname, href) {
@@ -47,7 +47,9 @@ export default function SiteNav() {
         return;
       }
       if (e.key !== "Tab" || !sheet.current) return;
-      const f = sheet.current.querySelectorAll("a[href], button:not([disabled])");
+      const f = sheet.current.querySelectorAll(
+        "a[href], button:not([disabled])",
+      );
       if (!f.length) return;
       const first = f[0];
       const last = f[f.length - 1];
@@ -84,7 +86,11 @@ export default function SiteNav() {
               : "bg-[rgba(var(--surface-rgb),.72)] py-[7px] px-2 shadow-[0_8px_30px_rgba(0,0,0,calc(.35*var(--shadow-k)))]"
           }`}
         >
-          <Link href="/" aria-label="Klyvora home" className="nav-mark flex-none flex items-center justify-center rounded-full mr-1.5 w-11 h-11 md:w-9 md:h-9">
+          <Link
+            href="/"
+            aria-label="Klyvora home"
+            className="nav-mark flex-none flex items-center justify-center rounded-full mr-1.5 w-11 h-11 md:w-9 md:h-9"
+          >
             <BrandMark size={scrolled ? 32 : 36} />
           </Link>
           <div className="hidden md:flex items-center gap-1">
@@ -96,7 +102,7 @@ export default function SiteNav() {
                   href={l.href}
                   aria-current={cur ? "page" : undefined}
                   className={`nav-link text-[13px] rounded-full px-4 inline-flex items-center whitespace-nowrap box-border transition-colors duration-200 hover:text-fg hover:bg-border ${
-                    scrolled ? "min-h-8" : "min-h-9"
+                    scrolled ? "min-h-11" : "min-h-11"
                   } ${cur ? "text-fg bg-border" : "text-muted-2"}`}
                 >
                   {l.label}
@@ -112,10 +118,10 @@ export default function SiteNav() {
               href="/contact"
               aria-current={pathname === "/contact" ? "page" : undefined}
               className={`nav-cta text-[13px] text-fg rounded-full px-[18px] border border-border-2 inline-flex gap-1.5 items-center ml-1 box-border whitespace-nowrap transition-colors duration-200 hover:bg-fg hover:text-bg hover:border-fg min-h-11 ${
-                scrolled ? "md:min-h-8" : "md:min-h-9"
+                scrolled ? "md:min-h-11" : "md:min-h-11"
               } ${pathname === "/contact" ? "bg-border" : ""}`}
             >
-              Get a quote <span aria-hidden="true">↗</span>
+              Get a Quote <span aria-hidden="true">↗</span>
             </Link>
             <button
               ref={menuBtn}
@@ -126,7 +132,16 @@ export default function SiteNav() {
               onClick={() => setOpen(true)}
               className="nav-menu-btn md:hidden w-11 h-11 flex-none rounded-full border border-border-2 bg-transparent text-fg inline-flex items-center justify-center cursor-pointer p-0"
             >
-              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+              <svg
+                aria-hidden="true"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              >
                 <path d="M4 8h16" />
                 <path d="M4 16h16" />
               </svg>
@@ -144,9 +159,14 @@ export default function SiteNav() {
           aria-label="Site menu"
           className="nav-sheet fixed inset-0 z-[200] bg-[rgba(var(--bg-rgb),.97)] backdrop-blur-[14px] text-fg flex flex-col px-4 pt-[27px] pb-7 box-border overflow-y-auto"
         >
-          <div aria-hidden="true" className="absolute inset-0 pointer-events-none bg-[radial-gradient(70%_45%_at_85%_0%,rgba(78,133,191,.22),transparent_70%)]" />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none bg-[radial-gradient(70%_45%_at_85%_0%,rgba(78,133,191,.22),transparent_70%)]"
+          />
           <div className="relative flex justify-between items-center px-2">
-            <span className="font-display italic text-[26px] leading-none">Klyvora</span>
+            <span className="font-display italic text-[26px] leading-none">
+              Klyvora
+            </span>
             <button
               ref={closeBtn}
               type="button"
@@ -154,7 +174,16 @@ export default function SiteNav() {
               onClick={close}
               className="w-11 h-11 rounded-full border border-border-2 bg-surface text-fg inline-flex items-center justify-center cursor-pointer p-0"
             >
-              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+              <svg
+                aria-hidden="true"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              >
                 <path d="M6 6l12 12" />
                 <path d="M18 6L6 18" />
               </svg>
@@ -172,7 +201,10 @@ export default function SiteNav() {
                     className={`flex justify-between items-center gap-4 py-4 min-h-11 font-display italic text-[40px] leading-[1.1] ${cur ? "text-accent-light" : "text-fg"}`}
                   >
                     {l.label}
-                    <span aria-hidden="true" className="font-sans not-italic text-lg text-muted">
+                    <span
+                      aria-hidden="true"
+                      className="font-sans not-italic text-lg text-muted"
+                    >
                       →
                     </span>
                   </Link>
@@ -181,11 +213,12 @@ export default function SiteNav() {
             })}
           </ul>
           <div className="relative flex flex-wrap gap-x-5 gap-y-1 pt-[18px] px-2">
-            <Link href="/about" onClick={close} className="text-[15px] text-muted-2 min-h-11 inline-flex items-center">
+            <Link
+              href="/about"
+              onClick={close}
+              className="text-[15px] text-muted-2 min-h-11 inline-flex items-center"
+            >
               About
-            </Link>
-            <Link href="/founding" onClick={close} className="text-[15px] text-muted-2 min-h-11 inline-flex items-center">
-              Founding customers
             </Link>
           </div>
           <div className="relative flex justify-between items-center gap-3 pt-[18px] px-2">
@@ -198,7 +231,7 @@ export default function SiteNav() {
               onClick={close}
               className="rounded-full text-[15px] font-medium px-[30px] py-[15px] bg-fg text-bg flex items-center justify-center gap-2 min-h-[52px] box-border"
             >
-              Get a quote <span aria-hidden="true">↗</span>
+              Get a Quote <span aria-hidden="true">↗</span>
             </Link>
             <div className="flex flex-wrap justify-between gap-2 text-sm text-muted">
               <span>Charlotte, NC</span>

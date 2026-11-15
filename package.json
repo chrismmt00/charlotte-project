@@ -15,6 +15,7 @@
     "db:seed:production": "node prisma/seed.mjs --production",
     "db:generate": "prisma generate",
     "test:backend": "node scripts/env.mjs scripts/test-backend.mjs",
+    "test:marketing": "node scripts/env.mjs scripts/test-marketing.mjs",
     "jobs": "node scripts/env.mjs scripts/jobs.mjs",
     "build:local": "node scripts/env.mjs scripts/build.mjs",
     "start:local": "node scripts/env.mjs next start",

@@ -2,7 +2,6 @@ import { Inter, Instrument_Serif, Geist_Mono } from "next/font/google";
 import { THEME_SCRIPT } from "@/lib/theme-script";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
-import { getCatalog } from "@/lib/server/catalog";
 import CatalogProvider from "@/components/site/CatalogProvider";
 import { Suspense } from "react";
 
@@ -26,13 +25,13 @@ const geistMono = Geist_Mono({
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Klyvora · Software that runs your business",
-    template: "%s · Klyvora",
+    default: "Custom Websites & Business Software | Klyvora Studio",
+    template: "%s | Klyvora Studio",
   },
   description:
-    "Websites, online booking, ecommerce, restaurant ordering and AI automation for Charlotte's independent businesses. Real prices on every page, and you own what we build.",
+    "Custom website design and connected business software for Charlotte’s independent businesses. Industry solutions, practical automation, and transparent setup and subscription pricing.",
   openGraph: {
-    siteName: "Klyvora",
+    siteName: "Klyvora Studio",
     type: "website",
     locale: "en_US",
   },
@@ -44,11 +43,6 @@ export const viewport = {
     { media: "(prefers-color-scheme: light)", color: "#fafafa" },
   ],
 };
-
-async function CatalogBoundary({ children }) {
-  const offers = await getCatalog();
-  return <CatalogProvider offers={offers}>{children}</CatalogProvider>;
-}
 
 export default function RootLayout({ children }) {
   return (
@@ -69,7 +63,7 @@ export default function RootLayout({ children }) {
             </div>
           }
         >
-          <CatalogBoundary>{children}</CatalogBoundary>
+          <CatalogProvider offers={[]}>{children}</CatalogProvider>
         </Suspense>
       </body>
     </html>

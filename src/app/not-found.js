@@ -1,9 +1,14 @@
 import Link from "next/link";
-import ErrorScreen, { BrandHeader, btnPrimary, btnSecondary } from "@/app/_errors/ErrorScreen";
+import ErrorScreen, {
+  BrandHeader,
+  btnPrimary,
+  btnSecondary,
+} from "@/app/_errors/ErrorScreen";
 
 export const metadata = {
   title: "Page not found",
-  description: "That page isn’t here. Head back to the home page, browse our services, or tell us which link sent you.",
+  description:
+    "That page isn’t here. Head back to the home page, browse our services, or tell us which link sent you.",
 };
 
 const noteLink = "text-accent-light underline underline-offset-2 hover:text-fg";
@@ -31,7 +36,7 @@ export default function NotFound() {
         note={
           <>
             Looking for prices? They&apos;re on every{" "}
-            <Link href="/services" className={noteLink}>
+            <Link href="/solutions" className={noteLink}>
               service page
             </Link>{" "}
             and on{" "}

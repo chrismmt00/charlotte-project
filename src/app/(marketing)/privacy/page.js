@@ -1,11 +1,11 @@
-import LegalDoc from "@/components/site/LegalDoc";
-
-export const metadata = {
-  title: "Privacy policy",
-  description: "What Klyvora collects when you use this site or work with us, how we use it, who we share it with and how to ask for a copy or deletion.",
-  alternates: { canonical: "/privacy" },
-};
-
+import PolicyNotice from "@/components/marketing/PolicyNotice";
+import { pageMetadata } from "@/lib/marketing/seo";
+export const metadata = pageMetadata(
+  "Privacy Information | Klyvora Studio",
+  "Contact Klyvora Studio for privacy information while the updated policy awaits approval.",
+  "/privacy",
+  true,
+);
 export default function PrivacyPage() {
-  return <LegalDoc docKey="privacy" />;
+  return <PolicyNotice title="Privacy policy" />;
 }

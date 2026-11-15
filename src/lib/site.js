@@ -7,6 +7,6 @@ export const CONTACT = {
   city: "Charlotte, NC",
 };
 
-export const SITE_NAME = "Klyvora";
+export const SITE_NAME = "Klyvora Studio";
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://klyvora.ai";
+export const SITE_URL = "https://klyvorastudio.com";

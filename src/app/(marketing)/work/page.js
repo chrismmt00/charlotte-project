@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Eyebrow } from "@/components/ui/Section";
 import WorkList from "@/components/site/WorkList";
 import { CASES, SERVICE_FILTERS } from "@/lib/cases";
@@ -32,15 +33,23 @@ const IN_PROGRESS = [
 ];
 
 export default function WorkPage() {
+  if (!CASES.length) notFound();
   const populated = CASES.length > 0;
   return (
     <>
       {/* HERO */}
       <header className="relative px-4 sm:px-6 pt-[168px] pb-14 overflow-hidden">
-        <div aria-hidden="true" className="absolute inset-0 pointer-events-none bg-[radial-gradient(55%_80%_at_70%_0%,rgba(78,133,191,.22),transparent_70%)]" />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none bg-[radial-gradient(55%_80%_at_70%_0%,rgba(78,133,191,.22),transparent_70%)]"
+        />
         <div className="relative container-site">
           <Eyebrow className="mb-[26px]">Work</Eyebrow>
-          <h1 className="display-page m-0 mb-[26px] max-w-[900px]">{populated ? "Work that paid for itself." : "Case studies are coming."}</h1>
+          <h1 className="display-page m-0 mb-[26px] max-w-[900px]">
+            {populated
+              ? "Work that paid for itself."
+              : "Case studies are coming."}
+          </h1>
           <p className="text-[15px] sm:text-[17px] leading-[1.7] text-muted-2 max-w-[600px] m-0">
             {populated
               ? "Each case study shows the problem, what we built and the result in the owner’s own numbers."
@@ -50,13 +59,19 @@ export default function WorkPage() {
       </header>
 
       {populated ? (
-        <section aria-label="Case studies" className="section-work-list px-4 sm:px-6 pt-6 pb-10">
+        <section
+          aria-label="Case studies"
+          className="section-work-list px-4 sm:px-6 pt-6 pb-10"
+        >
           <div className="container-site">
             <WorkList cases={CASES} filters={SERVICE_FILTERS} />
           </div>
         </section>
       ) : (
-        <section aria-label="Launches in progress" className="px-4 sm:px-6 pt-6 pb-10">
+        <section
+          aria-label="Launches in progress"
+          className="px-4 sm:px-6 pt-6 pb-10"
+        >
           <div className="container-site flex flex-wrap gap-5">
             {IN_PROGRESS.map((p) => (
               <div
@@ -64,13 +79,18 @@ export default function WorkPage() {
                 className={`${p.cls} min-w-0 border border-border rounded-tile overflow-hidden min-h-[360px] flex flex-col justify-between p-[30px] box-border`}
               >
                 <span className="self-start inline-flex items-center gap-2 text-xs text-fg border border-border-2 bg-[rgba(var(--bg-rgb),.5)] rounded-full px-3 py-1.5">
-                  <span aria-hidden="true" className="w-[7px] h-[7px] rounded-full bg-accent-light inline-block" />
+                  <span
+                    aria-hidden="true"
+                    className="w-[7px] h-[7px] rounded-full bg-accent-light inline-block"
+                  />
                   In progress
                 </span>
                 <div className="flex flex-col gap-1.5">
                   <Eyebrow as="span">{p.kind}</Eyebrow>
                   <span className="text-2xl font-medium">{p.title}</span>
-                  <span className="text-sm text-muted-2">Case study after launch</span>
+                  <span className="text-sm text-muted-2">
+                    Case study after launch
+                  </span>
                 </div>
               </div>
             ))}
@@ -79,8 +99,13 @@ export default function WorkPage() {
               className="basis-full min-w-0 border border-dashed border-border-2 rounded-tile p-[30px] box-border flex flex-wrap justify-between items-center gap-4 text-fg transition-colors hover:border-accent-light"
             >
               <span className="flex flex-col gap-1.5 min-w-0">
-                <span className="font-display italic text-[32px] leading-[1.1]">Your business could be the next one here.</span>
-                <span className="text-sm text-muted-2">Founding customers get a reduced setup in exchange for a case study.</span>
+                <span className="font-display italic text-[32px] leading-[1.1]">
+                  Your business could be the next one here.
+                </span>
+                <span className="text-sm text-muted-2">
+                  Founding customers get a reduced setup in exchange for a case
+                  study.
+                </span>
               </span>
               <span className="inline-flex items-center gap-2 text-sm text-accent-light min-h-11">
                 See founding slots <span aria-hidden="true">→</span>
@@ -99,7 +124,10 @@ export default function WorkPage() {
           </h2>
           <ol className="list-none p-0 m-0 flex flex-wrap gap-[18px]">
             {PARTS.map(([title, body], i) => (
-              <li key={title} className="flex-[1_1_250px] min-w-0 border-t border-border pt-7 flex flex-col gap-2">
+              <li
+                key={title}
+                className="flex-[1_1_250px] min-w-0 border-t border-border pt-7 flex flex-col gap-2"
+              >
                 <Eyebrow accent as="span">
                   {String(i + 1).padStart(2, "0")}
                 </Eyebrow>

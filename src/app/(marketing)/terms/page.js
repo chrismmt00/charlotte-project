@@ -1,12 +1,11 @@
-import LegalDoc from "@/components/site/LegalDoc";
-
-export const metadata = {
-  title: "Terms of service",
-  description:
-    "Klyvora’s terms: written proposals, 50/30/20 milestone payments, an optional monthly plan except on restaurant plans, and you own the site, its code and your data on final payment.",
-  alternates: { canonical: "/terms" },
-};
-
+import PolicyNotice from "@/components/marketing/PolicyNotice";
+import { pageMetadata } from "@/lib/marketing/seo";
+export const metadata = pageMetadata(
+  "Service Terms Information | Klyvora Studio",
+  "Contact Klyvora Studio about service agreements while the updated terms await approval.",
+  "/terms",
+  true,
+);
 export default function TermsPage() {
-  return <LegalDoc docKey="terms" />;
+  return <PolicyNotice title="Terms of service" />;
 }

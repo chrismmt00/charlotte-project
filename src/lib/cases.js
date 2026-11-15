@@ -21,7 +21,13 @@
 
 export const CASES = [];
 
-export const SERVICE_FILTERS = ["Websites", "Online booking", "Ecommerce", "Restaurants", "AI automation"];
+export const SERVICE_FILTERS = [
+  "Websites",
+  "Online booking",
+  "Ecommerce",
+  "Restaurants",
+  "AI automation",
+];
 
 // TEMPLATE ONLY. Never listed on /work and never served in production.
 // generateStaticParams uses its slug so the route builds while CASES is empty (Cache Components
@@ -34,16 +40,21 @@ export const CASE_TEMPLATE = {
   area: "[Neighborhood]",
   launched: "[Month year]",
   headline: "[the one-line result, in the owner’s words]",
-  summary: "[Result in the owner’s numbers, e.g. orders per week before → after]",
+  summary:
+    "[Result in the owner’s numbers, e.g. orders per week before → after]",
   offerCode: "RK",
   addOns: ["[Add-on used, if any]"],
   weeks: "[n]",
-  media: [{ label: "[Screenshot · the main page · 1600×1000]" }, { label: "[Photo · the system in use · 1600×1000]" }],
+  media: [
+    { label: "[Screenshot · the main page · 1600×1000]" },
+    { label: "[Photo · the system in use · 1600×1000]" },
+  ],
   problem: [
     "[What was costing the owner time or money before. Two or three sentences in plain words.]",
     "[One concrete detail the owner told us, with their permission.]",
   ],
-  built: "[The offer used and what it included. Which parts were our platform and which were made for them.]",
+  built:
+    "[The offer used and what it included. Which parts were our platform and which were made for them.]",
   pieces: ["[Piece 1]", "[Piece 2]", "[Piece 3]", "[Piece 4]"],
   metrics: [
     { label: "[Metric 1]", value: "[before → after]", period: "[period]" },
@@ -54,7 +65,7 @@ export const CASE_TEMPLATE = {
   owner: "[Owner name]",
 };
 
-const SHOW_TEMPLATE = process.env.NODE_ENV === "development";
+const SHOW_TEMPLATE = false; // Reference data is retained but never exposed on public routes.
 
 export function getCase(slug) {
   const found = CASES.find((c) => c.slug === slug);
@@ -64,7 +75,9 @@ export function getCase(slug) {
 }
 
 export function caseSlugs() {
-  return CASES.length ? CASES.map((c) => ({ slug: c.slug })) : [{ slug: CASE_TEMPLATE.slug }];
+  return CASES.length
+    ? CASES.map((c) => ({ slug: c.slug }))
+    : [{ slug: CASE_TEMPLATE.slug }];
 }
 
 export function nextCase(slug) {
