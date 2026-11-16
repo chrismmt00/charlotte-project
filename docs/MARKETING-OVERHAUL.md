@@ -30,7 +30,7 @@ Indexable routes:
 - `/contact`
 - `/about`
 
-`/privacy` and `/terms` remain reachable with honest policy-status notices and `noindex` until approved policies exist; they are excluded from the sitemap. These notices are not substitutes for approved legal policies and block a public launch. Original drafts are retained privately in source, never rendered by these routes.
+The original deployment used policy-status notices for `/privacy` and `/terms`. In the November 16 follow-up, the owner requested complete policy wording and reasonable refund/cancellation/retention rules, then explicitly authorized production publication after reviewing the preview. The replacement text retains the existing page design, `noindex`, and sitemap exclusion. See `docs/LEGAL-COPY-REVIEW.md` for the policy rules and outstanding legal or operational follow-up; independent legal review has not been asserted.
 
 The functioning `/check` website-analysis tool is retained, unlinked from primary navigation, with current public pricing and quote links. The sitemap contains only promoted pages, and will include real blog or work entries when those collections contain approved content. Empty `/blog` and `/work` pages and their template examples return 404s. Reference collections are retained. Unknown dynamic solution/service parameters use Next.js’s not-found UI and `noindex`; with Cache Components, Next.js may have streamed a 200 response before resolving those unknown parameters, as documented in the bundled `not-found.js` guide.
 

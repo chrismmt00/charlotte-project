@@ -1,11 +1,11 @@
 import PolicyNotice from "@/components/marketing/PolicyNotice";
 import { pageMetadata } from "@/lib/marketing/seo";
 export const metadata = pageMetadata(
-  "Privacy Information | Klyvora Studio",
-  "Contact Klyvora Studio for privacy information while the updated policy awaits approval.",
+  "Privacy Policy | Klyvora Studio",
+  "How Klyvora Studio handles website inquiries, client information, account access, service providers, privacy requests, and data retention.",
   "/privacy",
   true,
 );
 export default function PrivacyPage() {
-  return <PolicyNotice title="Privacy policy" />;
+  return <PolicyNotice docKey="privacy" />;
 }
