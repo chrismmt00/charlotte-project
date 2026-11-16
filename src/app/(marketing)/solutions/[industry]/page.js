@@ -67,9 +67,15 @@ export default async function IndustryPage({ params }) {
           <Button href={quoteHref(s)}>
             {s.cta} <span aria-hidden="true">↗</span>
           </Button>
-          <Button href="#included" variant="secondary">
-            See What’s Included
-          </Button>
+          {s.demo ? (
+            <Button href={s.demo} variant="secondary">
+              Try the Live Demo
+            </Button>
+          ) : (
+            <Button href="#included" variant="secondary">
+              See What’s Included
+            </Button>
+          )}
         </div>
       </PageIntro>
       <Section id="package">

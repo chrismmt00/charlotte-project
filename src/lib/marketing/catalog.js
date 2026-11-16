@@ -136,6 +136,7 @@ export const INDUSTRIES = [
       "Compatible existing payment equipment",
     ],
     tablet: true,
+    demo: "/demo/beauty",
     fit: "For nail salons, barbershops, hair salons, lash studios, beauty studios, spas, and wellness businesses that want a website with their own identity and better daily coordination.",
     caution:
       "We configure your services, staff schedules, booking rules, and supported payment provider around your business. Your proposal confirms the setup and any messaging or processing charges.",
@@ -312,4 +313,5 @@ export const PUBLIC_PAGES = [
   "/pricing",
   "/contact",
   "/about",
+  ...INDUSTRIES.filter((s) => s.demo).map((s) => s.demo),
 ];
