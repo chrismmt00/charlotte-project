@@ -405,16 +405,20 @@ try {
     }
   }
   await page.goto(base + "/");
-  await page.getByRole("button", { name: "Switch to light mode" }).click();
   check(
     (await page.locator("html").getAttribute("data-theme")) === "light",
-    "Light theme works",
+    "Light theme is the default",
+  );
+  await page.getByRole("button", { name: "Switch to dark mode" }).click();
+  check(
+    (await page.locator("html").getAttribute("data-theme")) === "dark",
+    "Dark theme works",
   );
   await page.screenshot({
-    path: "artifacts/marketing/home-light.png",
+    path: "artifacts/marketing/home-dark.png",
     fullPage: true,
   });
-  await auditAccessibility(page, "Home light theme");
+  await auditAccessibility(page, "Home dark theme");
   check(errors.length === 0, "No browser runtime errors: " + errors.join("; "));
   for (const route of ["/admin", "/portal", "/app"])
     check(

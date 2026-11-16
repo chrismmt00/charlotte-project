@@ -23,12 +23,12 @@ export default function GlobalError({ error, retry }) {
       const t = localStorage.getItem(THEME_KEY);
       if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
     } catch {
-      // Storage blocked: keep dark.
+      // Storage blocked: keep light.
     }
   }, []);
 
   return (
-    <html lang="en" data-theme="dark" suppressHydrationWarning className={`${inter.variable} ${instrumentSerif.variable} h-full antialiased`}>
+    <html lang="en" data-theme="light" suppressHydrationWarning className={`${inter.variable} ${instrumentSerif.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <title>Something broke · Klyvora</title>
         <BrandHeader />

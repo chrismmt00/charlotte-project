@@ -85,3 +85,10 @@ Verification completed locally:
 - Desktop and mobile screenshots were visually reviewed for the homepage, pricing, and contact flow.
 
 Automated and visual checks support the WCAG 2.2 AA implementation target; they do not constitute a full accessibility conformance audit or measured field Core Web Vitals. Product implementation and acceptance belong to each commissioned project’s delivery. The owner subsequently authorized production deployment of the reviewed website, including the existing policy-status notices; approved legal policies remain outstanding. Production Stripe, SMTP, and Cloudflare Images authentication were verified with read-only checks, without sending email. Existing private R2 storage configuration remains incomplete and is separate from marketing lead capture.
+
+## Visual redesign (November 15, 2026)
+
+- Light is now the default theme for the whole site (`src/app/globals.css` `:root`, `src/app/layout.js`, `src/lib/theme.js`). The sun/moon toggle still switches to dark, and a saved choice is still respected.
+- Public pages use real photography matched to each section. All photos come from Unsplash and are free to use under the Unsplash License (commercial use, no attribution required); each license was checked on its photo page. The list, alt text, and credits are in `src/lib/marketing/photos.js`. Images are served from Unsplash's CDN at responsive sizes.
+- Floating cards over photos (for example "Online ordering for pickup") only repeat features already listed in `src/lib/marketing/catalog.js`. No testimonials, client names, statistics, or results were added.
+- The copy is unchanged apart from button labels that jump to sections on the same page (for example "See What's Included") and one line under the home hero.

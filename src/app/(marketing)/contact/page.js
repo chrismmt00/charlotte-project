@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PageIntro, Section } from "@/components/marketing/Parts";
+import { PageIntro, Section, Photo } from "@/components/marketing/Parts";
 import ContactForm from "@/components/site/ContactForm";
 import { CONTACT } from "@/lib/site";
 import { pageMetadata } from "@/lib/marketing/seo";
@@ -25,6 +25,12 @@ export default function ContactPage() {
               like to connect. We’ll review your requirements and follow up
               about the right next step.
             </p>
+            <div className="mk-frame">
+              <Photo
+                name="conversation"
+                sizes="(max-width: 767px) 100vw, 34vw"
+              />
+            </div>
             <a className="mk-email !px-0" href={CONTACT.emailHref}>
               {CONTACT.email}
             </a>
@@ -43,9 +49,11 @@ export default function ContactPage() {
               </p>
             </div>
           </aside>
-          <Suspense fallback={<p role="status">Loading inquiry form…</p>}>
-            <ContactForm />
-          </Suspense>
+          <div className="mk-contact-form">
+            <Suspense fallback={<p role="status">Loading inquiry form…</p>}>
+              <ContactForm />
+            </Suspense>
+          </div>
         </div>
       </Section>
     </>

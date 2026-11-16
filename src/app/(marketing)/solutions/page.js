@@ -4,7 +4,9 @@ import {
   IndustryCards,
   HardwareNote,
   FinalCta,
+  Photo,
 } from "@/components/marketing/Parts";
+import Button from "@/components/ui/Button";
 import { pageMetadata } from "@/lib/marketing/seo";
 export const metadata = pageMetadata(
   "Industry Business Software Solutions | Klyvora Studio",
@@ -18,8 +20,18 @@ export default function SolutionsPage() {
         eyebrow="Industry solutions"
         title="Business software built for your industry."
         intro="From appointment-based businesses to restaurants and online stores, Klyvora connects a custom website to the tools you need to manage daily operations. Choose your industry to see what’s included."
-      />
-      <Section id="compare" className="!pt-3" title="Find your fit.">
+        mosaic={["cafe", "daycare", "nails", "packing"]}
+      >
+        <div className="mk-actions">
+          <Button href="#compare">
+            Find Your Fit <span aria-hidden="true">↓</span>
+          </Button>
+          <Button href="/pricing" variant="secondary">
+            See Pricing
+          </Button>
+        </div>
+      </PageIntro>
+      <Section id="compare" title="Find your fit.">
         <IndustryCards detailed />
         <p className="mk-small mt-6">
           All prices in USD. Industry Solutions require an active monthly
@@ -27,29 +39,36 @@ export default function SolutionsPage() {
           and onboarding. Your written proposal confirms the scope and costs.
         </p>
       </Section>
-      <Section id="equipment" className="!pt-4">
-        <HardwareNote />
-      </Section>
-      <Section id="shared-platform" className="!pt-4">
-        <div className="mk-two-col">
-          <h2 className="mk-h2">
-            Custom on the outside.
-            <br />
-            Connected behind the scenes.
-          </h2>
-          <div className="mk-body">
-            <p>
-              Your website is individually designed. The tools behind it use
-              Klyvora’s shared, maintained software platform, configured for
-              your industry.
-            </p>
-            <p>
-              Reusing the software keeps initial development fees more
-              affordable. Your subscription covers hosted platform access,
-              standard updates, routine maintenance, and defined support.
-            </p>
+      <Section id="shared-platform" className="mk-platform">
+        <div className="mk-split">
+          <div className="mk-split-media mk-reveal">
+            <div className="mk-frame mk-frame-wide">
+              <Photo name="kitchen" sizes="(max-width: 1023px) 100vw, 46vw" />
+            </div>
+          </div>
+          <div>
+            <h2 className="mk-h2">
+              Custom on the outside.
+              <br />
+              <em>Connected behind the scenes.</em>
+            </h2>
+            <div className="mk-body">
+              <p>
+                Your website is individually designed. The tools behind it use
+                Klyvora’s shared, maintained software platform, configured for
+                your industry.
+              </p>
+              <p>
+                Reusing the software keeps initial development fees more
+                affordable. Your subscription covers hosted platform access,
+                standard updates, routine maintenance, and defined support.
+              </p>
+            </div>
           </div>
         </div>
+      </Section>
+      <Section id="equipment">
+        <HardwareNote />
       </Section>
       <FinalCta />
     </>

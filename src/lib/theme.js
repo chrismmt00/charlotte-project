@@ -9,7 +9,7 @@ import { THEME_KEY } from "./theme-script";
 const EVENT = "klyvora-theme-change";
 
 function read() {
-  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
 }
 
 function subscribe(cb) {
@@ -30,6 +30,6 @@ export function setTheme(t) {
 }
 
 export function useTheme() {
-  const theme = useSyncExternalStore(subscribe, read, () => "dark");
+  const theme = useSyncExternalStore(subscribe, read, () => "light");
   return [theme, setTheme];
 }

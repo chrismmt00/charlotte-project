@@ -6,15 +6,20 @@ import {
   Section,
   Price,
   FeatureList,
+  FeatureGrid,
+  FloatCard,
   HardwareNote,
   FaqSection,
   FinalCta,
+  Photo,
 } from "@/components/marketing/Parts";
 import {
   INDUSTRIES,
+  money,
   quoteHref,
   ADDITIONAL_COSTS,
 } from "@/lib/marketing/catalog";
+import { INDUSTRY_PHOTOS } from "@/lib/marketing/photos";
 import { pageMetadata } from "@/lib/marketing/seo";
 import { faqs } from "@/lib/marketing/faq";
 export function generateStaticParams() {
@@ -36,10 +41,38 @@ export async function generateMetadata({ params }) {
 }
 export default async function IndustryPage({ params }) {
   const s = await getService(params);
+  const [heroPhoto, , detailPhoto] = INDUSTRY_PHOTOS[s.id];
   return (
     <>
-      <PageIntro eyebrow={s.name} title={s.title} intro={s.description} />
-      <Section id="package" className="!pt-7">
+      <PageIntro
+        eyebrow={s.name}
+        title={s.title}
+        intro={s.description}
+        photo={heroPhoto}
+        floats={[
+          { label: "Included", text: s.features[1], tone: "success" },
+          { label: "Included", text: s.features[3] },
+        ]}
+      >
+        <ul className="mk-intro-chips">
+          <li className="mk-chip">
+            Setup from <strong>{money(s.setup)}</strong>
+          </li>
+          <li className="mk-chip">
+            <strong>{money(s.monthly)}</strong>/month software
+          </li>
+          {s.tablet && <li className="mk-chip">Tablet included</li>}
+        </ul>
+        <div className="mk-actions">
+          <Button href={quoteHref(s)}>
+            {s.cta} <span aria-hidden="true">↗</span>
+          </Button>
+          <Button href="#included" variant="secondary">
+            See What’s Included
+          </Button>
+        </div>
+      </PageIntro>
+      <Section id="package">
         <div className="mk-two-col">
           <div>
             <p className="eyebrow mk-eyebrow">Designed for your day</p>
@@ -47,21 +80,23 @@ export default async function IndustryPage({ params }) {
             <p className="mk-body">{s.fit}</p>
             <FeatureList items={s.outcomes} />
           </div>
-          <aside className="mk-note">
-            <p className="eyebrow mk-eyebrow">Your starting point</p>
-            <Price service={s} />
-            <p>
-              {s.tablet
-                ? "Includes one preselected compatible standard tablet, a basic stand, and initial configuration."
-                : "Initial store setup included. No physical tablet is included by default."}
-            </p>
-            <div className="mk-actions mt-6">
-              <Button href={quoteHref(s)}>{s.cta}</Button>
+          <aside className="mk-price-card">
+            <div>
+              <p className="eyebrow mk-eyebrow">Your starting point</p>
+              <Price service={s} />
+              <p>
+                {s.tablet
+                  ? "Includes one preselected compatible standard tablet, a basic stand, and initial configuration."
+                  : "Initial store setup included. No physical tablet is included by default."}
+              </p>
+              <div className="mk-actions mt-6">
+                <Button href={quoteHref(s)}>{s.cta}</Button>
+              </div>
+              <p className="mk-small mt-4">
+                USD · One location · Defined standard scope · Monthly
+                subscription required
+              </p>
             </div>
-            <p className="mk-small mt-4">
-              USD · One location · Defined standard scope · Monthly subscription
-              required
-            </p>
           </aside>
         </div>
       </Section>
@@ -72,15 +107,8 @@ export default async function IndustryPage({ params }) {
         title="The tools that belong together."
         intro="We design your website, configure your business tools, and set up access for your team as part of your project. Setup, testing, and guided onboarding are included, with the features and integrations confirmed in your written proposal."
       >
-        <div className="mk-two-col">
-          <FeatureList
-            items={s.features.slice(0, Math.ceil(s.features.length / 2))}
-          />
-          <FeatureList
-            items={s.features.slice(Math.ceil(s.features.length / 2))}
-          />
-        </div>
-        <div className="mk-note mt-8">
+        <FeatureGrid items={s.features} />
+        <div className="mk-note mk-note-callout mt-8">
           <h3 className="mk-h3">
             {s.id === "daycare"
               ? "Staff-led safety. Clearly defined access."
@@ -90,16 +118,30 @@ export default async function IndustryPage({ params }) {
           {s.dataCare && <p>{s.dataCare}</p>}
         </div>
       </Section>
-      <Section
-        id="hardware"
-        eyebrow="Equipment & connections"
-        title="Start with what works for you."
-        intro="We review your current equipment before recommending anything new. The following hardware and integrations are assessed and quoted separately."
-      >
-        <div className="mk-two-col">
-          <FeatureList items={s.hardware} />
+      <Section id="hardware">
+        <div className="mk-split mk-split-reverse">
+          <div>
+            <p className="eyebrow mk-eyebrow">Equipment & connections</p>
+            <h2 className="mk-h2">Start with what works for you.</h2>
+            <p className="mk-intro">
+              We review your current equipment before recommending anything new.
+              The following hardware and integrations are assessed and quoted
+              separately.
+            </p>
+            <FeatureList items={s.hardware} />
+          </div>
+          <div className="mk-split-media mk-reveal">
+            <div className="mk-frame mk-frame-tall">
+              <Photo
+                name={detailPhoto}
+                sizes="(max-width: 1023px) 100vw, 46vw"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mk-two-col mt-16 mb-10">
+          <h3 className="mk-h3">Compatibility comes first.</h3>
           <div className="mk-body">
-            <h3 className="mk-h3">Compatibility comes first.</h3>
             <p>
               Supported tablets, computers, displays, printers, and payment
               devices can be reused when integrations permit. We verify

@@ -1,8 +1,7 @@
 @import "tailwindcss";
 
 /* Klyvora design tokens. Source and rationale: docs/DESIGN-SYSTEM.md.
-   Dark is the default; light mode switches the same names via data-theme="light" on <html>. */
-:root,
+   Light is the default (Chris, 2026-11-15); dark mode switches the same names via data-theme="dark" on <html>. */
 [data-theme="dark"] {
   --bg: #0a0a0a;
   --bg-rgb: 10, 10, 10;
@@ -29,6 +28,7 @@
   color-scheme: dark;
 }
 
+:root,
 [data-theme="light"] {
   --bg: #fafafa;
   --bg-rgb: 250, 250, 250;

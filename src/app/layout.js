@@ -48,7 +48,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      data-theme="dark"
+      data-theme="light"
       suppressHydrationWarning
       className={`${inter.variable} ${instrumentSerif.variable} ${geistMono.variable} h-full antialiased`}
     >

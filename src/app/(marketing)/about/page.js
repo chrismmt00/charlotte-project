@@ -1,10 +1,23 @@
-import { PageIntro, Section, FinalCta } from "@/components/marketing/Parts";
+import {
+  PageIntro,
+  Section,
+  FinalCta,
+  Photo,
+} from "@/components/marketing/Parts";
 import { pageMetadata } from "@/lib/marketing/seo";
 export const metadata = pageMetadata(
   "About Klyvora Studio | Charlotte Web Design & Software",
   "Klyvora Studio is a Charlotte-based custom website and software company helping independent businesses connect their online presence and daily operations.",
   "/about",
 );
+const VALUES = [
+  [
+    "Understand",
+    "Understand how the business works before deciding what to build.",
+  ],
+  ["Build", "Build what the business needs, around its brand and its day."],
+  ["Keep it practical", "Keep the technology practical, supported, and clear."],
+];
 export default function AboutPage() {
   return (
     <>
@@ -13,7 +26,20 @@ export default function AboutPage() {
         title="Built for the businesses doing the everyday work."
         intro="Klyvora Studio is a Charlotte-based web design and software company focused on helping independent businesses operate more efficiently."
       />
-      <Section id="our-approach" className="!pt-7">
+      <section
+        aria-label="Charlotte, North Carolina"
+        className="px-6 max-sm:px-4"
+      >
+        <figure className="container-site mk-banner m-0 mk-reveal">
+          <Photo
+            name="charlotte"
+            priority
+            sizes="(max-width: 1240px) 100vw, 1200px"
+          />
+          <figcaption>Charlotte, North Carolina</figcaption>
+        </figure>
+      </section>
+      <Section id="our-approach">
         <div className="mk-two-col">
           <h2 className="mk-h2">
             Thoughtful design.
@@ -39,8 +65,17 @@ export default function AboutPage() {
             </p>
           </div>
         </div>
+        <div className="mk-values">
+          {VALUES.map(([title, body], i) => (
+            <article key={title} className="mk-reveal">
+              <span className="mk-step">0{i + 1}</span>
+              <h3>{title}</h3>
+              <p>{body}</p>
+            </article>
+          ))}
+        </div>
       </Section>
-      <FinalCta />
+      <FinalCta photo="meeting" />
     </>
   );
 }
