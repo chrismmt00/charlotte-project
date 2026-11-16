@@ -575,7 +575,12 @@ function WalkIns() {
           </button>
         }
       >
-        <div className="bd-table-wrap">
+        <div
+          className="bd-table-wrap"
+          tabIndex={0}
+          role="region"
+          aria-label="Scrollable table"
+        >
           <table className="bd-table">
             <thead>
               <tr>
@@ -759,7 +764,12 @@ function Services() {
         sub="What clients see on your booking page and the kiosk"
       />
       <Panel title="Menu">
-        <div className="bd-table-wrap">
+        <div
+          className="bd-table-wrap"
+          tabIndex={0}
+          role="region"
+          aria-label="Scrollable table"
+        >
           <table className="bd-table">
             <thead>
               <tr>
@@ -1539,7 +1549,12 @@ function Reports() {
         </Panel>
       </div>
       <Panel title="Technician performance">
-        <div className="bd-table-wrap">
+        <div
+          className="bd-table-wrap"
+          tabIndex={0}
+          role="region"
+          aria-label="Scrollable table"
+        >
           <table className="bd-table">
             <thead>
               <tr>
@@ -1569,7 +1584,12 @@ function Reports() {
         </div>
       </Panel>
       <Panel title="Appointments vs walk-ins">
-        <div className="bd-table-wrap">
+        <div
+          className="bd-table-wrap"
+          tabIndex={0}
+          role="region"
+          aria-label="Scrollable table"
+        >
           <table className="bd-table">
             <thead>
               <tr>
@@ -1628,7 +1648,12 @@ function Inventory() {
           key={kind}
           title={kind === "Supply" ? "Supplies" : "Retail products"}
         >
-          <div className="bd-table-wrap">
+          <div
+            className="bd-table-wrap"
+            tabIndex={0}
+            role="region"
+            aria-label="Scrollable table"
+          >
             <table className="bd-table">
               <thead>
                 <tr>

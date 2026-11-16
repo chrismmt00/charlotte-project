@@ -1,5 +1,9 @@
 "use client";
 
+import { Sheet } from "../kit";
+
+export { Sheet };
+
 import { useEffect, useRef, useState } from "react";
 import {
   CATEGORIES,
@@ -48,45 +52,6 @@ const SLOTS = [
 ];
 const taken = (d, s) => (d * 3 + s * 5) % 7 < 3;
 const DEPOSIT = 20;
-
-export function Sheet({ title, onClose, children }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    ref.current?.focus();
-  }, []);
-  return (
-    <div className="bd-sheet-wrap">
-      <button
-        type="button"
-        className="bd-sheet-scrim"
-        aria-label="Close"
-        onClick={onClose}
-        tabIndex={-1}
-      />
-      <div
-        className="bd-sheet"
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        tabIndex={-1}
-        ref={ref}
-      >
-        <div className="bd-sheet-head">
-          <h4 className="bd-serif">{title}</h4>
-          <button
-            type="button"
-            className="bd-icon-btn"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <Icon name="plus" size={18} className="bd-rot45" />
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
 
 function ApptCard({ a, onConfirm, onReschedule, onCancel }) {
   return (
@@ -1101,6 +1066,7 @@ function Me({ section }) {
               type="file"
               accept="image/*"
               className="bd-sr"
+              aria-label="Inspiration photo"
               onChange={(e) => {
                 const f = e.target.files?.[0];
                 if (f) setPhoto(URL.createObjectURL(f));

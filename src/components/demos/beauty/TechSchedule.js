@@ -198,7 +198,7 @@ function generated(techId, date, hours) {
 
 const usualHours = (state, techId, date) => state.hours[techId][weekday(date)];
 const dayHours = (state, techId, date) =>
-  state.dayHours[techId]?.[date] || usualHours(state, techId, date);
+  state.dayHours?.[techId]?.[date] || usualHours(state, techId, date);
 const timeOffOn = (state, techId, date) =>
   state.timeOff.find(
     (t) =>
@@ -249,7 +249,7 @@ function agenda(state, techId, date) {
       group: u.group,
       confirmed: u.confirmed,
     }));
-  const blocks = state.dayBlocks
+  const blocks = (state.dayBlocks || [])
     .filter((b) => b.tech === techId && b.date === date)
     .map((b) => ({ ...b, src: "block" }));
   const taken = [
@@ -380,7 +380,7 @@ function DayEditor({ techId, date, items, hours, onDone }) {
     bookings.length && (toMin(hStart) > firstStart || toMin(hEnd) < lastEnd);
   const [offReason, setOffReason] = useState("");
   const label = dayLabel(date);
-  const override = !!state.dayHours[techId]?.[date];
+  const override = !!state.dayHours?.[techId]?.[date];
 
   const tools = [
     ["break", "clock", "Add break"],
@@ -845,7 +845,7 @@ export default function TechSchedule({ techId, TodayDetail }) {
         ) : h.on ? (
           <span className="bd-status bd-tone-blush">
             {short(h.start)} – {h.end}
-            {state.dayHours[techId]?.[sel] ? " · changed" : ""}
+            {state.dayHours?.[techId]?.[sel] ? " · changed" : ""}
           </span>
         ) : (
           <span className="bd-status bd-tone-plain">Day off</span>
