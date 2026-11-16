@@ -2,7 +2,7 @@
 
 /* Klyvora design tokens. Source and rationale: docs/DESIGN-SYSTEM.md.
    Light is the default (Chris, 2026-11-15); dark mode switches the same names via data-theme="dark" on <html>. */
-[data-theme="dark"] {
+:root[data-theme="dark"] {
   --bg: #0a0a0a;
   --bg-rgb: 10, 10, 10;
   --bg-deep: #0d1015;
