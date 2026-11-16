@@ -93,8 +93,8 @@ export const SHARE = {
     chips: ["Check-in", "Parent app", "Teacher app", "Owner dashboard"],
   },
   contact: {
-    alt: "Get a quote from Klyvora Studio",
-    eyebrow: "Get a quote",
+    alt: "Start a project with Klyvora Studio",
+    eyebrow: "Start Project",
     title: "Tell us about your business.",
     em: "your business.",
     photo: "conversation",

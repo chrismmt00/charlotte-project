@@ -121,7 +121,7 @@ export default function SiteNav() {
                 scrolled ? "md:min-h-11" : "md:min-h-11"
               } ${pathname === "/contact" ? "bg-border" : ""}`}
             >
-              Get a Quote <span aria-hidden="true">↗</span>
+              Start Project <span aria-hidden="true">↗</span>
             </Link>
             <button
               ref={menuBtn}
@@ -231,7 +231,7 @@ export default function SiteNav() {
               onClick={close}
               className="rounded-full text-[15px] font-medium px-[30px] py-[15px] bg-fg text-bg flex items-center justify-center gap-2 min-h-[52px] box-border"
             >
-              Get a Quote <span aria-hidden="true">↗</span>
+              Start Project <span aria-hidden="true">↗</span>
             </Link>
             <div className="flex flex-wrap justify-between gap-2 text-sm text-muted">
               <span>Charlotte, NC</span>

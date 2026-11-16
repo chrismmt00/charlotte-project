@@ -430,7 +430,7 @@ export function FinalCta({ service, photo }) {
             </p>
             <div className="mk-actions">
               <Button href={service ? quoteHref(service) : "/contact"}>
-                {service ? service.cta : "Get Your Quote"}
+                {service ? service.cta : "Start Project"}
                 <span aria-hidden="true">↗</span>
               </Button>
               <a className="mk-email" href={CONTACT.emailHref}>

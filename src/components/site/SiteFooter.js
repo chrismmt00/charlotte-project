@@ -33,7 +33,7 @@ export default function SiteFooter() {
               href="/contact"
               className="footer-cta mt-2 rounded-full text-sm font-medium px-6 py-3 bg-fg text-bg inline-flex items-center gap-2 min-h-11 box-border transition-transform duration-300 hover:-translate-y-0.5"
             >
-              Get a Quote <span aria-hidden="true">↗</span>
+              Start Project <span aria-hidden="true">↗</span>
             </Link>
           </div>
           <div className="flex-[2_1_520px] min-w-0 flex flex-wrap gap-8">

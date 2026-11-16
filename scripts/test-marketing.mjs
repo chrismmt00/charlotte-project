@@ -266,7 +266,7 @@ try {
     (await page.locator("#quote-service").inputValue()) === "beauty",
     "Service CTA preselection",
   );
-  await page.getByRole("button", { name: "Request Your Quote" }).click();
+  await page.getByRole("button", { name: "Start Project", exact: true }).click();
   check(
     (await page.locator("#quote-name").getAttribute("aria-invalid")) === "true",
     "Accessible required field validation",
@@ -285,7 +285,7 @@ try {
   await page.locator("#quote-equipment").fill(valid.equipment);
   await page.locator("#quote-message").fill(valid.message);
   await page.route("**/api/quote", (route) => route.abort(), { times: 1 });
-  await page.getByRole("button", { name: "Request Your Quote" }).click();
+  await page.getByRole("button", { name: "Start Project", exact: true }).click();
   await page
     .getByRole("alert")
     .filter({ hasText: "couldn’t be sent" })
@@ -294,7 +294,7 @@ try {
     (await page.locator("#quote-message").inputValue()) === valid.message,
     "Submission failure preserves input",
   );
-  await page.getByRole("button", { name: "Request Your Quote" }).click();
+  await page.getByRole("button", { name: "Start Project", exact: true }).click();
   await page
     .getByRole("heading", { name: "Thanks. Your inquiry is on its way." })
     .waitFor();

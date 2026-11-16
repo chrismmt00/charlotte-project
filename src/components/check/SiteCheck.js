@@ -478,7 +478,7 @@ export default function SiteCheck() {
                       variant="secondary"
                       className="!px-6 !py-3 !min-h-11"
                     >
-                      Get a Quote
+                      Start Project
                     </Button>
                   </div>
                 </div>

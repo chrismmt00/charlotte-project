@@ -202,7 +202,7 @@ export const CUSTOM_SERVICES = [
     monthly: 49,
     href: "/websites",
     summary: "A professional website built around your business.",
-    cta: "Get a Website Quote",
+    cta: "Start Website Project",
     features: [
       "Custom responsive design",
       "Up to five standard pages",

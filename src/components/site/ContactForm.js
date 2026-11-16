@@ -307,7 +307,7 @@ function InquiryForm({ initialService }) {
         disabled={busy}
         className="sm:col-span-2 min-h-13 rounded-full p-4 text-sm font-medium bg-fg text-bg cursor-pointer disabled:opacity-60 disabled:cursor-wait"
       >
-        {busy ? "Sending your request…" : "Request Your Quote"}
+        {busy ? "Sending your request…" : "Start Project"}
       </button>
       <p className="sm:col-span-2 mk-small !m-0">
         We use these details to review and respond to your inquiry.{" "}
