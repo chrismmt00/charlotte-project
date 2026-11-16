@@ -74,6 +74,15 @@ export const SHARE = {
     photo: "charlotte",
     chips: ["Based in Charlotte, NC"],
   },
+  beautyDemo: {
+    alt: "Klyvora nail salon demo: walk-in kiosk, client app, technician app and owner dashboard",
+    eyebrow: "Live demo · Nail salons",
+    title: "Your salon, beautifully organized.",
+    em: "beautifully",
+    photo: "manicure",
+    float: { label: "Walk-ins", text: "Live queue and wait times" },
+    chips: ["Kiosk", "Client app", "Technician app", "Owner dashboard"],
+  },
   contact: {
     alt: "Get a quote from Klyvora Studio",
     eyebrow: "Get a quote",
