@@ -35,6 +35,8 @@ export const metadata = {
     type: "website",
     locale: "en_US",
   },
+  twitter: { card: "summary_large_image" },
+  appleWebApp: { title: "Klyvora" },
 };
 
 export const viewport = {
