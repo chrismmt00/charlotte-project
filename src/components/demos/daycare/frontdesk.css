@@ -1,0 +1,255 @@
+/* Daycare front desk tablet: keypad, child picker and staff verification. */
+
+.dc-flow-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 32px;
+  align-items: start;
+}
+.dc-flow-split > div:first-child {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.dc-pad {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 26px;
+  background: var(--p-card);
+  border: 1px solid var(--p-line);
+  box-shadow: var(--p-shadow);
+}
+.dc-pad-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  min-height: 18px;
+}
+.dc-pad-dots span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #a9cbee;
+}
+.dc-pad-dots span.is-on {
+  background: var(--p-rose);
+  border-color: var(--p-rose);
+}
+.dc-pad-keys {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.dc-pad-keys button {
+  display: grid;
+  place-items: center;
+  min-height: 58px;
+  border-radius: 18px;
+  border: 1px solid var(--p-line);
+  background: var(--p-cream);
+  font-size: 22px;
+  font-weight: 600;
+}
+.dc-pad-keys button:hover {
+  background: var(--p-blush);
+}
+.dc-pad-keys button[aria-label="Clear"] {
+  font-size: 14px;
+  font-weight: 500;
+}
+.dc-scan {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1.5px dashed #a9cbee;
+  background: var(--p-blush);
+  color: var(--p-rose-ink);
+  text-align: left;
+}
+.dc-scan strong {
+  display: block;
+  color: var(--p-ink);
+}
+.dc-scan:disabled {
+  opacity: 0.7;
+}
+.dc-kidpick {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.dc-kidcard {
+  justify-items: center;
+  gap: 6px;
+  padding: 18px 12px;
+  text-align: center;
+}
+.dc-kidcard .bd-pick-name {
+  padding: 0;
+  font-size: 16px;
+}
+.dc-kidcard:disabled {
+  opacity: 0.75;
+}
+.dc-kidcard .bd-hint {
+  text-align: center;
+}
+.dc-health {
+  margin-bottom: 12px;
+}
+.dc-staffpick {
+  margin-top: 12px;
+}
+.dc-staffbox {
+  display: grid;
+  gap: 4px;
+}
+.dc-modes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.dc-modes .bd-k-choice {
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 150px;
+}
+.dc-verify {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 16px;
+  margin-top: 8px;
+}
+.dc-verify .bd-card + .bd-card {
+  margin-top: 0;
+}
+.dc-verify-kid,
+.dc-verify-guest {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin: 10px 0;
+}
+.dc-verify-kid > span:nth-child(2),
+.dc-verify-guest > span:last-child {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+}
+.dc-verify-kid strong,
+.dc-verify-guest strong {
+  font-size: 18px;
+}
+.dc-guest-photo {
+  flex: none;
+  width: 110px;
+  height: 130px;
+  border-radius: 18px;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow:
+    0 0 0 1px var(--p-line),
+    var(--p-shadow);
+}
+.dc-guest-sample {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(160deg, #fff1c9, #ffe5dc);
+}
+.dc-checks {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 4px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--p-cream);
+}
+.dc-checks .bd-check {
+  align-items: flex-start;
+  font-size: 14.5px;
+}
+.dc-alert-box {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 12px 0 0;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #fde3e3;
+  color: #8a1f1f;
+  font-size: 14.5px;
+}
+.dc-alert-box svg {
+  flex: none;
+  margin-top: 1px;
+}
+.dc-alert-box .bd-hint {
+  margin-top: 6px;
+  color: #7a2a2a;
+}
+.dc-alert-big {
+  font-size: 16px;
+  border: 2px solid #e8a3a3;
+}
+.dc-alert-warn {
+  background: #fff1c9;
+  color: #5e4300;
+}
+.dc-locked {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 30px 20px;
+  border-radius: 26px;
+  background: #fde3e3;
+  color: #8a1f1f;
+  text-align: center;
+}
+.dc-desk-list {
+  display: grid;
+  gap: 6px;
+}
+.dc-desk-list .bd-eyebrow + * {
+  margin-top: 2px;
+}
+.dc-desk-list .bd-eyebrow:not(:first-child) {
+  margin-top: 10px;
+}
+.dc-desk-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 0;
+  font-size: 14.5px;
+}
+.dc-desk-row > span:nth-child(2) {
+  flex: 1;
+  font-weight: 600;
+}
+.bd.dc .bd-k-wait strong small {
+  font-size: 22px;
+  color: var(--p-muted);
+}
+.dc-wait {
+  background: var(--p-blush) !important;
+  color: var(--p-rose-ink) !important;
+}
+
+@media (max-width: 900px) {
+  .dc-flow-split,
+  .dc-verify,
+  .dc-modes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dc-modes .bd-k-choice {
+    min-height: 0;
+    flex-direction: row;
+    align-items: center;
+  }
+}

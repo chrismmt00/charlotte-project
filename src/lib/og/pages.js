@@ -83,6 +83,15 @@ export const SHARE = {
     float: { label: "Walk-ins", text: "Live queue and wait times" },
     chips: ["Kiosk", "Client app", "Technician app", "Owner dashboard"],
   },
+  daycareDemo: {
+    alt: "Klyvora daycare demo: check-in, secure guest pickup, parent app, teacher app and owner dashboard",
+    eyebrow: "Live demo · Childcare",
+    title: "Happy families. Safer pickups.",
+    em: "Safer",
+    photo: "daycare",
+    float: { label: "Pickup", text: "Staff verify every guest" },
+    chips: ["Check-in", "Parent app", "Teacher app", "Owner dashboard"],
+  },
   contact: {
     alt: "Get a quote from Klyvora Studio",
     eyebrow: "Get a quote",

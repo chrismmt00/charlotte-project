@@ -1,0 +1,285 @@
+/* Daycare teacher app. Builds on the shared bd-* demo styles and the .bd.dc theme. */
+
+.dc-t-big {
+  font-size: 30px;
+  line-height: 1;
+  margin-right: 4px;
+}
+.dc-t-ratio .bd-row-between {
+  font-size: 13.5px;
+  color: var(--p-muted);
+}
+.dc-t-meter {
+  height: 10px;
+  margin: 12px 0 10px;
+  border-radius: 999px;
+  background: #e9eff5;
+  overflow: hidden;
+}
+.dc-t-meter span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7fd1ae, #2e8f6a);
+}
+.dc-t-meter span.is-over {
+  background: linear-gradient(90deg, #f59a8a, #c0392b);
+}
+.dc-t-ratio-line,
+.dc-t-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0 0 6px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.dc-t-ratio-line svg,
+.dc-t-note svg {
+  flex: none;
+  margin-top: 2px;
+}
+.dc-t-alerts {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #fff1c9;
+  color: #5c4100;
+  font-size: 13.5px;
+}
+.dc-t-alerts-head {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+.dc-t-alerts ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+.dc-t-restrict {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 13.5px;
+}
+.dc-t-restrict svg {
+  flex: none;
+  margin-top: 2px;
+}
+.dc-t-roster {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.dc-t-kid {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--p-line);
+  background: #fff;
+  text-align: left;
+}
+.dc-t-kid:hover {
+  border-color: #a9cbee;
+}
+.dc-t-kid-main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+.dc-t-kid .bd-status {
+  white-space: normal;
+  text-align: right;
+}
+.dc-t-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.dc-t-log li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 14px;
+}
+.dc-t-log strong {
+  display: block;
+}
+.dc-t-inline {
+  display: inline;
+  font-weight: 400;
+}
+.dc-t-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  margin: 12px 0 16px;
+  padding: 4px;
+  border-radius: 16px;
+  background: var(--p-blush);
+  border: 1px solid var(--p-line);
+}
+.dc-t-tabs button {
+  min-height: 38px;
+  padding: 4px 2px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--p-muted);
+}
+.dc-t-tabs button[aria-pressed="true"] {
+  background: #fff;
+  color: var(--p-rose-dark);
+  box-shadow: 0 4px 12px -6px rgba(31, 66, 110, 0.4);
+}
+.dc-t-mini-btns {
+  display: inline-flex;
+  gap: 12px;
+}
+.dc-t-kidchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dc-t-kidchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 4px 12px 4px 5px;
+  border-radius: 999px;
+  border: 1.5px solid var(--p-line);
+  background: #fff;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.dc-t-kidchip[aria-pressed="true"] {
+  border-color: var(--p-rose);
+  background: #eef6fe;
+  color: var(--p-rose-dark);
+}
+.dc-t-kidchip .dc-kid {
+  border-width: 1px;
+}
+.dc-t-arts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.dc-t-arts button {
+  display: grid;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1.5px solid var(--p-line);
+  background: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.dc-t-arts button[aria-pressed="true"] {
+  border-color: var(--p-rose);
+  background: #eef6fe;
+}
+.dc-t-preview {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+.dc-t-nap .bd-row-btns {
+  margin-top: 6px;
+}
+.dc-t-med p {
+  margin: 4px 0;
+}
+.dc-t-med .bd-btn {
+  margin-top: 6px;
+}
+.dc-t-task {
+  display: flex;
+}
+.dc-t-task > span:first-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.dc-t-ai {
+  background: linear-gradient(135deg, #eef6fe, #fff8e1);
+  border-color: transparent;
+}
+.dc-t-ai .bd-eyebrow {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.dc-t-ai .bd-sub {
+  margin: 8px 0 14px;
+}
+.dc-t-draft {
+  display: grid;
+  gap: 8px;
+}
+.dc-t-draft textarea {
+  font-size: 14px;
+  line-height: 1.45;
+}
+.dc-t-sched {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.dc-t-sched li {
+  display: grid;
+  grid-template-columns: 130px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--p-line);
+  font-size: 13.5px;
+}
+.dc-t-sched li > span:first-child {
+  color: var(--p-muted);
+  font-size: 12.5px;
+}
+.dc-t-sched li.is-now {
+  border-color: var(--p-rose);
+  background: #eef6fe;
+}
+.dc-t-sched li.is-past {
+  background: #f6f8fa;
+  color: var(--p-muted);
+}
+.dc-t-help {
+  margin-top: 16px;
+}
+@media (max-width: 400px) {
+  .dc-t-sched li {
+    grid-template-columns: 1fr auto;
+  }
+  .dc-t-sched li > span:first-child {
+    grid-column: 1 / -1;
+  }
+}

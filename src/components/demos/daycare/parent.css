@@ -1,0 +1,457 @@
+/* Daycare parent app and guest pickup pass (both phone views). */
+
+.bd.dc .dc-nav5 {
+  grid-template-columns: repeat(5, 1fr);
+  padding-inline: 4px;
+}
+.bd.dc .dc-nav5 button {
+  font-size: 11px;
+}
+.dc-p-gap {
+  margin-top: 12px;
+}
+.dc-p-switch {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0 12px;
+}
+.dc-p-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 14px 4px 5px;
+  border-radius: 999px;
+  border: 1.5px solid var(--p-line);
+  background: var(--p-card);
+  font-weight: 600;
+}
+.dc-p-switch button[aria-pressed="true"] {
+  border-color: var(--p-rose);
+  background: #eef6fe;
+}
+.dc-p-switch .dc-kid {
+  border-width: 1px;
+}
+.dc-p-child {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 10px;
+}
+.dc-p-child::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 6px;
+}
+.dc-p-child-lilac::before {
+  background: #b9a7f0;
+}
+.dc-p-child-coral::before {
+  background: #ff9f80;
+}
+.dc-p-child-sun::before {
+  background: #ffcf5c;
+}
+.dc-p-child-mint::before {
+  background: #7fd1ae;
+}
+.dc-p-child-top {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.dc-p-child-top > span {
+  display: grid;
+  gap: 4px;
+}
+.dc-p-child-top strong {
+  font-size: 28px;
+  line-height: 1;
+}
+.dc-p-status {
+  margin: 0;
+  font-size: 14.5px;
+}
+.dc-p-last,
+.dc-p-guestcard,
+.dc-p-threadrow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+}
+.dc-p-last {
+  padding: 10px;
+  border-radius: 14px;
+  border: 0;
+  background: var(--p-cream);
+}
+.dc-p-last > span:not(.dc-kind):not(.dc-person),
+.dc-p-guestcard > span:not(.dc-kind):not(.dc-person),
+.dc-p-threadrow > span:not(.dc-kind):not(.dc-person) {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.dc-p-threadrow .bd-hint {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dc-p-incident {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #fff4ef;
+  border-color: #ffd2c2;
+}
+.dc-p-incident > span:nth-child(2) {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+.dc-p-guestcard {
+  background: #fffaf0;
+}
+.dc-p-news {
+  display: grid;
+  gap: 4px;
+}
+.dc-p-report {
+  margin: 0 0 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--p-cream);
+  font-size: 14.5px;
+}
+.dc-p-notices {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.dc-p-notices li {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--p-card);
+  border: 1px solid var(--p-line);
+  font-size: 14px;
+}
+.dc-p-notices svg {
+  flex: none;
+  color: var(--p-rose-ink);
+  margin-top: 2px;
+}
+.dc-p-summary p {
+  margin: 8px 0;
+}
+.dc-p-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 12px 0 16px;
+}
+.dc-p-tiles > div {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  padding: 10px 4px;
+  border-radius: 16px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.25;
+}
+.dc-p-tiles strong {
+  font-size: 18px;
+}
+.dc-p-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.dc-p-feed li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  border-radius: 18px;
+  background: var(--p-card);
+  border: 1px solid var(--p-line);
+}
+.dc-p-feed li > div {
+  display: grid;
+  gap: 4px;
+}
+.dc-p-feed li.is-milestone {
+  background: #fffaf0;
+  border-color: #ffe39a;
+}
+.dc-p-feed li.is-incident {
+  background: #fff4ef;
+  border-color: #ffd2c2;
+}
+.dc-p-feed-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.dc-p-feed .dc-art,
+.dc-p-feed img.dc-art {
+  margin: 4px 0;
+  max-height: 180px;
+  object-fit: cover;
+}
+.dc-p-thread .bd-sms {
+  margin: 14px 0;
+}
+.dc-p-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+.dc-p-guest {
+  display: grid;
+  gap: 4px;
+}
+.dc-p-guest-top {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.dc-p-guest-top > span:nth-child(2) {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+.dc-p-guest-top .bd-status {
+  white-space: normal;
+  text-align: center;
+  max-width: 110px;
+}
+.dc-p-guest .bd-row-btns {
+  margin-top: 10px;
+}
+.dc-p-pass {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 10px 0 16px;
+  text-align: center;
+}
+.dc-p-balance {
+  display: grid;
+  gap: 8px;
+}
+.dc-p-balance strong {
+  font-size: 40px;
+  line-height: 1;
+}
+.dc-p-cal {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.dc-p-cal > span:last-child {
+  display: grid;
+  gap: 2px;
+}
+.dc-p-date {
+  flex: none;
+  display: grid;
+  justify-items: center;
+  width: 54px;
+  padding: 6px 0;
+  border-radius: 14px;
+  background: #fff1c9;
+  color: #6f4f00;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.dc-p-date strong {
+  font-size: 22px;
+  line-height: 1.1;
+}
+.dc-p-sig {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 22px !important;
+}
+
+/* Guest pass */
+.dc-g-sms {
+  display: grid;
+  gap: 14px;
+}
+.dc-g-smshead {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--p-line);
+}
+.dc-g-smshead > span:last-child {
+  display: grid;
+}
+.dc-g-who {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.dc-g-who .bd-row-gap > span:last-child {
+  display: grid;
+  gap: 2px;
+}
+.dc-g-photo img {
+  max-height: 180px;
+  width: auto;
+  border-radius: 16px;
+}
+.dc-g-pass {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 20px 18px;
+  border-radius: 28px;
+  background: linear-gradient(170deg, #fff8e1, #fff 40%);
+  border: 1px solid #ffe39a;
+  box-shadow: var(--p-shadow);
+}
+.dc-g-pass .bd-dl {
+  width: 100%;
+  margin: 4px 0 0;
+}
+.dc-g-pass-top {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+.dc-g-pass-top > span {
+  display: grid;
+}
+.dc-g-code {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+}
+.dc-g-void {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 18px 10px;
+  text-align: center;
+  font-size: 14px;
+}
+.dc-g-pass.is-revoked,
+.dc-g-pass.is-expired {
+  background: #fff5f5;
+  border-color: #f2b8b8;
+}
+.dc-g-pass.is-revoked .dc-g-void,
+.dc-g-pass.is-expired .dc-g-void {
+  color: #8a1f1f;
+}
+.dc-g-pass.is-used {
+  background: #f1fbf6;
+  border-color: #a7dfc4;
+}
+.dc-g-pass.is-used .dc-g-void {
+  color: #1d6447;
+}
+
+/* Classroom camera */
+.dc-p-cam {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin-top: 10px;
+}
+.dc-p-cam-thumb {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.dc-p-cam-thumb .dc-cam-scene,
+.dc-p-feed-view .dc-cam-scene {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.dc-p-cam.is-off .dc-cam-scene {
+  filter: grayscale(1) blur(2px);
+  opacity: 0.55;
+}
+.dc-p-cam-lock {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--p-ink);
+}
+.dc-p-cam-text {
+  display: grid;
+  gap: 2px;
+}
+.dc-p-live {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(31, 45, 61, 0.85);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.dc-p-live span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff6b5a;
+}
+.dc-p-feed-view {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  margin: 6px 0 8px;
+}
+.dc-p-feed-view .dc-p-live {
+  top: 10px;
+  left: 10px;
+  font-size: 12px;
+}
+.dc-p-camrules {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+.dc-p-camrules li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.dc-p-camrules svg {
+  flex: none;
+  margin-top: 2px;
+  color: #2e8f6a;
+}

@@ -90,6 +90,7 @@ export const INDUSTRIES = [
       "Multi-location management",
     ],
     tablet: true,
+    demo: "/demo/daycare",
     fit: "For childcare centers that want a professional website, clearer family communication, and better organized daily records. We shape the setup around your classrooms, staff responsibilities, and parent communication needs.",
     caution:
       "A PIN or QR code alone must never authorize release of a child. Pickup requires verified authorization, staff confirmation, appropriate identity checks, applicable custody restrictions, and an auditable handoff. Software does not replace staff supervision or guarantee child safety.",
