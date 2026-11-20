@@ -1,5 +1,13 @@
 import { z } from "zod";
-import { SERVICES, serviceById, money, recurringLabel } from "./catalog.js";
+import {
+  SERVICES,
+  serviceById,
+  money,
+  recurringLabel,
+  LAUNCH_OFFER,
+  setupPrice,
+  launchDetails,
+} from "./catalog.js";
 
 export const INDUSTRY_OPTIONS = [
   "Restaurants & Cafes",
@@ -50,7 +58,10 @@ export function leadPayload(inquiry) {
     `Service: ${service?.name || "Not sure yet"}`,
     ...(service
       ? [
-          `Published starting price (USD): ${money(service.setup)} setup; ${recurringLabel(service)}. Final scope subject to written proposal.`,
+          `Published starting price (USD): ${money(setupPrice(service))} setup${LAUNCH_OFFER.active ? ` with launch offer (regular setup ${money(service.setup)})` : ""}; ${recurringLabel(service)}. Final scope subject to written proposal.`,
+          ...(LAUNCH_OFFER.active
+            ? [`Offer requested, not reserved: ${launchDetails()}`]
+            : []),
         ]
       : []),
     `Existing hardware or software: ${inquiry.equipment || "Not specified"}`,

@@ -11,6 +11,9 @@ import {
   money,
   recurringLabel,
   quoteHref,
+  setupPrice,
+  LAUNCH_OFFER,
+  launchQualifier,
 } from "@/lib/marketing/catalog";
 import {
   CHECKS,
@@ -27,7 +30,7 @@ const serviceForCode = (code) =>
     { W1: "websites", W2: "websites", WB: "beauty", AI: "automation" }[code],
   );
 const priceLine = (service) =>
-  `from ${money(service.setup)} setup; ${recurringLabel(service)}`;
+  `from ${money(setupPrice(service))} setup; ${recurringLabel(service)}${LAUNCH_OFFER.active ? ` · ${launchQualifier()}` : ""}`;
 
 function Spinner({ size = 16 }) {
   return (
@@ -302,7 +305,8 @@ export default function SiteCheck() {
             href="/websites"
             className="text-accent-light hover:text-fg underline underline-offset-2"
           >
-            Start with a {starter.name} at {money(starter.setup)}
+            Start with a {starter.name} from {money(setupPrice(starter))}
+            {LAUNCH_OFFER.active ? ` · ${launchQualifier()}` : ""}
           </Link>
           , or{" "}
           <Link

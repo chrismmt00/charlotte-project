@@ -10,14 +10,27 @@ import {
   Photo,
   Process,
 } from "@/components/marketing/Parts";
-import { CUSTOM_SERVICES, money } from "@/lib/marketing/catalog";
+import {
+  CUSTOM_SERVICES,
+  money,
+  setupPrice,
+  LAUNCH_OFFER,
+  launchMetadata,
+} from "@/lib/marketing/catalog";
+import {
+  LaunchOffer,
+  SetupAmount,
+  OfferQualifier,
+} from "@/components/marketing/SetupPrice";
 import { SERVICE_PHOTOS } from "@/lib/marketing/photos";
 import { pageMetadata } from "@/lib/marketing/seo";
 import { CONTACT, SITE_URL } from "@/lib/site";
 
 export const metadata = pageMetadata(
   "Custom Websites & Business Software | Klyvora Studio",
-  "Custom website design and connected business software for small businesses in Charlotte and beyond. Explore industry solutions, transparent pricing, and practical automation.",
+  launchMetadata(
+    "Custom website design and connected business software for small businesses in Charlotte and beyond. Explore industry solutions and practical automation.",
+  ),
   "/",
 );
 
@@ -102,6 +115,7 @@ export default function Home() {
               to customers and daily operations, we bring the important parts
               together.
             </p>
+            <LaunchOffer />
             <div className="mk-actions">
               <Button href="/solutions">
                 Explore Industry Solutions <span aria-hidden="true">↗</span>
@@ -226,12 +240,16 @@ export default function Home() {
                 />
                 <span className="mk-card-badge">
                   <IndustryIcon id={s.id} size={16} />
-                  From {money(s.setup)}
+                  {LAUNCH_OFFER.active ? "Launch setup from " : "From "}
+                  {money(setupPrice(s))}
                 </span>
               </div>
               <h3>{s.id === "software" ? "Custom Software" : s.name}</h3>
               <p>
-                {s.summary} Starting at {money(s.setup)}.
+                {s.summary}{" "}
+                {LAUNCH_OFFER.active ? "Launch setup from " : "Starting at "}
+                <SetupAmount service={s} />.
+                <OfferQualifier />
               </p>
               <Link className="mk-text-link" href={s.href}>
                 {s.id === "websites"

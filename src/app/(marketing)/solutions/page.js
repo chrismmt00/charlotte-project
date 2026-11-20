@@ -8,15 +8,19 @@ import {
 } from "@/components/marketing/Parts";
 import Button from "@/components/ui/Button";
 import { pageMetadata } from "@/lib/marketing/seo";
+import { launchMetadata } from "@/lib/marketing/catalog";
 export const metadata = pageMetadata(
   "Industry Business Software Solutions | Klyvora Studio",
-  "Compare websites and business software for restaurants, childcare centers, salons, and online stores. Clear setup pricing, subscriptions, and hardware guidance.",
+  launchMetadata(
+    "Compare websites and business software for restaurants, childcare centers, salons, and online stores. Clear setup pricing, subscriptions, and hardware guidance.",
+  ),
   "/solutions",
 );
 export default function SolutionsPage() {
   return (
     <>
       <PageIntro
+        promotion
         eyebrow="Industry solutions"
         title="Business software built for your industry."
         intro="From appointment-based businesses to restaurants and online stores, Klyvora connects a custom website to the tools you need to manage daily operations. Choose your industry to see what’s included."

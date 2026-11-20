@@ -10,6 +10,8 @@ import {
   CUSTOM_SERVICES,
   PUBLIC_PAGES,
   money,
+  setupPrice,
+  LAUNCH_OFFER,
 } from "../src/lib/marketing/catalog.js";
 import { MARKETING_REDIRECTS } from "../src/lib/marketing/redirects.js";
 
@@ -233,6 +235,8 @@ try {
     const card = page.locator(`.mk-industry-${service.id}`);
     check(
       (await card.innerText()).includes(money(service.setup)) &&
+        (await card.innerText()).includes(money(setupPrice(service))) &&
+        (await card.innerText()).includes("first 10 customers") &&
         (await card.innerText()).includes(`${money(service.monthly)}/month`),
       `${service.id} pricing`,
     );
@@ -252,6 +256,33 @@ try {
     ) === JSON.stringify(expectedPrices),
     "Official prices match specification",
   );
+  check(
+    JSON.stringify(
+      [...INDUSTRIES, ...CUSTOM_SERVICES].map((s) => setupPrice(s)),
+    ) === JSON.stringify([1000, 499.5, 499.5, 499.5, 499.5, 249.5, 1249.5]),
+    "Launch prices halve setup fees exactly, including cents",
+  );
+  check(
+    money(499.5) === "$499.50" &&
+      money(249.5) === "$249.50" &&
+      money(1000) === "$1,000",
+    "Launch prices preserve half-dollar precision",
+  );
+  check(
+    [...INDUSTRIES, ...CUSTOM_SERVICES].every(
+      (s) => setupPrice(s, { ...LAUNCH_OFFER, active: false }) === s.setup,
+    ),
+    "Disabling offer restores regular setup prices",
+  );
+  check(
+    (await page.locator("#launch-offer").innerText()).includes(
+      "proposal is signed",
+    ) &&
+      (await page.locator("#launch-offer").innerText()).includes(
+        "kickoff payment",
+      ),
+    "Offer reservation requires signed proposal and kickoff payment",
+  );
   for (const route of ["/privacy", "/terms"]) {
     await page.goto(base + route);
     check(
@@ -266,7 +297,9 @@ try {
     (await page.locator("#quote-service").inputValue()) === "beauty",
     "Service CTA preselection",
   );
-  await page.getByRole("button", { name: "Start Project", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Start Project", exact: true })
+    .click();
   check(
     (await page.locator("#quote-name").getAttribute("aria-invalid")) === "true",
     "Accessible required field validation",
@@ -285,7 +318,9 @@ try {
   await page.locator("#quote-equipment").fill(valid.equipment);
   await page.locator("#quote-message").fill(valid.message);
   await page.route("**/api/quote", (route) => route.abort(), { times: 1 });
-  await page.getByRole("button", { name: "Start Project", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Start Project", exact: true })
+    .click();
   await page
     .getByRole("alert")
     .filter({ hasText: "couldn’t be sent" })
@@ -294,7 +329,9 @@ try {
     (await page.locator("#quote-message").inputValue()) === valid.message,
     "Submission failure preserves input",
   );
-  await page.getByRole("button", { name: "Start Project", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Start Project", exact: true })
+    .click();
   await page
     .getByRole("heading", { name: "Thanks. Your inquiry is on its way." })
     .waitFor();
@@ -304,6 +341,8 @@ try {
       lead.message.includes(valid.equipment) &&
       lead.message.includes("Beauty & Wellness") &&
       lead.message.includes("$999") &&
+      lead.message.includes("$499.50") &&
+      lead.message.includes("Offer requested, not reserved") &&
       lead.message.includes("$99/month"),
     "Lead persisted with selected service, published pricing, equipment, and project",
   );

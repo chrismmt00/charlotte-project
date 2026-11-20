@@ -265,8 +265,32 @@ export const money = (value) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
   }).format(value);
+
+// Marketing offer only. Base rates, signed proposals, subscriptions, and billing are unchanged.
+// Customer eligibility is confirmed in the proposal; no unverified remaining-spots count is exposed.
+// Disable after the first ten qualifying customers have claimed the offer.
+export const LAUNCH_OFFER = {
+  active: true,
+  discountPercent: 50,
+  customerLimit: 10,
+};
+export const setupPrice = (service, offer = LAUNCH_OFFER) =>
+  offer.active
+    ? Math.round(service.setup * 100 * (1 - offer.discountPercent / 100)) / 100
+    : service.setup;
+export const launchHeadline = () =>
+  `${LAUNCH_OFFER.discountPercent}% off setup for our first ${LAUNCH_OFFER.customerLimit} customers.`;
+export const launchQualifier = () =>
+  `Launch offer · first ${LAUNCH_OFFER.customerLimit} customers · setup fees only.`;
+export const launchDetails = () =>
+  `To celebrate our launch, our first ${LAUNCH_OFFER.customerLimit} customers across all services receive ${LAUNCH_OFFER.discountPercent}% off the agreed one-time setup fee. Monthly subscriptions, usage charges, and separately quoted hardware or third-party costs are not discounted. We confirm eligibility, scope, and the discounted setup fee in your written proposal. Your spot is reserved when the proposal is signed and the kickoff payment is received. Submitting an inquiry alone does not reserve a spot. Payment milestones apply to the discounted setup fee.`;
+export const launchMetadata = (description) =>
+  LAUNCH_OFFER.active
+    ? `${description} Launch offer: ${LAUNCH_OFFER.discountPercent}% off setup for the first ${LAUNCH_OFFER.customerLimit} customers. Monthly fees unchanged.`
+    : description;
 export const quoteHref = (service) => `/contact?service=${service.id}`;
 export function recurringLabel(service) {
   if (service.kind === "industry")

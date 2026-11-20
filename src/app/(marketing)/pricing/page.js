@@ -16,12 +16,16 @@ import {
   quoteHref,
   ADDITIONAL_COSTS,
   STANDARD_SCOPE,
+  launchMetadata,
 } from "@/lib/marketing/catalog";
+import { LaunchOffer } from "@/components/marketing/SetupPrice";
 import { faqs } from "@/lib/marketing/faq";
 import { pageMetadata } from "@/lib/marketing/seo";
 export const metadata = pageMetadata(
   "Custom Website & Business Software Pricing | Klyvora",
-  "Compare Klyvora’s setup and subscription pricing for industry solutions, custom websites, AI automation, and custom software. All prices in USD; final scope confirmed in writing.",
+  launchMetadata(
+    "Compare Klyvora’s setup and subscription pricing for industry solutions, custom websites, AI automation, and custom software. All prices in USD; final scope confirmed in writing.",
+  ),
   "/pricing",
 );
 // [icon path, title, body] for the "what you pay for" cards.
@@ -43,6 +47,7 @@ export default function PricingPage() {
   return (
     <>
       <PageIntro
+        promotion
         eyebrow="Pricing · USD"
         title="Simple pricing. Software built around your business."
         intro="Pay once for design and setup, then a monthly subscription for hosted business software where applicable. Choose your industry or service to see the starting price. Your final proposal will confirm the exact scope, equipment, and any additional integration costs."
@@ -110,6 +115,7 @@ export default function PricingPage() {
             </article>
           ))}
         </div>
+        <LaunchOffer id="launch-offer" detailed />
         <div className="mk-cover-grid">
           {COVERS.map(([icon, title, body]) => (
             <article key={title} className="mk-reveal">
@@ -176,7 +182,7 @@ export default function PricingPage() {
         </details>
       </Section>
       <FaqSection
-        items={faqs("setup", "monthly", "hardware", "fees", "data")}
+        items={faqs("launch", "setup", "monthly", "hardware", "fees", "data")}
       />
       <FinalCta />
     </>

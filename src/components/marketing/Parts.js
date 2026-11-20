@@ -9,6 +9,7 @@ import {
   quoteHref,
   recurringLabel,
   PROCESS,
+  LAUNCH_OFFER,
 } from "@/lib/marketing/catalog";
 import {
   PHOTOS,
@@ -16,6 +17,7 @@ import {
   photoUrl,
   photoSrcSet,
 } from "@/lib/marketing/photos";
+import { SetupAmount, OfferQualifier, LaunchOffer } from "./SetupPrice";
 
 export function IndustryIcon({ id, size = 28 }) {
   const paths = {
@@ -157,6 +159,7 @@ export function PageIntro({
   photoAlt,
   floats = [],
   mosaic,
+  promotion = false,
 }) {
   const visual = mosaic ? (
     <div className="mk-mosaic">
@@ -194,6 +197,7 @@ export function PageIntro({
           <p className="eyebrow mk-eyebrow">{eyebrow}</p>
           <h1 className="mk-h1">{title}</h1>
           <p className="mk-intro">{intro}</p>
+          {promotion && <LaunchOffer />}
           {children}
         </div>
         {visual}
@@ -206,15 +210,20 @@ export function Price({ service, compact = false }) {
   return (
     <div className={`mk-price ${compact ? "mk-price-compact" : ""}`}>
       <span className="mk-price-label">
-        {service.kind === "industry" ? "Starting setup" : "Starting from"}
+        {LAUNCH_OFFER.active
+          ? `Launch setup from · ${LAUNCH_OFFER.discountPercent}% off`
+          : service.kind === "industry"
+            ? "Starting setup"
+            : "Starting from"}
       </span>
       <div>
-        <strong>{money(service.setup)}</strong>
+        <SetupAmount service={service} />
         <span>
           {service.kind === "industry" ? " one time" : " project setup"}
         </span>
       </div>
       <p>{recurringLabel(service)}</p>
+      <OfferQualifier />
     </div>
   );
 }
@@ -304,8 +313,10 @@ export function IndustryCards({ detailed = false, pricing = false }) {
               </>
             ) : (
               <p className="mk-card-price">
-                Starting at <strong>{money(service.setup)}</strong> +{" "}
+                {LAUNCH_OFFER.active ? "Launch setup from " : "Starting at "}
+                <SetupAmount service={service} /> +{" "}
                 <strong>{money(service.monthly)}/month</strong>
+                <OfferQualifier />
               </p>
             )}
             <span className="mk-text-link" aria-hidden="true">

@@ -3,15 +3,19 @@ import { PageIntro, Section, Photo } from "@/components/marketing/Parts";
 import ContactForm from "@/components/site/ContactForm";
 import { CONTACT } from "@/lib/site";
 import { pageMetadata } from "@/lib/marketing/seo";
+import { launchMetadata } from "@/lib/marketing/catalog";
 export const metadata = pageMetadata(
   "Start a Website or Software Project | Klyvora Studio",
-  "Tell Klyvora Studio about your business, website, existing equipment, and project. Request a quote for a website, industry software, or automation.",
+  launchMetadata(
+    "Tell Klyvora Studio about your business, website, existing equipment, and project. Request a quote for a website, industry software, or automation.",
+  ),
   "/contact",
 );
 export default function ContactPage() {
   return (
     <>
       <PageIntro
+        promotion
         eyebrow="Start Project"
         title="Tell us about your business."
         intro="Whether you need a custom website, business management software, or an automation, tell us what you’re trying to improve. We’ll help define the right solution and next steps."

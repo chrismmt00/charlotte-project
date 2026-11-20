@@ -6,9 +6,11 @@ import Field, { inputClass } from "@/components/ui/Field";
 import {
   SERVICES,
   serviceById,
-  money,
   recurringLabel,
+  LAUNCH_OFFER,
+  launchQualifier,
 } from "@/lib/marketing/catalog";
+import { SetupAmount } from "@/components/marketing/SetupPrice";
 import { INDUSTRY_OPTIONS, inquirySchema } from "@/lib/marketing/inquiry";
 import { CONTACT } from "@/lib/site";
 
@@ -224,12 +226,16 @@ function InquiryForm({ initialService }) {
       {selected && (
         <div className="mk-note sm:col-span-2 !p-4">
           <p>
-            <strong>
-              {selected.name}: from {money(selected.setup)} setup.
-            </strong>
+            {selected.name}: setup from <SetupAmount service={selected} />.
             <br />
             {recurringLabel(selected)}.
           </p>
+          {LAUNCH_OFFER.active && (
+            <p>
+              {launchQualifier()} Your spot is reserved after a signed proposal
+              and kickoff payment, not by submitting this form.
+            </p>
+          )}
           {selected.kind === "industry" && (
             <p>
               Your project includes website design, software configuration, and

@@ -12,22 +12,26 @@ import {
 } from "@/components/marketing/Parts";
 import {
   serviceById,
-  money,
+  launchMetadata,
   quoteHref,
   STANDARD_SCOPE,
 } from "@/lib/marketing/catalog";
+import { SetupAmount } from "@/components/marketing/SetupPrice";
 import { faqs } from "@/lib/marketing/faq";
 import { pageMetadata } from "@/lib/marketing/seo";
 const service = serviceById("websites");
 export const metadata = pageMetadata(
-  `Custom Business Websites Starting at $${service.setup} | Klyvora`,
-  "Custom small business website design in Charlotte. Responsive design, up to five pages, a contact form, and basic SEO. Optional managed hosting and maintenance.",
+  "Custom Business Websites | Klyvora Studio",
+  launchMetadata(
+    "Custom small business website design in Charlotte. Responsive design, up to five pages, a contact form, and basic SEO. Optional managed hosting and maintenance.",
+  ),
   "/websites",
 );
 export default function WebsitesPage() {
   return (
     <>
       <PageIntro
+        promotion
         eyebrow="Custom websites"
         title="A website that looks like your business, not everyone else’s."
         intro="Your website should make a strong first impression and help customers find what they need. Klyvora designs responsive, custom websites around your brand, services, and goals, with clear navigation, thoughtful design, and the information customers need to get in touch."
@@ -44,7 +48,7 @@ export default function WebsitesPage() {
       >
         <ul className="mk-intro-chips">
           <li className="mk-chip">
-            Starting from <strong>{money(service.setup)}</strong>
+            Setup from <SetupAmount service={service} />
           </li>
           <li className="mk-chip">Up to five pages</li>
           <li className="mk-chip">No required subscription</li>

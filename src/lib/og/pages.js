@@ -3,13 +3,20 @@ import {
   CUSTOM_SERVICES,
   money,
   serviceById,
+  setupPrice,
+  LAUNCH_OFFER,
 } from "@/lib/marketing/catalog";
 import { INDUSTRY_PHOTOS } from "@/lib/marketing/photos";
 import { CONTACT } from "@/lib/site";
 
 // What each page's link preview shows. Headlines, labels and features are the
 // page's own copy; prices come from the catalog so previews never drift from it.
-const lowest = (list) => money(Math.min(...list.map((s) => s.setup)));
+const lowest = (list) => money(Math.min(...list.map((s) => setupPrice(s))));
+const offerChips = LAUNCH_OFFER.active
+  ? [
+      `${LAUNCH_OFFER.discountPercent}% off setup · first ${LAUNCH_OFFER.customerLimit} customers`,
+    ]
+  : [];
 const web = serviceById("websites");
 const auto = serviceById("automation");
 const soft = serviceById("software");
@@ -22,7 +29,9 @@ export const SHARE = {
     em: "One system",
     photo: "owner",
     float: { label: "Orders", text: "Online ordering for pickup" },
-    chips: ["Custom design", "Straightforward setup", "Charlotte, NC"],
+    chips: LAUNCH_OFFER.active
+      ? [...offerChips, "Custom design", "Charlotte, NC"]
+      : ["Custom design", "Straightforward setup", "Charlotte, NC"],
   },
   solutions: {
     alt: "Klyvora industry solutions for restaurants, childcare, beauty and retail",
@@ -30,7 +39,7 @@ export const SHARE = {
     title: "Business software built for your industry.",
     em: "your industry.",
     mosaic: ["cafe", "daycare", "nails", "packing"],
-    chips: [`Setup from ${lowest(INDUSTRIES)}`, "4 industries"],
+    chips: [...offerChips, `Setup from ${lowest(INDUSTRIES)}`, "4 industries"],
   },
   pricing: {
     alt: "Klyvora pricing for industry solutions and custom services",
@@ -40,6 +49,7 @@ export const SHARE = {
     photo: "cafeOwner",
     float: { label: "Setup", text: "Pay once for design and setup" },
     chips: [
+      ...offerChips,
       `Industry solutions from ${lowest(INDUSTRIES)}`,
       `Custom services from ${lowest(CUSTOM_SERVICES)}`,
     ],
@@ -51,7 +61,8 @@ export const SHARE = {
     em: "your business,",
     photo: "website",
     chips: [
-      `From ${money(web.setup)} project setup`,
+      ...offerChips,
+      `From ${money(setupPrice(web))} project setup`,
       "Two design revision rounds",
     ],
   },
@@ -62,8 +73,9 @@ export const SHARE = {
     em: "More room to focus.",
     photo: "office",
     chips: [
-      `AI automation from ${money(auto.setup)}`,
-      `Custom software from ${money(soft.setup)}`,
+      ...offerChips,
+      `AI setup from ${money(setupPrice(auto))}`,
+      `Custom setup from ${money(setupPrice(soft))}`,
     ],
   },
   about: {
@@ -111,7 +123,8 @@ export function industryShare(s) {
     photo,
     float: { label: "Included", text: s.features[1] },
     chips: [
-      `Setup from ${money(s.setup)}`,
+      ...offerChips,
+      `Setup from ${money(setupPrice(s))}`,
       `${money(s.monthly)}/month`,
       ...(s.tablet ? ["Tablet included"] : []),
     ],

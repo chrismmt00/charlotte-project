@@ -18,7 +18,9 @@ import {
   money,
   quoteHref,
   ADDITIONAL_COSTS,
+  launchMetadata,
 } from "@/lib/marketing/catalog";
+import { SetupAmount } from "@/components/marketing/SetupPrice";
 import { INDUSTRY_PHOTOS } from "@/lib/marketing/photos";
 import { pageMetadata } from "@/lib/marketing/seo";
 import { faqs } from "@/lib/marketing/faq";
@@ -35,7 +37,9 @@ export async function generateMetadata({ params }) {
   const s = await getService(params);
   return pageMetadata(
     s.seo,
-    `${s.summary} Custom website design, software setup, and onboarding for your business. Explore setup and monthly subscription pricing.`,
+    launchMetadata(
+      `${s.summary} Custom website design, software setup, and onboarding for your business. Explore setup and monthly subscription pricing.`,
+    ),
     s.href,
   );
 }
@@ -45,6 +49,7 @@ export default async function IndustryPage({ params }) {
   return (
     <>
       <PageIntro
+        promotion
         eyebrow={s.name}
         title={s.title}
         intro={s.description}
@@ -56,7 +61,7 @@ export default async function IndustryPage({ params }) {
       >
         <ul className="mk-intro-chips">
           <li className="mk-chip">
-            Setup from <strong>{money(s.setup)}</strong>
+            Setup from <SetupAmount service={s} />
           </li>
           <li className="mk-chip">
             <strong>{money(s.monthly)}</strong>/month software

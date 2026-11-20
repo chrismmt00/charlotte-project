@@ -1,4 +1,9 @@
+import { LAUNCH_OFFER, launchDetails } from "./catalog.js";
 export const FAQ = {
+  launch: {
+    q: "How does the launch offer work?",
+    a: launchDetails(),
+  },
   setup: {
     q: "Why is the setup price lower than traditional custom software?",
     a: "Klyvora builds and maintains reusable business software instead of developing every system from scratch. Your website is customized, while the underlying platform is shared and continually improved.",
@@ -36,4 +41,7 @@ export const FAQ = {
     a: "We can review your existing website and determine whether a redesign, integration, or custom configuration is the best option. Compatibility and scope are assessed before quoting.",
   },
 };
-export const faqs = (...keys) => keys.map((key) => FAQ[key]);
+export const faqs = (...keys) =>
+  keys
+    .filter((key) => key !== "launch" || LAUNCH_OFFER.active)
+    .map((key) => FAQ[key]);

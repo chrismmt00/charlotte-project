@@ -10,22 +10,26 @@ import {
 } from "@/components/marketing/Parts";
 import {
   serviceById,
-  money,
+  launchMetadata,
   quoteHref,
   ADDITIONAL_COSTS,
 } from "@/lib/marketing/catalog";
+import { SetupAmount } from "@/components/marketing/SetupPrice";
 import { pageMetadata } from "@/lib/marketing/seo";
 const automation = serviceById("automation"),
   software = serviceById("software");
 export const metadata = pageMetadata(
   "AI Automation & Custom Business Apps | Klyvora",
-  "Practical AI automation, custom web applications, dashboards, and integrations for small businesses. Defined scope, human oversight, and clear starting prices.",
+  launchMetadata(
+    "Practical AI automation, custom web applications, dashboards, and integrations for small businesses. Defined scope, human oversight, and clear starting prices.",
+  ),
   "/ai-software",
 );
 export default function AiSoftwarePage() {
   return (
     <>
       <PageIntro
+        promotion
         eyebrow="AI & software"
         title="Practical tools. More room to focus."
         intro="Connect the work that happens between your website, your team, and the tools you already use. Start with one defined workflow, or scope a custom application around your business."
@@ -38,10 +42,10 @@ export default function AiSoftwarePage() {
       >
         <ul className="mk-intro-chips">
           <li className="mk-chip">
-            Automations from <strong>{money(automation.setup)}</strong>
+            Automations from <SetupAmount service={automation} />
           </li>
           <li className="mk-chip">
-            Custom apps from <strong>{money(software.setup)}</strong>
+            Custom apps from <SetupAmount service={software} />
           </li>
         </ul>
         <div className="mk-actions">

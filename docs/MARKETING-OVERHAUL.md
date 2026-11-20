@@ -14,7 +14,15 @@ No schema migrations or production data changes are included. Authentication, ap
 
 ## Navigation and sitemap
 
-Main navigation: Industry Solutions, Custom Websites, AI & Software, Pricing, and Get a Quote. About, Contact, legal information, and client sign-in remain in the footer.
+### November 20 launch offer
+
+The owner authorized 50% off one-time setup fees across all services for the first ten customers in total. A spot is reserved only after a signed proposal and receipt of the kickoff payment, as confirmed by the owner. Monthly fees, usage, and separately quoted hardware or third-party costs are not discounted. The normal payment milestones apply to the discounted setup fee.
+
+Regular setup rates remain in `src/lib/marketing/catalog.js`. `LAUNCH_OFFER` and `setupPrice` control promotional display prices, including exact cents: restaurants $1,000; childcare, beauty, ecommerce, and standalone websites from $499.50; AI automation from $249.50; custom software from $1,249.50. All monthly prices are unchanged. Marketing pages, demos, inquiry summaries, saved lead details, and link previews use the same offer data. Final project scope and eligibility are confirmed in writing; the discount is not automatically applied to a signed contract or Stripe charge.
+
+Track the ten qualifying customers internally when their proposals are signed and kickoff payments received. Turn `LAUNCH_OFFER.active` off and deploy when the ten spots have been claimed. No customer count or remaining-spots indicator is inferred from inquiries, and none is displayed. Existing client contracts, operational offer records, subscriptions, authentication, and business APIs are unchanged.
+
+Main navigation: Industry Solutions, Custom Websites, AI & Software, Pricing, and Start Project. About, Contact, legal information, and client sign-in remain in the footer.
 
 Indexable routes:
 

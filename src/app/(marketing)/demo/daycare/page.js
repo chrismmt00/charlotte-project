@@ -3,6 +3,7 @@ import { FinalCta, Section } from "@/components/marketing/Parts";
 import DaycareDemo from "@/components/demos/daycare/DaycareDemo";
 import { Icon } from "@/components/demos/kit";
 import { INDUSTRIES, money, quoteHref } from "@/lib/marketing/catalog";
+import { SetupAmount, LaunchOffer } from "@/components/marketing/SetupPrice";
 import { pageMetadata } from "@/lib/marketing/seo";
 
 const daycare = INDUSTRIES.find((s) => s.id === "daycare");
@@ -121,10 +122,11 @@ export default function DaycareDemoPage() {
             Grandma for pickup, and watch staff verify her before anyone is
             released.
           </p>
+          <LaunchOffer />
           <ul className="mk-intro-chips">
             <li className="mk-chip">5 connected views</li>
             <li className="mk-chip">
-              Setup from <strong>{money(daycare.setup)}</strong>
+              Setup from <SetupAmount service={daycare} />
             </li>
             <li className="mk-chip">
               <strong>{money(daycare.monthly)}</strong>/month

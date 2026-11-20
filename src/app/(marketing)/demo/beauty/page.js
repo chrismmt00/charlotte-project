@@ -2,6 +2,7 @@ import Button from "@/components/ui/Button";
 import { FinalCta, Section } from "@/components/marketing/Parts";
 import BeautyDemo from "@/components/demos/beauty/BeautyDemo";
 import { INDUSTRIES, money, quoteHref } from "@/lib/marketing/catalog";
+import { SetupAmount, LaunchOffer } from "@/components/marketing/SetupPrice";
 import { pageMetadata } from "@/lib/marketing/seo";
 
 const beauty = INDUSTRIES.find((s) => s.id === "beauty");
@@ -91,10 +92,11 @@ export default function BeautyDemoPage() {
             you. Tap around: check in as a walk-in, book a set, run a
             technician’s day, and watch it all land in the owner dashboard.
           </p>
+          <LaunchOffer />
           <ul className="mk-intro-chips">
             <li className="mk-chip">4 connected views</li>
             <li className="mk-chip">
-              Setup from <strong>{money(beauty.setup)}</strong>
+              Setup from <SetupAmount service={beauty} />
             </li>
             <li className="mk-chip">
               <strong>{money(beauty.monthly)}</strong>/month
